@@ -4,7 +4,8 @@ const cities = {
   ATL: { name: "Atlanta*", x: 20, y: 70, color: "blue", links: ["CHI","MAD"], cubes: 0, station: true },
   CHI: { name: "Chicago", x: 28, y: 55, color: "blue", links: ["ATL","PAR"], cubes: 0 },
   PAR: { name: "Paris",   x: 62, y: 50, color: "blue", links: ["CHI","MAD"], cubes: 0 },
-  MAD: { name: "Madrid",  x: 58, y: 62, color: "blue", links: ["ATL","PAR"], cubes: 0 }
+  MAD: { name: "Madrid",  x: 58, y: 62, color: "blue", links: ["ATL","PAR"], cubes: 0 },
+  SAN: { name: "San Diego",  x: 40, y: 62, color: "blue", links: ["CHI","ATL"], cubes: 0 }
 };
 // positions are in viewport %
 
