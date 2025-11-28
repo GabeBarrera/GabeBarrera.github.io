@@ -1,47 +1,243 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>COVID-19: The Game</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iOS Location Demo</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color-scheme: light dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: radial-gradient(circle at top, #1f2933 0, #020617 55%);
+      color: #e5e7eb;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 1.25rem;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    p.subtitle {
+      margin: 0 0 1.25rem;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #22c55e;
+      color: #022c22;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        background 0.12s ease;
+      box-shadow: 0 12px 24px rgba(34, 197, 94, 0.28);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      box-shadow: none;
+    }
+
+    #status {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      min-height: 1.2em;
+      color: #e5e7eb;
+    }
+
+    #status.error {
+      color: #f97373;
+    }
+
+    #output {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.9rem;
+    }
+
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      gap: 0.75rem;
+    }
+
+    .kv span.label {
+      color: #9ca3af;
+    }
+
+    a#mapsLink {
+      display: inline-flex;
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      text-decoration: none;
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: #e5e7eb;
+    }
+
+    a#mapsLink:hover {
+      text-decoration: underline;
+    }
+
+    .hint {
+      margin-top: 0.8rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>COVID-19</h1>
-    <div id="status"></div>
-  </header>
+  <main class="card">
+    <h1>Use My Location</h1>
+    <p class="subtitle">
+      Tap the button and allow location access. Works on iOS when served over
+      HTTPS.
+    </p>
 
-  <main>
-    <section id="board"></section>
-    <aside id="panel">
-      <div class="section">
-        <h2>Actions <span id="actionsLeft">4</span></h2>
-        <button id="btnMove" disabled>Move</button>
-        <button id="btnTreat" disabled>Treat</button>
-        <button id="btnCure" disabled>Cure (need 3 cards)</button>
-        <button id="btnEnd" disabled>End Turn</button>
+    <button id="locBtn" type="button">
+      📍 Share my location
+    </button>
+
+    <div id="status"></div>
+
+    <section id="output" hidden>
+      <div class="kv">
+        <span class="label">Latitude</span>
+        <span id="lat"></span>
       </div>
-      <div class="section">
-        <h2>Player</h2>
-        <div id="hand"></div>
+      <div class="kv">
+        <span class="label">Longitude</span>
+        <span id="lng"></span>
       </div>
-      <div class="section">
-        <h2>Game</h2>
-        <div>Outbreaks: <span id="outbreaks">0</span> / 7</div>
-        <div>Infection Rate: <span id="infectionRate">2</span> / turn</div>
-        <div>Cured: <span id="cured">No</span></div>
+      <div class="kv">
+        <span class="label">Accuracy</span>
+        <span id="acc"></span>
       </div>
-      <div class="section small">
-        <p>Tip: click a city to select it. Move to linked cities. Treat reduces cubes by 1. Cure at Atlanta with 3 blue cards.</p>
-      </div>
-    </aside>
+      <a id="mapsLink" href="#" target="_blank" rel="noopener noreferrer">
+        Open in Maps
+      </a>
+      <p class="hint">
+        On iOS, this will typically open Apple Maps. On desktop, it may open
+        the default maps provider.
+      </p>
+    </section>
   </main>
 
-  <footer>
-    <small>Demo mechanics only. Made with love for Splat from Torbi.</small>
-  </footer>
+  <script>
+    const locBtn = document.getElementById("locBtn");
+    const statusEl = document.getElementById("status");
+    const outputEl = document.getElementById("output");
+    const latEl = document.getElementById("lat");
+    const lngEl = document.getElementById("lng");
+    const accEl = document.getElementById("acc");
+    const mapsLinkEl = document.getElementById("mapsLink");
 
-  <script type="module" src="script.js"></script>
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message || "";
+      statusEl.classList.toggle("error", Boolean(isError));
+    }
+
+    function handleSuccess(position) {
+      const { latitude, longitude, accuracy } = position.coords;
+
+      const lat = latitude.toFixed(6);
+      const lng = longitude.toFixed(6);
+      const acc = Math.round(accuracy);
+
+      latEl.textContent = lat;
+      lngEl.textContent = lng;
+      accEl.textContent = acc + " m";
+
+      // Apple Maps style URL; still works fine elsewhere.
+      mapsLinkEl.href = `https://maps.apple.com/?ll=${lat},${lng}&q=My+Location`;
+
+      outputEl.hidden = false;
+      setStatus("Location retrieved successfully.");
+      locBtn.disabled = false;
+      locBtn.textContent = "📍 Share my location again";
+    }
+
+    function handleError(error) {
+      let message = "Unable to get your location.";
+
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          message = "Location permission denied. Check iOS app/Browser settings.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = "Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          message = "Request timed out. Try again.";
+          break;
+      }
+
+      setStatus(message, true);
+      locBtn.disabled = false;
+      locBtn.textContent = "📍 Try again";
+    }
+
+    function requestLocation() {
+      if (!("geolocation" in navigator)) {
+        setStatus("Geolocation is not supported in this browser.", true);
+        return;
+      }
+
+      setStatus("Requesting your location…");
+      locBtn.disabled = true;
+      locBtn.textContent = "Getting location…";
+
+      navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      });
+    }
+
+    locBtn.addEventListener("click", requestLocation);
+  </script>
 </body>
 </html>
