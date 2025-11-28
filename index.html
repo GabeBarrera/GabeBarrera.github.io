@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iOS Location Demo</title>
+  <title>Live Location Tracker</title>
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -72,6 +72,12 @@
       box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
     }
 
+    button.stop {
+      background: #f97316;
+      box-shadow: 0 12px 24px rgba(248, 113, 22, 0.28);
+      color: #111827;
+    }
+
     button:disabled {
       opacity: 0.6;
       cursor: wait;
@@ -127,19 +133,62 @@
       font-size: 0.75rem;
       color: #6b7280;
     }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.5rem;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+      animation: pulse 1.2s infinite alternate;
+    }
+
+    .dot.idle {
+      background: #6b7280;
+      box-shadow: none;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      from {
+        transform: scale(0.9);
+        opacity: 0.7;
+      }
+      to {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
   <main class="card">
-    <h1>Use My Location</h1>
+    <h1>Live Location Tracker</h1>
     <p class="subtitle">
-      Tap the button and allow location access. Works on iOS when served over
-      HTTPS.
+      Start tracking to see your location update as you move. Works on iOS over
+      HTTPS with location permission granted.
     </p>
 
     <button id="locBtn" type="button">
-      📍 Share my location
+      📍 Start live tracking
     </button>
+
+    <div class="badge">
+      <span class="dot idle" id="liveDot"></span>
+      <span id="liveLabel">Not tracking</span>
+    </div>
 
     <div id="status"></div>
 
@@ -156,12 +205,16 @@
         <span class="label">Accuracy</span>
         <span id="acc"></span>
       </div>
+      <div class="kv">
+        <span class="label">Last update</span>
+        <span id="ts"></span>
+      </div>
       <a id="mapsLink" href="#" target="_blank" rel="noopener noreferrer">
         Open in Maps
       </a>
       <p class="hint">
-        On iOS, this will typically open Apple Maps. On desktop, it may open
-        the default maps provider.
+        iOS will usually open Apple Maps. Location updates continue while this
+        page is in the foreground.
       </p>
     </section>
   </main>
@@ -173,16 +226,38 @@
     const latEl = document.getElementById("lat");
     const lngEl = document.getElementById("lng");
     const accEl = document.getElementById("acc");
+    const tsEl = document.getElementById("ts");
     const mapsLinkEl = document.getElementById("mapsLink");
+    const liveDot = document.getElementById("liveDot");
+    const liveLabel = document.getElementById("liveLabel");
+
+    let watchId = null;
 
     function setStatus(message, isError = false) {
       statusEl.textContent = message || "";
       statusEl.classList.toggle("error", Boolean(isError));
     }
 
+    function formatTime(date) {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
+
+    function updateLiveIndicator(active) {
+      if (active) {
+        liveDot.classList.remove("idle");
+        liveLabel.textContent = "Tracking live";
+      } else {
+        liveDot.classList.add("idle");
+        liveLabel.textContent = "Not tracking";
+      }
+    }
+
     function handleSuccess(position) {
       const { latitude, longitude, accuracy } = position.coords;
-
       const lat = latitude.toFixed(6);
       const lng = longitude.toFixed(6);
       const acc = Math.round(accuracy);
@@ -190,14 +265,12 @@
       latEl.textContent = lat;
       lngEl.textContent = lng;
       accEl.textContent = acc + " m";
+      tsEl.textContent = formatTime(new Date());
 
-      // Apple Maps style URL; still works fine elsewhere.
-      mapsLinkEl.href = `https://maps.apple.com/?ll=${lat},${lng}&q=My+Location`;
+      mapsLinkEl.href = `https://maps.apple.com/?ll=${lat},${lng}&q=My+Live+Location`;
 
       outputEl.hidden = false;
-      setStatus("Location retrieved successfully.");
-      locBtn.disabled = false;
-      locBtn.textContent = "📍 Share my location again";
+      setStatus("Location updated.");
     }
 
     function handleError(error) {
@@ -211,33 +284,54 @@
           message = "Location information is unavailable.";
           break;
         case error.TIMEOUT:
-          message = "Request timed out. Try again.";
+          message = "Location request timed out.";
           break;
       }
 
       setStatus(message, true);
-      locBtn.disabled = false;
-      locBtn.textContent = "📍 Try again";
     }
 
-    function requestLocation() {
+    function startTracking() {
       if (!("geolocation" in navigator)) {
         setStatus("Geolocation is not supported in this browser.", true);
         return;
       }
 
-      setStatus("Requesting your location…");
-      locBtn.disabled = true;
-      locBtn.textContent = "Getting location…";
+      if (watchId !== null) {
+        // already tracking
+        return;
+      }
 
-      navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
+      setStatus("Starting live tracking…");
+      updateLiveIndicator(true);
+      locBtn.textContent = "🛑 Stop live tracking";
+      locBtn.classList.add("stop");
+
+      watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
+        maximumAge: 2000,   // allow a couple seconds of cache
+        timeout: 15000      // per-update timeout
       });
     }
 
-    locBtn.addEventListener("click", requestLocation);
+    function stopTracking() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      setStatus("Tracking stopped.");
+      updateLiveIndicator(false);
+      locBtn.textContent = "📍 Start live tracking";
+      locBtn.classList.remove("stop");
+    }
+
+    locBtn.addEventListener("click", () => {
+      if (watchId === null) {
+        startTracking();
+      } else {
+        stopTracking();
+      }
+    });
   </script>
 </body>
 </html>
