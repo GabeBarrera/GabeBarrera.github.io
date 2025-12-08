@@ -217,6 +217,10 @@
         page is in the foreground.
       </p>
     </section>
+
+    <div style="margin-top:1rem; display:flex; justify-content:center;">
+      <button id="budgetBtn" type="button">💰 Open Budget Calculator</button>
+    </div>
   </main>
 
   <script>
@@ -332,6 +336,13 @@
         stopTracking();
       }
     });
+
+    const budgetBtn = document.getElementById("budgetBtn");
+    if (budgetBtn) {
+      budgetBtn.addEventListener("click", () => {
+        window.location.href = "budget.html";
+      });
+    }
   </script>
 </body>
 </html>

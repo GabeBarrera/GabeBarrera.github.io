@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budget Calculator</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color-scheme: light dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: radial-gradient(circle at top, #1f2933 0, #020617 55%);
+      color: #e5e7eb;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 1.25rem;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    p.subtitle {
+      margin: 0 0 1.25rem;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .controls {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(148,163,184,0.18);
+      background: rgba(255,255,255,0.02);
+      color: #e5e7eb;
+      font-size: 0.95rem;
+    }
+
+    .expenses {
+      margin-top: 1rem;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .expense-row {
+      display: grid;
+      grid-template-columns: 1fr 120px 40px;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .expense-row button {
+      padding: 0.45rem;
+      border-radius: 0.5rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(148,163,184,0.12);
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+
+    .row-actions {
+      display:flex;
+      gap:0.5rem;
+      margin-top:0.75rem;
+    }
+
+    .button-row {
+      margin-top: 0.9rem;
+      display:flex;
+      gap:0.6rem;
+      flex-wrap:wrap;
+    }
+
+    button.primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #22c55e;
+      color: #022c22;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        background 0.12s ease;
+      box-shadow: 0 12px 24px rgba(34, 197, 94, 0.28);
+    }
+
+    button.ghost {
+      padding: 0.65rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.3);
+      background: transparent;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-weight:600;
+    }
+
+    #results {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.95rem;
+    }
+
+    .kv { display:flex; justify-content:space-between; gap:0.75rem; margin-bottom:0.5rem;}
+    .kv .label { color:#9ca3af }
+    .small { font-size:0.85rem; color:#9ca3af }
+    /* Print styles: hide app chrome and show only printable area */
+    @media print {
+      body * { visibility: hidden !important; }
+      #printArea, #printArea * { visibility: visible !important; }
+      #printArea { position: static !important; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
+    }
+
+    /* printable area styling */
+    #printArea { background: #fff; color: #111; padding: 1.25rem; border-radius: 6px; }
+    #printArea h2 { margin-top: 0; color: #111; }
+    #printArea .kv { color: #111; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Budget Calculator</h1>
+    <p class="subtitle">Enter your monthly income and expenses to see totals and remaining amount.</p>
+
+    <div>
+      <label for="income">Monthly Income</label>
+      <input id="income" type="number" min="0" step="0.01" placeholder="0.00">
+    </div>
+
+    <div class="expenses" id="expenses">
+      <!-- dynamic expense rows go here -->
+    </div>
+
+    <div class="row-actions">
+      <button id="addExpense" class="ghost" type="button">+ Add expense</button>
+      <div class="button-row">
+          <button id="calcBtn" class="primary" type="button">Calculate</button>
+          <button id="resetBtn" class="ghost" type="button">Reset</button>
+          <button id="printBtn" class="ghost" type="button" disabled>Print Summary</button>
+          <button id="exportBtn" class="ghost" type="button" disabled>Export PDF</button>
+        </div>
+    </div>
+
+    <section id="results" hidden>
+      <div class="kv">
+        <span class="label">Total Expenses</span>
+        <span id="totalExp">$0.00</span>
+      </div>
+      <div class="kv">
+        <span class="label">Remaining</span>
+        <span id="remaining">$0.00</span>
+      </div>
+      <div id="breakdown"></div>
+      <p class="small">Tip: Add categories and amounts, then press Calculate.</p>
+    </section>
+    <div id="printArea" style="display:none;"></div>
+
+    <div style="margin-top:1rem; display:flex; justify-content:center;">
+      <button id="backBtn" class="ghost" type="button">← Back</button>
+    </div>
+  </main>
+
+  <script>
+    const expensesEl = document.getElementById('expenses');
+    const incomeEl = document.getElementById('income');
+    const addExpenseBtn = document.getElementById('addExpense');
+    const calcBtn = document.getElementById('calcBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const printBtn = document.getElementById('printBtn');
+    const resultsSection = document.getElementById('results');
+    const totalExpEl = document.getElementById('totalExp');
+    const remainingEl = document.getElementById('remaining');
+    const breakdownEl = document.getElementById('breakdown');
+    const printArea = document.getElementById('printArea');
+    const backBtn = document.getElementById('backBtn');
+
+    function createExpenseRow(name = '', amount = '') {
+      const row = document.createElement('div');
+      row.className = 'expense-row';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.placeholder = 'Category (e.g., Rent)';
+      nameInput.value = name;
+
+      const amtInput = document.createElement('input');
+      amtInput.type = 'number';
+      amtInput.min = '0';
+      amtInput.step = '0.01';
+      amtInput.placeholder = '0.00';
+      amtInput.value = amount;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = '✕';
+      removeBtn.title = 'Remove';
+      removeBtn.addEventListener('click', () => row.remove());
+
+      row.appendChild(nameInput);
+      row.appendChild(amtInput);
+      row.appendChild(removeBtn);
+
+      return row;
+    }
+
+    // start with two sample rows
+    expensesEl.appendChild(createExpenseRow('Rent', ''));
+    expensesEl.appendChild(createExpenseRow('Groceries', ''));
+
+    addExpenseBtn.addEventListener('click', () => {
+      expensesEl.appendChild(createExpenseRow());
+    });
+
+    function formatCurrency(num) {
+      return '$' + Number(num || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    calcBtn.addEventListener('click', () => {
+      const income = parseFloat(incomeEl.value) || 0;
+      const rows = Array.from(expensesEl.querySelectorAll('.expense-row'));
+      let total = 0;
+      const items = [];
+
+      rows.forEach(r => {
+        const name = r.children[0].value.trim() || 'Other';
+        const amt = parseFloat(r.children[1].value) || 0;
+        total += amt;
+        items.push({name, amt});
+      });
+
+      totalExpEl.textContent = formatCurrency(total);
+      const remaining = income - total;
+      remainingEl.textContent = formatCurrency(remaining);
+
+      // breakdown
+      breakdownEl.innerHTML = '';
+      if (items.length > 0) {
+        items.forEach(it => {
+          const p = document.createElement('div');
+          p.className = 'kv';
+          const label = document.createElement('span');
+          label.className = 'label';
+          label.textContent = it.name;
+          const val = document.createElement('span');
+          const pct = total > 0 ? Math.round((it.amt/total)*100) : 0;
+          val.textContent = `${formatCurrency(it.amt)} • ${pct}%`;
+          p.appendChild(label);
+          p.appendChild(val);
+          breakdownEl.appendChild(p);
+        });
+      }
+
+      resultsSection.hidden = false;
+      // build printable summary
+      const parts = [];
+      parts.push(`<h2>Budget Summary</h2>`);
+      parts.push(`<div class="kv"><span class="label">Monthly Income</span><span>${formatCurrency(income)}</span></div>`);
+      parts.push(`<div class="kv"><span class="label">Total Expenses</span><span>${formatCurrency(total)}</span></div>`);
+      parts.push(`<div class="kv"><span class="label">Remaining</span><span>${formatCurrency(remaining)}</span></div>`);
+      parts.push('<hr>');
+      parts.push('<h3>Breakdown</h3>');
+      parts.push('<div>');
+      items.forEach(it => {
+        const pct = total > 0 ? Math.round((it.amt/total)*100) : 0;
+        parts.push(`<div class="kv"><span class="label">${escapeHtml(it.name)}</span><span>${formatCurrency(it.amt)} • ${pct}%</span></div>`);
+      });
+      parts.push('</div>');
+      printArea.innerHTML = parts.join('');
+      printArea.style.display = 'block';
+      if (printBtn) printBtn.disabled = false;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      incomeEl.value = '';
+      expensesEl.innerHTML = '';
+      expensesEl.appendChild(createExpenseRow('Rent',''));
+      expensesEl.appendChild(createExpenseRow('Groceries',''));
+      resultsSection.hidden = true;
+      printArea.innerHTML = '';
+      printArea.style.display = 'none';
+      if (printBtn) printBtn.disabled = true;
+    });
+
+    backBtn.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    if (printBtn) {
+      printBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        // Open a new window containing the printable HTML and trigger print
+        const html = `
+          <!doctype html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Budget Summary</title>
+            <style>
+              body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color:#111; padding:20px; }
+              h2 { margin-top:0 }
+              .kv { display:flex; justify-content:space-between; margin-bottom:8px }
+              .label { color:#333 }
+              hr { margin:12px 0 }
+            </style>
+          </head>
+          <body>
+            ${printArea.innerHTML}
+            <script>
+              window.onload = function() {
+                setTimeout(function(){ window.print(); }, 50);
+              };
+              window.onafterprint = function(){ window.close(); };
+            <\/script>
+          </body>
+          </html>`;
+
+        const w = window.open('', '_blank');
+        if (!w) {
+          alert('Popup blocked. Allow popups to export PDF.');
+          return;
+        }
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+      });
+    }
+
+    // small helper to escape HTML for print
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function (s) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[s];
+      });
+    }
+  </script>
+</body>
+</html>
