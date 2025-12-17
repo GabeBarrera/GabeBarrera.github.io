@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Location Tracker</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color-scheme: light dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: radial-gradient(circle at top, #1f2933 0, #020617 55%);
+      color: #e5e7eb;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 1.25rem;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    p.subtitle {
+      margin: 0 0 1.25rem;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #22c55e;
+      color: #022c22;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        background 0.12s ease;
+      box-shadow: 0 12px 24px rgba(34, 197, 94, 0.28);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+    }
+
+    button.stop {
+      background: #f97316;
+      box-shadow: 0 12px 24px rgba(248, 113, 22, 0.28);
+      color: #111827;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      box-shadow: none;
+    }
+
+    #status {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      min-height: 1.2em;
+      color: #e5e7eb;
+    }
+
+    #status.error {
+      color: #f97373;
+    }
+
+    #output {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.9rem;
+    }
+
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      gap: 0.75rem;
+    }
+
+    .kv span.label {
+      color: #9ca3af;
+    }
+
+    a#mapsLink {
+      display: inline-flex;
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      text-decoration: none;
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: #e5e7eb;
+    }
+
+    a#mapsLink:hover {
+      text-decoration: underline;
+    }
+
+    .hint {
+      margin-top: 0.8rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.5rem;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+      animation: pulse 1.2s infinite alternate;
+    }
+
+    .dot.idle {
+      background: #6b7280;
+      box-shadow: none;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      from {
+        transform: scale(0.9);
+        opacity: 0.7;
+      }
+      to {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Live Location Tracker</h1>
+    <p class="subtitle">
+      Start tracking to see your location update as you move. Works on iOS over
+      HTTPS with location permission granted.
+    </p>
+
+    <button id="locBtn" type="button">
+      📍 Start live tracking
+    </button>
+
+    <div class="badge">
+      <span class="dot idle" id="liveDot"></span>
+      <span id="liveLabel">Not tracking</span>
+    </div>
+
+    <div id="status"></div>
+
+    <section id="output" hidden>
+      <div class="kv">
+        <span class="label">Latitude</span>
+        <span id="lat"></span>
+      </div>
+      <div class="kv">
+        <span class="label">Longitude</span>
+        <span id="lng"></span>
+      </div>
+      <div class="kv">
+        <span class="label">Accuracy</span>
+        <span id="acc"></span>
+      </div>
+      <div class="kv">
+        <span class="label">Last update</span>
+        <span id="ts"></span>
+      </div>
+      <a id="mapsLink" href="#" target="_blank" rel="noopener noreferrer">
+        Open in Maps
+      </a>
+      <p class="hint">
+        iOS will usually open Apple Maps. Location updates continue while this
+        page is in the foreground.
+      </p>
+    </section>
+
+    <div style="margin-top:1rem; display:flex; justify-content:center;">
+      <button id="budgetBtn" type="button">💰 Open Budget Calculator</button>
+    </div>
+  </main>
+
+  <script>
+    const locBtn = document.getElementById("locBtn");
+    const statusEl = document.getElementById("status");
+    const outputEl = document.getElementById("output");
+    const latEl = document.getElementById("lat");
+    const lngEl = document.getElementById("lng");
+    const accEl = document.getElementById("acc");
+    const tsEl = document.getElementById("ts");
+    const mapsLinkEl = document.getElementById("mapsLink");
+    const liveDot = document.getElementById("liveDot");
+    const liveLabel = document.getElementById("liveLabel");
+
+    let watchId = null;
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message || "";
+      statusEl.classList.toggle("error", Boolean(isError));
+    }
+
+    function formatTime(date) {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
+
+    function updateLiveIndicator(active) {
+      if (active) {
+        liveDot.classList.remove("idle");
+        liveLabel.textContent = "Tracking live";
+      } else {
+        liveDot.classList.add("idle");
+        liveLabel.textContent = "Not tracking";
+      }
+    }
+
+    function handleSuccess(position) {
+      const { latitude, longitude, accuracy } = position.coords;
+      const lat = latitude.toFixed(6);
+      const lng = longitude.toFixed(6);
+      const acc = Math.round(accuracy);
+
+      latEl.textContent = lat;
+      lngEl.textContent = lng;
+      accEl.textContent = acc + " m";
+      tsEl.textContent = formatTime(new Date());
+
+      mapsLinkEl.href = `https://maps.apple.com/?ll=${lat},${lng}&q=My+Live+Location`;
+
+      outputEl.hidden = false;
+      setStatus("Location updated.");
+    }
+
+    function handleError(error) {
+      let message = "Unable to get your location.";
+
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          message = "Location permission denied. Check iOS app/Browser settings.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = "Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          message = "Location request timed out.";
+          break;
+      }
+
+      setStatus(message, true);
+    }
+
+    function startTracking() {
+      if (!("geolocation" in navigator)) {
+        setStatus("Geolocation is not supported in this browser.", true);
+        return;
+      }
+
+      if (watchId !== null) {
+        // already tracking
+        return;
+      }
+
+      setStatus("Starting live tracking…");
+      updateLiveIndicator(true);
+      locBtn.textContent = "🛑 Stop live tracking";
+      locBtn.classList.add("stop");
+
+      watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, {
+        enableHighAccuracy: true,
+        maximumAge: 2000,   // allow a couple seconds of cache
+        timeout: 15000      // per-update timeout
+      });
+    }
+
+    function stopTracking() {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      setStatus("Tracking stopped.");
+      updateLiveIndicator(false);
+      locBtn.textContent = "📍 Start live tracking";
+      locBtn.classList.remove("stop");
+    }
+
+    locBtn.addEventListener("click", () => {
+      if (watchId === null) {
+        startTracking();
+      } else {
+        stopTracking();
+      }
+    });
+
+    const budgetBtn = document.getElementById("budgetBtn");
+    if (budgetBtn) {
+      budgetBtn.addEventListener("click", () => {
+        window.location.href = "budget.html";
+      });
+    }
+  </script>
+</body>
+</html>
