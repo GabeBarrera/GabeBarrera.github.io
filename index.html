@@ -99,7 +99,8 @@
 
     <div class="btn-row">
       <button id="openBudget" type="button">💰 Open Budget Calculator</button>
-      <button id="openTracker" class="secondary" type="button">🏠 Back to Tracker</button>
+      <button id="openTracker" type="button">📍 Open Tracker</button>
+      <button id="reload" class="secondary" type="button">Reload Page</button>
     </div>
   </main>
 
@@ -110,6 +111,10 @@
 
     document.getElementById('openTracker').addEventListener('click', () => {
       window.location.href = 'tracker.html';
+    });
+
+    document.getElementById('reload').addEventListener('click', () => {
+      window.location.href = 'index.html';
     });
   </script>
 </body>
