@@ -219,11 +219,7 @@
     </section>
 
     <div style="margin-top:1rem; display:flex; justify-content:center;">
-      <button id="budgetBtn" type="button">💰 Open Budget Calculator</button>
-    </div>
-
-    <div style="margin-top:1rem; display:flex; justify-content:center;">
-      <button id="backBtn" class="ghost" type="button">← Back</button>
+      <button id="backBtn" type="button">← Back</button>
     </div>
   </main>
 
@@ -239,7 +235,6 @@
     const liveDot = document.getElementById("liveDot");
     const liveLabel = document.getElementById("liveLabel");
     const backBtn = document.getElementById('backBtn');
-    const budgetBtn = document.getElementById("budgetBtn");
 
     let watchId = null;
 
@@ -346,12 +341,6 @@
     if (backBtn) {
       backBtn.addEventListener('click', () => {
         window.location.href = 'index.html';
-      });
-    }
-
-    if (budgetBtn) {
-      budgetBtn.addEventListener("click", () => {
-        window.location.href = "budget.html";
       });
     }
   </script>
