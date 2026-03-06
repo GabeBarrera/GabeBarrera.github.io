@@ -26,11 +26,11 @@
 }
 
 html, body {
-  height: 100%;
+  min-height: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: var(--raj);
-  overflow: hidden;
+  overflow-x: hidden;
   cursor: crosshair;
 }
 
@@ -104,13 +104,13 @@ body::before {
 .stage {
   position: relative;
   z-index: 1;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0;
-  padding: 20px;
+  padding: 24px 20px 40px;
 }
 
 /* ── ASCII HORSE ── */
@@ -391,6 +391,14 @@ body::before {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@media (max-height: 700px) {
+  .horse-wrap { margin-bottom: 14px; font-size: clamp(7px, 1.2vw, 11px); }
+  .title-block { margin-bottom: 20px; }
+  .site-title  { font-size: clamp(1.8rem, 7vw, 5rem); }
+  .menu        { gap: 10px; }
+  .menu-btn    { padding: 12px 20px; }
+}
+
 /* ── CLOCK ── */
 .clock {
   position: fixed;
@@ -479,21 +487,21 @@ body::before {
     <a href="budget.html" class="menu-btn btn-budget">
       <span class="shine"></span>
       <span class="icon">◈</span>
-      <span class="label">NEON//LEDGER</span>
+      <span class="label">Neon//Ledger</span>
       <span class="arrow">▶</span>
     </a>
 
     <a href="tracker.html" class="menu-btn btn-tracker">
       <span class="shine"></span>
       <span class="icon">◉</span>
-      <span class="label">EAGLE//EYE</span>
+      <span class="label">HUNTRE55</span>
       <span class="arrow">▶</span>
     </a>
 
     <a href="camera.html" class="menu-btn btn-camera">
       <span class="shine"></span>
       <span class="icon">◎</span>
-      <span class="label">Optics//Protocol</span>
+      <span class="label">SAUR0N</span>
       <span class="arrow">▶</span>
     </a>
 
