@@ -408,15 +408,6 @@ let sessionStart = null;   // Date
 
 let sessions = [];         // saved to localStorage
 
-// ── LOAD SAVED SESSIONS ──
-(function loadSessions() {
-  try {
-    const raw = localStorage.getItem('pwny_logger_sessions');
-    if (raw) sessions = JSON.parse(raw);
-  } catch(e) { sessions = []; }
-  renderTable();
-})();
-
 // ── ELEMENTS ──
 const btnStart   = document.getElementById('btnStart');
 const btnStop    = document.getElementById('btnStop');
@@ -441,6 +432,15 @@ const cardEndLoc   = document.getElementById('cardEndLoc');
 const logCount   = document.getElementById('logCount');
 const btnExport  = document.getElementById('btnExport');
 const btnClear   = document.getElementById('btnClear');
+
+// ── LOAD SAVED SESSIONS ──
+(function loadSessions() {
+  try {
+    const raw = localStorage.getItem('pwny_logger_sessions');
+    if (raw) sessions = JSON.parse(raw);
+  } catch(e) { sessions = []; }
+  renderTable();
+})();
 
 // ── HAVERSINE DISTANCE (returns miles) ──
 function haversineMiles(lat1, lon1, lat2, lon2) {
