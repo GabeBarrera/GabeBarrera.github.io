@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEON//LEDGER — Finance OS</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -668,6 +670,12 @@ select option { background: var(--panel); }
 }
 .btn-xs.export:hover { background: rgba(0,245,255,0.08); box-shadow: 0 0 12px rgba(0,245,255,0.3); }
 
+.btn-xs.pdf {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+.btn-xs.pdf:hover { background: rgba(245,230,66,0.08); box-shadow: 0 0 12px rgba(245,230,66,0.3); }
+
 .btn-xs.import {
   border-color: var(--purple);
   color: var(--purple);
@@ -839,10 +847,13 @@ select option { background: var(--panel); }
 
   <!-- HEADER -->
   <div class="hdr">
-    <div class="logo">NEON//<span>LEDGER</span></div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <a href="index.html" style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:var(--dim);text-decoration:none;border:1px solid var(--muted);padding:5px 12px;text-transform:uppercase;transition:all 0.15s;" onmouseover="this.style.color='var(--cyan)';this.style.borderColor='var(--cyan)';" onmouseout="this.style.color='var(--dim)';this.style.borderColor='var(--muted)';">⌂ HOME</a>
+      <div class="logo">NEON//<span>LEDGER</span></div>
+    </div>
     <div class="hdr-right">
       <div id="liveClock">00:00:00</div>
-      <div>FINANCE OS v2.0.77</div>
+      <div>FINANCE OS v2.1.0</div>
     </div>
   </div>
 
@@ -904,6 +915,7 @@ select option { background: var(--panel); }
       <span class="toolbar-label">DATA</span>
       <button class="btn-xs export" onclick="exportJSON()">⬇ EXPORT DATA.JSON</button>
       <button class="btn-xs import" onclick="document.getElementById('importFileInput').click()">⬆ IMPORT DATA.JSON</button>
+      <button class="btn-xs pdf" onclick="generatePDF()">⎙ EXPORT PDF REPORT</button>
       <div class="autosave-status">
         <div class="autosave-dot idle" id="autosaveDot"></div>
         <span id="autosaveLabel">AUTOSAVE IN <span id="autosaveCountdown">10</span>s</span>
@@ -1202,6 +1214,211 @@ function importJSON(event) {
     }
   };
   reader.readAsText(file);
+}
+
+// ==================== PDF EXPORT ====================
+function generatePDF() {
+  if (!profile) { showToast('No profile loaded', 'error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210;
+  const pageH = 297;
+  const margin = 14;
+  let y = margin;
+
+  // ---- Helpers ----
+  const colW = W - margin * 2;
+
+  function checkPage(needed = 10) {
+    if (y + needed > pageH - 14) {
+      doc.addPage();
+      y = margin;
+      drawPageHeader();
+    }
+  }
+
+  function hex(h) {
+    h = h.replace('#','');
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+  }
+
+  function drawPageHeader() {
+    doc.setFillColor(...hex('04060f'));
+    doc.rect(0, 0, W, 12, 'F');
+    doc.setFont('courier','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...hex('00f5ff'));
+    doc.text('NEON//LEDGER — FINANCE REPORT', margin, 8);
+    doc.setTextColor(...hex('ff2d78'));
+    doc.text(new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}), W - margin, 8, {align:'right'});
+    doc.setDrawColor(...hex('0f2040'));
+    doc.setLineWidth(0.3);
+    doc.line(margin, 12, W - margin, 12);
+  }
+
+  // ---- Cover block ----
+  doc.setFillColor(...hex('04060f'));
+  doc.rect(0, 0, W, pageH, 'F');
+
+  // Cyan accent bar top
+  doc.setFillColor(...hex('00f5ff'));
+  doc.rect(0, 0, W, 2, 'F');
+
+  // Title
+  doc.setFont('courier','bold');
+  doc.setFontSize(22);
+  doc.setTextColor(...hex('00f5ff'));
+  doc.text('NEON//LEDGER', margin, 28);
+  doc.setFontSize(11);
+  doc.setTextColor(...hex('ff2d78'));
+  doc.text('PERSONAL FINANCE REPORT', margin, 36);
+
+  doc.setFontSize(8);
+  doc.setTextColor(...hex('4a6080'));
+  doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 43);
+
+  y = 54;
+
+  // ---- Profile summary box ----
+  doc.setFillColor(...hex('080c1a'));
+  doc.setDrawColor(...hex('00f5ff'));
+  doc.setLineWidth(0.4);
+  doc.rect(margin, y, colW, 44, 'FD');
+
+  doc.setFont('courier','bold');
+  doc.setFontSize(7);
+  doc.setTextColor(...hex('00f5ff'));
+  doc.text('// FINANCIAL PROFILE', margin + 4, y + 6);
+
+  const pRows = [
+    ['Monthly Salary',      `$${profile.salary.toFixed(2)}`],
+    ['Savings Goal',        `${profile.goal}%  →  $${profile.savingsAmt.toFixed(2)}/mo`],
+    ['Fixed Costs (total)', `$${profile.fixedTotal.toFixed(2)}/mo`],
+    ['Spendable Budget',    `$${profile.spendable.toFixed(2)}/mo`],
+    ['Weekly Allowance',    `$${profile.weeklyBudget.toFixed(2)}/wk`],
+    ['Daily Allowance',     `$${profile.dailyBudget.toFixed(2)}/day`],
+  ];
+
+  doc.setFontSize(8);
+  pRows.forEach(([label, val], i) => {
+    const ry = y + 12 + i * 5.2;
+    doc.setFont('courier','normal');
+    doc.setTextColor(...hex('c8d8f0'));
+    doc.text(label, margin + 4, ry);
+    doc.setFont('courier','bold');
+    doc.setTextColor(...hex('f5e642'));
+    doc.text(val, W - margin - 4, ry, { align: 'right' });
+  });
+
+  y += 52;
+
+  // ---- Monthly breakdown ----
+  const now = new Date();
+  const yearStr  = now.getFullYear();
+  const monthStr = String(now.getMonth()+1).padStart(2,'0');
+  const prefix   = `${yearStr}-${monthStr}`;
+  const monthName = now.toLocaleDateString('en-US',{month:'long', year:'numeric'});
+
+  const catTotals = {};
+  let monthTotal = 0;
+  const allEntries = [];
+
+  Object.entries(data).forEach(([key, exps]) => {
+    exps.forEach(e => {
+      allEntries.push({ date: key, ...e });
+    });
+    if (!key.startsWith(prefix)) return;
+    exps.forEach(e => {
+      catTotals[e.cat] = (catTotals[e.cat] || 0) + e.amt;
+      monthTotal += e.amt;
+    });
+  });
+
+  checkPage(14);
+  doc.setFont('courier','bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...hex('00f5ff'));
+  doc.text(`// ${monthName.toUpperCase()} — CATEGORY BREAKDOWN`, margin, y);
+  y += 5;
+
+  if (Object.keys(catTotals).length > 0) {
+    doc.autoTable({
+      startY: y,
+      margin: { left: margin, right: margin },
+      head: [['Category', 'Amount Spent', '% of Spendable']],
+      body: Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).map(([cat, amt]) => [
+        cat.toUpperCase(),
+        `$${amt.toFixed(2)}`,
+        `${((amt / profile.spendable) * 100).toFixed(1)}%`
+      ]),
+      foot: [['TOTAL', `$${monthTotal.toFixed(2)}`, `${((monthTotal / profile.spendable)*100).toFixed(1)}%`]],
+      styles: { font: 'courier', fontSize: 8, textColor: hex('c8d8f0'), fillColor: hex('080c1a'), lineColor: hex('0f2040'), lineWidth: 0.2 },
+      headStyles: { fillColor: hex('0b1020'), textColor: hex('00f5ff'), fontStyle: 'bold' },
+      footStyles: { fillColor: hex('0b1020'), textColor: hex('f5e642'), fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: hex('04060f') },
+      theme: 'grid'
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  } else {
+    doc.setFont('courier','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...hex('4a6080'));
+    doc.text('No transactions this month.', margin, y + 6);
+    y += 14;
+  }
+
+  // ---- Full transaction log ----
+  checkPage(14);
+  doc.setFont('courier','bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...hex('ff2d78'));
+  doc.text('// FULL TRANSACTION LOG', margin, y);
+  y += 5;
+
+  if (allEntries.length > 0) {
+    const sorted = allEntries.sort((a,b) => a.date.localeCompare(b.date));
+    doc.autoTable({
+      startY: y,
+      margin: { left: margin, right: margin },
+      head: [['Date', 'Time', 'Description', 'Category', 'Amount']],
+      body: sorted.map(e => [
+        e.date,
+        e.time || '--',
+        e.desc || '--',
+        e.cat.toUpperCase(),
+        `$${e.amt.toFixed(2)}`
+      ]),
+      styles: { font: 'courier', fontSize: 7.5, textColor: hex('c8d8f0'), fillColor: hex('080c1a'), lineColor: hex('0f2040'), lineWidth: 0.2 },
+      headStyles: { fillColor: hex('0b1020'), textColor: hex('ff2d78'), fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: hex('04060f') },
+      columnStyles: { 4: { halign: 'right', textColor: hex('ff2d78') } },
+      theme: 'grid',
+      didDrawPage: () => { drawPageHeader(); }
+    });
+    y = doc.lastAutoTable.finalY + 8;
+  } else {
+    doc.setFont('courier','normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...hex('4a6080'));
+    doc.text('No transactions recorded yet.', margin, y + 6);
+    y += 14;
+  }
+
+  // ---- Footer on last page ----
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFillColor(...hex('04060f'));
+    doc.rect(0, pageH - 10, W, 10, 'F');
+    doc.setFont('courier','normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...hex('2a3a55'));
+    doc.text(`NEON//LEDGER  |  PAGE ${i} OF ${totalPages}  |  CONFIDENTIAL`, W / 2, pageH - 4, { align: 'center' });
+  }
+
+  const filename = `neon-ledger-report-${yearStr}-${monthStr}.pdf`;
+  doc.save(filename);
+  showToast(`PDF SAVED: ${filename}`, 'success');
 }
 
 // ==================== AUTOSAVE ====================
