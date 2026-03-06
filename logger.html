@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWNYXPRESS // LOGGER</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #04060f;
+  --panel:  #080c1a;
+  --panel2: #0b1020;
+  --border: #0f2040;
+  --cyan:   #00f5ff;
+  --pink:   #ff2d78;
+  --yellow: #f5e642;
+  --green:  #39ff7a;
+  --purple: #b44dff;
+  --red:    #ff3d3d;
+  --muted:  #2a3a55;
+  --text:   #c8d8f0;
+  --dim:    #4a6080;
+  --mono:   'Share Tech Mono', monospace;
+  --orb:    'Orbitron', monospace;
+  --raj:    'Rajdhani', sans-serif;
+}
+
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--raj); overflow-x: hidden; cursor: crosshair; }
+
+/* scanlines */
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  pointer-events: none; z-index: 9999;
+}
+
+/* grid */
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px; pointer-events: none; z-index: 0;
+}
+
+/* glow orbs */
+.orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; animation: orbDrift 14s ease-in-out infinite alternate; }
+.orb1 { width: 320px; height: 320px; background: rgba(0,245,255,0.06); top: -80px; left: -60px; }
+.orb2 { width: 260px; height: 260px; background: rgba(255,45,120,0.06); bottom: 60px; right: -40px; animation-delay: -7s; }
+.orb3 { width: 180px; height: 180px; background: rgba(57,255,122,0.05); top: 50%; left: 55%; animation-delay: -3s; }
+@keyframes orbDrift { from { transform: translate(0,0) scale(1); } to { transform: translate(18px,28px) scale(1.06); } }
+
+.app { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; padding: 24px 16px 100px; }
+
+/* ── HEADER ── */
+.hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  animation: fadeIn 0.5s ease both;
+}
+.hdr-left { display: flex; align-items: center; gap: 16px; }
+.logo { font-family: var(--orb); font-size: clamp(15px,3.5vw,22px); font-weight: 900; letter-spacing: 0.08em; color: var(--cyan); text-shadow: 0 0 18px rgba(0,245,255,0.6); }
+.logo span { color: var(--pink); text-shadow: 0 0 18px rgba(255,45,120,0.6); }
+.page-title { font-family: var(--orb); font-size: clamp(9px,1.8vw,12px); letter-spacing: 0.3em; color: var(--dim); text-transform: uppercase; }
+.hdr-right { font-family: var(--mono); font-size: 11px; color: var(--dim); text-align: right; line-height: 1.7; }
+
+.home-btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--dim);
+  text-decoration: none; border: 1px solid var(--muted); padding: 5px 12px;
+  text-transform: uppercase; transition: all 0.15s;
+}
+.home-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+
+/* ── PANEL ── */
+.panel {
+  background: var(--panel); border: 1px solid var(--border);
+  position: relative; overflow: hidden; margin-bottom: 16px;
+  animation: fadeIn 0.4s ease both;
+}
+.panel::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent); opacity: 0.5;
+}
+.panel.accent-pink::before { background: linear-gradient(90deg, transparent, var(--pink), transparent); }
+.panel.accent-green::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+.panel.accent-yellow::before { background: linear-gradient(90deg, transparent, var(--yellow), transparent); }
+.panel.accent-purple::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+.panel-title {
+  font-family: var(--orb); font-size: 10px; font-weight: 700; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--cyan); padding: 14px 20px 0; opacity: 0.8;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-title::before { content: '//'; color: var(--pink); opacity: 0.7; }
+.panel-body { padding: 16px 20px 20px; }
+
+/* ── LIVE INDICATOR ── */
+.live-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; padding: 5px 14px;
+  border: 1px solid var(--muted); color: var(--dim);
+  transition: all 0.3s;
+}
+.live-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 16px rgba(57,255,122,0.25); }
+.live-badge.error-state { border-color: var(--red); color: var(--red); box-shadow: 0 0 12px rgba(255,61,61,0.2); }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
+.live-badge.active .live-dot { background: var(--green); box-shadow: 0 0 8px var(--green); animation: livePulse 1s ease-in-out infinite; }
+.live-badge.error-state .live-dot { background: var(--red); box-shadow: 0 0 8px var(--red); }
+@keyframes livePulse { 0%,100% { opacity: 1; box-shadow: 0 0 8px var(--green); } 50% { opacity: 0.4; box-shadow: 0 0 3px var(--green); } }
+
+/* ── CONTROLS ── */
+.controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+
+.btn {
+  font-family: var(--orb); font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; border: none; padding: 12px 22px; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.05); opacity: 0; transition: opacity 0.15s; }
+.btn:hover::after { opacity: 1; }
+
+.btn-green { background: transparent; border: 1px solid var(--green); color: var(--green); box-shadow: 0 0 14px rgba(57,255,122,0.2); }
+.btn-green:hover { background: rgba(57,255,122,0.07); box-shadow: 0 0 26px rgba(57,255,122,0.4); }
+.btn-green:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+.btn-red { background: transparent; border: 1px solid var(--red); color: var(--red); box-shadow: 0 0 14px rgba(255,61,61,0.2); }
+.btn-red:hover { background: rgba(255,61,61,0.07); box-shadow: 0 0 26px rgba(255,61,61,0.4); }
+.btn-red:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+.btn-cyan { background: transparent; border: 1px solid var(--cyan); color: var(--cyan); box-shadow: 0 0 14px rgba(0,245,255,0.2); }
+.btn-cyan:hover { background: rgba(0,245,255,0.07); box-shadow: 0 0 26px rgba(0,245,255,0.4); }
+.btn-cyan:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+.btn-yellow { background: transparent; border: 1px solid var(--yellow); color: var(--yellow); box-shadow: 0 0 14px rgba(245,230,66,0.2); }
+.btn-yellow:hover { background: rgba(245,230,66,0.07); box-shadow: 0 0 26px rgba(245,230,66,0.4); }
+.btn-yellow:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+/* ── LIVE STAT CARDS ── */
+.stat-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;
+}
+@media (min-width: 540px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.stat-card {
+  background: var(--panel2); border: 1px solid var(--border);
+  padding: 14px 16px; position: relative; overflow: hidden;
+  transition: border-color 0.3s;
+}
+.stat-card.has-data { border-color: rgba(0,245,255,0.25); }
+.stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; transition: background 0.3s; }
+.stat-card.has-data::after { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.stat-card.c-pink.has-data::after { background: var(--pink); box-shadow: 0 0 8px var(--pink); }
+.stat-card.c-green.has-data::after { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.stat-card.c-yellow.has-data::after { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+.stat-card.c-purple.has-data::after { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
+
+.stat-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+.stat-val { font-family: var(--orb); font-size: clamp(12px,2.2vw,17px); font-weight: 700; color: var(--muted); transition: color 0.3s, text-shadow 0.3s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-card.has-data .stat-val { color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.5); }
+.stat-card.c-pink.has-data .stat-val { color: var(--pink); text-shadow: 0 0 12px rgba(255,45,120,0.5); }
+.stat-card.c-green.has-data .stat-val { color: var(--green); text-shadow: 0 0 12px rgba(57,255,122,0.5); }
+.stat-card.c-yellow.has-data .stat-val { color: var(--yellow); text-shadow: 0 0 12px rgba(245,230,66,0.5); }
+.stat-card.c-purple.has-data .stat-val { color: var(--purple); text-shadow: 0 0 12px rgba(180,77,255,0.5); }
+.stat-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
+
+/* ── DISTANCE BIG DISPLAY ── */
+.dist-display {
+  background: var(--panel2); border: 1px solid var(--border);
+  padding: 24px 28px; margin-bottom: 16px; position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
+  transition: border-color 0.3s;
+}
+.dist-display.active { border-color: rgba(57,255,122,0.3); }
+.dist-display::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: transparent; transition: background 0.3s; }
+.dist-display.active::after { background: var(--green); box-shadow: 0 0 12px var(--green); }
+.dist-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+.dist-val { font-family: var(--orb); font-size: clamp(28px,6vw,48px); font-weight: 900; color: var(--muted); letter-spacing: 0.04em; transition: all 0.3s; }
+.dist-display.active .dist-val { color: var(--green); text-shadow: 0 0 24px rgba(57,255,122,0.6), 0 0 48px rgba(57,255,122,0.2); }
+.dist-unit { font-family: var(--orb); font-size: 14px; color: var(--dim); margin-left: 6px; letter-spacing: 0.12em; }
+.dist-meta { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-top: 8px; line-height: 1.7; }
+.dist-meta span { color: var(--text); }
+
+/* ── SESSION LOG TABLE ── */
+.log-collector {
+  width: 100%; overflow-x: auto;
+}
+.log-table {
+  width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 10px;
+  min-width: 700px;
+}
+.log-table th {
+  font-family: var(--orb); font-size: 8px; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--dim); padding: 10px 10px 8px;
+  border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap;
+}
+.log-table td {
+  padding: 10px 10px; border-bottom: 1px solid rgba(15,32,64,0.5);
+  color: var(--text); white-space: nowrap; vertical-align: top;
+}
+.log-table tr:last-child td { border-bottom: none; }
+.log-table tr { animation: rowIn 0.25s ease both; transition: background 0.15s; }
+.log-table tr:hover td { background: rgba(0,245,255,0.03); }
+.log-table td.td-lat  { color: var(--cyan); }
+.log-table td.td-lng  { color: var(--pink); }
+.log-table td.td-loc  { color: var(--purple); max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+.log-table td.td-city { color: var(--yellow); }
+.log-table td.td-dist { color: var(--green); font-family: var(--orb); font-size: 11px; font-weight: 700; letter-spacing: 0.05em; }
+.log-table td.td-ts   { color: var(--dim); font-size: 9px; }
+
+.log-empty-row td {
+  text-align: center; color: var(--muted); padding: 32px 10px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--muted); }
+scrollbar-width: thin;
+scrollbar-color: var(--muted) var(--bg);
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes rowIn  { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:translateX(0); } }
+@keyframes dataFlash { 0%,100% {} 50% { background: rgba(0,245,255,0.06); } }
+.data-flash { animation: dataFlash 0.4s ease; }
+
+/* ── FOOTER ── */
+.footer { position: fixed; bottom: 14px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:9px; letter-spacing:0.2em; color:var(--muted); z-index:2; text-transform:uppercase; }
+.footer span { color: var(--pink); }
+.corner-tag { position:fixed; top:14px; left:18px; font-family:var(--mono); font-size:10px; letter-spacing:0.2em; color:var(--dim); z-index:2; text-transform:uppercase; }
+.clock-fixed { position:fixed; top:14px; right:18px; font-family:var(--mono); font-size:11px; color:var(--dim); letter-spacing:0.12em; z-index:2; }
+.clock-fixed span { color: var(--cyan); }
+
+/* ── STATUS LINE ── */
+.status-line { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.08em; }
+
+/* ── GEOCODE PENDING ── */
+.resolving { color: var(--yellow) !important; animation: resolvePulse 1.2s ease-in-out infinite; }
+@keyframes resolvePulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+/* ── LOG CONTROLS ── */
+.log-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.log-count { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.1em; }
+.log-count span { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="corner-tag">// GPS:LOGGER</div>
+<div class="clock-fixed"><span id="liveClock">00:00:00</span> — ONLINE</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <a href="index.html" class="home-btn">&#8962; HOME</a>
+      <div>
+        <div class="logo">PWNY<span>X</span>PRESS</div>
+        <div class="page-title">// distance logger</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div id="liveClock2">00:00:00</div>
+      <div>SYS:LOG v1.0</div>
+    </div>
+  </div>
+
+  <!-- CONTROL PANEL -->
+  <div class="panel" style="animation-delay:0.05s">
+    <div class="panel-title">Session Control</div>
+    <div class="panel-body">
+      <div class="controls">
+        <button class="btn btn-green" id="btnStart" onclick="startSession()">&#9654; START</button>
+        <button class="btn btn-red"   id="btnStop"  onclick="stopSession()" disabled>&#9632; STOP</button>
+        <div class="live-badge" id="liveBadge">
+          <div class="live-dot"></div>
+          <span id="liveLabel">OFFLINE</span>
+        </div>
+      </div>
+      <div class="status-line" id="statusLine">— Awaiting session. Press START to begin tracking.</div>
+    </div>
+  </div>
+
+  <!-- LIVE STATS -->
+  <div class="panel accent-pink" style="animation-delay:0.08s">
+    <div class="panel-title">Current Fix</div>
+    <div class="panel-body">
+      <div class="stat-grid">
+        <div class="stat-card" id="cardLat">
+          <div class="stat-label">Latitude</div>
+          <div class="stat-val" id="valLat">---.------</div>
+          <div class="stat-sub">decimal deg</div>
+        </div>
+        <div class="stat-card c-pink" id="cardLng">
+          <div class="stat-label">Longitude</div>
+          <div class="stat-val" id="valLng">---.------</div>
+          <div class="stat-sub">decimal deg</div>
+        </div>
+        <div class="stat-card c-yellow" id="cardAcc">
+          <div class="stat-label">Accuracy</div>
+          <div class="stat-val" id="valAcc">--- m</div>
+          <div class="stat-sub" id="subAcc">±radius</div>
+        </div>
+        <div class="stat-card c-green" id="cardFixes">
+          <div class="stat-label">GPS Fixes</div>
+          <div class="stat-val" id="valFixes">0</div>
+          <div class="stat-sub">this session</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISTANCE DISPLAY -->
+  <div class="panel accent-green" style="animation-delay:0.11s">
+    <div class="panel-title">Live Distance</div>
+    <div class="panel-body">
+      <div class="dist-display" id="distDisplay">
+        <div>
+          <div class="dist-label">Distance Traveled</div>
+          <div>
+            <span class="dist-val" id="distVal">0.000</span>
+            <span class="dist-unit">MI</span>
+          </div>
+          <div class="dist-meta" id="distMeta">No active session.</div>
+        </div>
+        <div style="flex:1; min-width:160px;">
+          <div class="stat-grid" style="grid-template-columns:1fr 1fr; gap:10px; margin-bottom:0;">
+            <div class="stat-card c-purple" id="cardStartLoc" style="min-height:64px;">
+              <div class="stat-label">Start Point</div>
+              <div class="stat-val" id="valStartLoc" style="font-size:11px; white-space:normal; word-break:break-word;">---</div>
+            </div>
+            <div class="stat-card c-purple" id="cardEndLoc" style="min-height:64px;">
+              <div class="stat-label">Current Point</div>
+              <div class="stat-val" id="valEndLoc" style="font-size:11px; white-space:normal; word-break:break-word;">---</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION LOG COLLECTOR -->
+  <div class="panel accent-yellow" style="animation-delay:0.14s">
+    <div class="panel-title">Session Log</div>
+    <div class="panel-body">
+      <div class="log-controls" style="margin-bottom:16px;">
+        <button class="btn btn-yellow" id="btnExport" onclick="exportCSV()" disabled>&#8595; EXPORT CSV</button>
+        <button class="btn btn-cyan"   id="btnClear"  onclick="clearLog()"   disabled>&#10005; CLEAR LOG</button>
+        <div class="log-count">Entries: <span id="logCount">0</span></div>
+      </div>
+      <div class="log-collector">
+        <table class="log-table" id="logTable">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Start Lat</th>
+              <th>Start Lng</th>
+              <th>Start Location</th>
+              <th>Start City</th>
+              <th>End Lat</th>
+              <th>End Lng</th>
+              <th>End Location</th>
+              <th>End City</th>
+              <th>Distance (mi)</th>
+            </tr>
+          </thead>
+          <tbody id="logBody">
+            <tr class="log-empty-row" id="logEmptyRow">
+              <td colspan="10">No sessions logged yet. Press START to begin a new session.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end app -->
+
+<div class="footer">PWNY<span>X</span>PRESS &nbsp;&middot;&nbsp; DISTANCE LOGGER &nbsp;&middot;&nbsp; v1.0.0</div>
+
+<script>
+// ── CLOCK ──
+function tick() {
+  const t = new Date();
+  const s = String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+':'+String(t.getSeconds()).padStart(2,'0');
+  document.getElementById('liveClock').textContent = s;
+  document.getElementById('liveClock2').textContent = s;
+}
+setInterval(tick, 1000); tick();
+
+// ── STATE ──
+let watchId      = null;
+let sessionActive = false;
+let fixCount     = 0;
+let totalDistMi  = 0;
+let lastPos      = null;   // previous fix for incremental distance
+let startPos     = null;   // first fix of session
+let startGeocode = null;   // { location, city }
+let currentGeocode = null; // live geocode of current position
+let sessionStart = null;   // Date
+
+let sessions = [];         // saved to localStorage
+
+// ── LOAD SAVED SESSIONS ──
+(function loadSessions() {
+  try {
+    const raw = localStorage.getItem('pwny_logger_sessions');
+    if (raw) sessions = JSON.parse(raw);
+  } catch(e) { sessions = []; }
+  renderTable();
+})();
+
+// ── ELEMENTS ──
+const btnStart   = document.getElementById('btnStart');
+const btnStop    = document.getElementById('btnStop');
+const liveBadge  = document.getElementById('liveBadge');
+const liveLabel  = document.getElementById('liveLabel');
+const statusLine = document.getElementById('statusLine');
+const distDisplay = document.getElementById('distDisplay');
+const distVal    = document.getElementById('distVal');
+const distMeta   = document.getElementById('distMeta');
+const valLat     = document.getElementById('valLat');
+const valLng     = document.getElementById('valLng');
+const valAcc     = document.getElementById('valAcc');
+const valFixes   = document.getElementById('valFixes');
+const cardLat    = document.getElementById('cardLat');
+const cardLng    = document.getElementById('cardLng');
+const cardAcc    = document.getElementById('cardAcc');
+const cardFixes  = document.getElementById('cardFixes');
+const valStartLoc = document.getElementById('valStartLoc');
+const valEndLoc   = document.getElementById('valEndLoc');
+const cardStartLoc = document.getElementById('cardStartLoc');
+const cardEndLoc   = document.getElementById('cardEndLoc');
+const logCount   = document.getElementById('logCount');
+const btnExport  = document.getElementById('btnExport');
+const btnClear   = document.getElementById('btnClear');
+
+// ── HAVERSINE DISTANCE (returns miles) ──
+function haversineMiles(lat1, lon1, lat2, lon2) {
+  const R = 3958.8; // Earth radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ── REVERSE GEOCODE (returns promise) ──
+function reverseGeocode(lat, lng) {
+  return fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, {
+    headers: { 'Accept-Language': 'en' }
+  })
+  .then(r => r.json())
+  .then(d => {
+    const a = d.address || {};
+    // Succinct location name: prefer specific amenity/venue over road
+    const location = d.name ||
+                     a.amenity || a.building || a.shop || a.tourism ||
+                     a.leisure || a.office || a.historic ||
+                     a.road || a.suburb || 'Unknown';
+    const city = a.city || a.town || a.village || a.county || a.municipality || 'Unknown';
+    return { location, city };
+  })
+  .catch(() => ({ location: 'Unknown', city: 'Unknown' }));
+}
+
+// ── GPS FIX HANDLER ──
+function onPosition(pos) {
+  const c = pos.coords;
+  fixCount++;
+
+  valLat.textContent = c.latitude.toFixed(6);
+  valLng.textContent = c.longitude.toFixed(6);
+  valAcc.textContent = Math.round(c.accuracy) + ' m';
+  document.getElementById('subAcc').textContent = c.accuracy <= 20 ? 'high precision' : c.accuracy <= 100 ? 'medium precision' : 'low precision';
+  valFixes.textContent = fixCount;
+  [cardLat, cardLng, cardAcc, cardFixes].forEach(el => el.classList.add('has-data'));
+
+  // Accumulate distance
+  if (lastPos) {
+    const delta = haversineMiles(
+      lastPos.coords.latitude, lastPos.coords.longitude,
+      c.latitude, c.longitude
+    );
+    // Filter jitter: only count if > ~3 meters (~0.002 mi)
+    if (delta > 0.002) {
+      totalDistMi += delta;
+      lastPos = pos;
+    }
+  } else {
+    // First fix — capture start
+    startPos = pos;
+    lastPos  = pos;
+    sessionStart = new Date();
+
+    valStartLoc.textContent = 'Resolving...';
+    valStartLoc.classList.add('resolving');
+
+    reverseGeocode(c.latitude, c.longitude).then(geo => {
+      startGeocode = geo;
+      valStartLoc.textContent = geo.location;
+      valStartLoc.classList.remove('resolving');
+      cardStartLoc.classList.add('has-data');
+    });
+  }
+
+  // Update distance display
+  distVal.textContent = totalDistMi.toFixed(3);
+  distDisplay.classList.add('active');
+
+  // Rolling live geocode for current point (throttled)
+  updateCurrentGeocode(c.latitude, c.longitude);
+
+  const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+  const mm = String(Math.floor(elapsed / 60)).padStart(2,'0');
+  const ss = String(elapsed % 60).padStart(2,'0');
+  distMeta.innerHTML = `Fix #<span style="color:var(--cyan)">${fixCount}</span> &nbsp;&middot;&nbsp; Elapsed: <span style="color:var(--cyan)">${mm}:${ss}</span> &nbsp;&middot;&nbsp; Acc: <span style="color:var(--yellow)">±${Math.round(c.accuracy)}m</span>`;
+
+  statusLine.textContent = `▶ LIVE — fix #${fixCount} — lat ${c.latitude.toFixed(5)}, lng ${c.longitude.toFixed(5)}`;
+}
+
+// Throttle geocode to ~15s
+let geocodeTimer = null;
+let geocodePending = { lat: null, lng: null };
+
+function updateCurrentGeocode(lat, lng) {
+  geocodePending = { lat, lng };
+  if (geocodeTimer) return;
+  geocodeTimer = setTimeout(() => {
+    geocodeTimer = null;
+    const { lat: la, lng: lo } = geocodePending;
+    valEndLoc.textContent = 'Resolving...';
+    valEndLoc.classList.add('resolving');
+    reverseGeocode(la, lo).then(geo => {
+      currentGeocode = geo;
+      valEndLoc.textContent = geo.location;
+      valEndLoc.classList.remove('resolving');
+      cardEndLoc.classList.add('has-data');
+    });
+  }, 15000);
+  // Fire immediately for first fix after start
+  if (fixCount === 1) {
+    clearTimeout(geocodeTimer);
+    geocodeTimer = null;
+    valEndLoc.textContent = 'Resolving...';
+    valEndLoc.classList.add('resolving');
+    reverseGeocode(lat, lng).then(geo => {
+      currentGeocode = geo;
+      valEndLoc.textContent = geo.location;
+      valEndLoc.classList.remove('resolving');
+      cardEndLoc.classList.add('has-data');
+    });
+  }
+}
+
+function onError(err) {
+  let msg;
+  switch(err.code) {
+    case 1: msg = 'PERMISSION DENIED — location access was blocked.'; break;
+    case 2: msg = 'POSITION UNAVAILABLE — GPS signal lost.'; break;
+    case 3: msg = 'TIMEOUT — GPS fix took too long.'; break;
+    default: msg = 'Unknown geolocation error.';
+  }
+  liveBadge.className = 'live-badge error-state';
+  liveLabel.textContent = 'ERROR';
+  statusLine.textContent = '⚠ ' + msg;
+  btnStart.disabled = false;
+  btnStop.disabled  = true;
+}
+
+// ── START SESSION ──
+function startSession() {
+  if (!navigator.geolocation) {
+    statusLine.textContent = '⚠ Geolocation not supported by this browser.';
+    return;
+  }
+
+  // Reset session state
+  fixCount      = 0;
+  totalDistMi   = 0;
+  lastPos       = null;
+  startPos      = null;
+  startGeocode  = null;
+  currentGeocode = null;
+  sessionStart  = null;
+  if (geocodeTimer) { clearTimeout(geocodeTimer); geocodeTimer = null; }
+
+  valLat.textContent = '---.------';
+  valLng.textContent = '---.------';
+  valAcc.textContent = '--- m';
+  valFixes.textContent = '0';
+  [cardLat, cardLng, cardAcc, cardFixes, cardStartLoc, cardEndLoc].forEach(el => el.classList.remove('has-data'));
+  valStartLoc.textContent = '---';
+  valEndLoc.textContent   = '---';
+  distVal.textContent = '0.000';
+  distDisplay.classList.remove('active');
+  distMeta.innerHTML = 'Acquiring first GPS fix...';
+
+  btnStart.disabled = true;
+  btnStop.disabled  = false;
+  liveBadge.className = 'live-badge active';
+  liveLabel.textContent = 'LIVE';
+  statusLine.textContent = '⌛ Requesting GPS access — awaiting first fix...';
+  sessionActive = true;
+
+  watchId = navigator.geolocation.watchPosition(onPosition, onError, {
+    enableHighAccuracy: true,
+    timeout: 20000,
+    maximumAge: 0
+  });
+}
+
+// ── STOP SESSION ──
+function stopSession() {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+  if (geocodeTimer) { clearTimeout(geocodeTimer); geocodeTimer = null; }
+  sessionActive = false;
+
+  btnStart.disabled = false;
+  btnStop.disabled  = true;
+  liveBadge.className = 'live-badge';
+  liveLabel.textContent = 'OFFLINE';
+  statusLine.textContent = '■ Session stopped. ' + (startPos ? `${totalDistMi.toFixed(3)} mi logged.` : 'No fixes captured.');
+  distDisplay.classList.remove('active');
+
+  if (!startPos || !lastPos) return; // nothing to log
+
+  // Capture final position
+  const endLat = lastPos.coords.latitude;
+  const endLng = lastPos.coords.longitude;
+
+  // Build session record — geocodes may still be pending, will update async
+  const record = {
+    ts:        new Date().toISOString(),
+    startLat:  startPos.coords.latitude.toFixed(6),
+    startLng:  startPos.coords.longitude.toFixed(6),
+    startLoc:  startGeocode ? startGeocode.location : 'Resolving...',
+    startCity: startGeocode ? startGeocode.city : 'Resolving...',
+    endLat:    endLat.toFixed(6),
+    endLng:    endLng.toFixed(6),
+    endLoc:    currentGeocode ? currentGeocode.location : 'Resolving...',
+    endCity:   currentGeocode ? currentGeocode.city : 'Resolving...',
+    distMi:    totalDistMi.toFixed(3)
+  };
+
+  sessions.unshift(record);
+  saveAndRender();
+
+  // If geocodes still pending, resolve them and update the record
+  const idx = 0; // just inserted at front
+  if (!startGeocode) {
+    reverseGeocode(parseFloat(record.startLat), parseFloat(record.startLng)).then(geo => {
+      sessions[idx].startLoc  = geo.location;
+      sessions[idx].startCity = geo.city;
+      saveAndRender();
+    });
+  }
+  if (!currentGeocode) {
+    reverseGeocode(endLat, endLng).then(geo => {
+      sessions[idx].endLoc  = geo.location;
+      sessions[idx].endCity = geo.city;
+      saveAndRender();
+    });
+  }
+}
+
+// ── SAVE & RENDER ──
+function saveAndRender() {
+  try { localStorage.setItem('pwny_logger_sessions', JSON.stringify(sessions)); } catch(e) {}
+  renderTable();
+}
+
+function renderTable() {
+  const body = document.getElementById('logBody');
+  body.innerHTML = '';
+  logCount.textContent = sessions.length;
+  btnExport.disabled = sessions.length === 0;
+  btnClear.disabled  = sessions.length === 0;
+
+  if (sessions.length === 0) {
+    body.innerHTML = '<tr class="log-empty-row" id="logEmptyRow"><td colspan="10">No sessions logged yet. Press START to begin a new session.</td></tr>';
+    return;
+  }
+
+  sessions.forEach(s => {
+    const dt = new Date(s.ts);
+    const tsStr = dt.toLocaleDateString('en-US', { month:'short', day:'numeric' }) + ' ' +
+                  String(dt.getHours()).padStart(2,'0') + ':' +
+                  String(dt.getMinutes()).padStart(2,'0');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="td-ts">${tsStr}</td>
+      <td class="td-lat">${s.startLat}</td>
+      <td class="td-lng">${s.startLng}</td>
+      <td class="td-loc" title="${s.startLoc}">${s.startLoc}</td>
+      <td class="td-city">${s.startCity}</td>
+      <td class="td-lat">${s.endLat}</td>
+      <td class="td-lng">${s.endLng}</td>
+      <td class="td-loc" title="${s.endLoc}">${s.endLoc}</td>
+      <td class="td-city">${s.endCity}</td>
+      <td class="td-dist">${s.distMi}</td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+// ── EXPORT CSV ──
+function exportCSV() {
+  if (sessions.length === 0) return;
+
+  const headers = [
+    'Timestamp','Start Lat','Start Lng','Start Location','Start City',
+    'End Lat','End Lng','End Location','End City','Distance (mi)'
+  ];
+
+  const rows = sessions.map(s => [
+    s.ts, s.startLat, s.startLng,
+    `"${s.startLoc.replace(/"/g,'""')}"`,
+    `"${s.startCity.replace(/"/g,'""')}"`,
+    s.endLat, s.endLng,
+    `"${s.endLoc.replace(/"/g,'""')}"`,
+    `"${s.endCity.replace(/"/g,'""')}"`,
+    s.distMi
+  ].join(','));
+
+  const csv = [headers.join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const now  = new Date();
+  const stamp = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') +
+                '_' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0');
+  a.href     = url;
+  a.download = `pwny_logger_${stamp}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── CLEAR LOG ──
+function clearLog() {
+  if (sessions.length === 0) return;
+  if (!confirm('Clear all logged sessions? This cannot be undone.')) return;
+  sessions = [];
+  saveAndRender();
+}
+</script>
+</body>
+</html>
