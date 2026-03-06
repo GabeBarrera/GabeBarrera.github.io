@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+<title>PWNYXPRESS // CHATROOM</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #04060f;
+  --panel:  #080c1a;
+  --panel2: #0b1020;
+  --border: #0f2040;
+  --cyan:   #00f5ff;
+  --pink:   #ff2d78;
+  --yellow: #f5e642;
+  --green:  #39ff7a;
+  --purple: #b44dff;
+  --red:    #ff3d3d;
+  --muted:  #2a3a55;
+  --text:   #c8d8f0;
+  --dim:    #4a6080;
+  --mono:   'Share Tech Mono', monospace;
+  --orb:    'Orbitron', monospace;
+  --raj:    'Rajdhani', sans-serif;
+}
+
+html { height: 100%; }
+body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--raj); overflow: hidden; cursor: crosshair; }
+
+/* scanlines */
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+  pointer-events: none; z-index: 9999;
+}
+/* grid */
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px; pointer-events: none; z-index: 0;
+}
+
+/* glow orbs */
+.orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; animation: orbDrift 14s ease-in-out infinite alternate; }
+.orb1 { width: 340px; height: 340px; background: rgba(0,245,255,0.05); top: -80px; left: -80px; }
+.orb2 { width: 280px; height: 280px; background: rgba(255,45,120,0.05); bottom: -40px; right: -60px; animation-delay: -7s; }
+.orb3 { width: 200px; height: 200px; background: rgba(57,255,122,0.04); top: 45%; left: 60%; animation-delay: -3s; }
+@keyframes orbDrift { from { transform: translate(0,0) scale(1); } to { transform: translate(20px,28px) scale(1.06); } }
+
+/* ── CORNER DECORATIONS ── */
+.corner-tag { position: fixed; top: 14px; left: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--dim); z-index: 10; text-transform: uppercase; pointer-events: none; }
+.clock-fixed { position: fixed; top: 14px; right: 18px; font-family: var(--mono); font-size: 11px; color: var(--dim); letter-spacing: 0.12em; z-index: 10; pointer-events: none; }
+.clock-fixed span { color: var(--cyan); }
+
+/* ── SHARED PANEL ── */
+.panel {
+  background: var(--panel); border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.panel::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent); opacity: 0.45;
+}
+.panel.accent-pink::before { background: linear-gradient(90deg, transparent, var(--pink), transparent); }
+.panel.accent-green::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+.panel.accent-yellow::before { background: linear-gradient(90deg, transparent, var(--yellow), transparent); }
+.panel-title {
+  font-family: var(--orb); font-size: 10px; font-weight: 700; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--cyan); padding: 14px 20px 0; opacity: 0.8;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-title::before { content: '//'; color: var(--pink); opacity: 0.7; }
+.panel-body { padding: 16px 20px 20px; }
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: var(--orb); font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; border: none; padding: 12px 22px; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden;
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+}
+.btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.05); opacity: 0; transition: opacity 0.15s; }
+.btn:hover::after { opacity: 1; }
+.btn-cyan   { background: transparent; border: 1px solid var(--cyan);   color: var(--cyan);   box-shadow: 0 0 14px rgba(0,245,255,0.2); }
+.btn-cyan:hover   { background: rgba(0,245,255,0.07);   box-shadow: 0 0 26px rgba(0,245,255,0.4); }
+.btn-green  { background: transparent; border: 1px solid var(--green);  color: var(--green);  box-shadow: 0 0 14px rgba(57,255,122,0.2); }
+.btn-green:hover  { background: rgba(57,255,122,0.07);  box-shadow: 0 0 26px rgba(57,255,122,0.4); }
+.btn-pink   { background: transparent; border: 1px solid var(--pink);   color: var(--pink);   box-shadow: 0 0 14px rgba(255,45,120,0.2); }
+.btn-pink:hover   { background: rgba(255,45,120,0.07);  box-shadow: 0 0 26px rgba(255,45,120,0.4); }
+.btn-muted  { background: transparent; border: 1px solid var(--muted);  color: var(--dim); }
+.btn-muted:hover  { border-color: var(--dim); color: var(--text); }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.btn-sm { padding: 8px 14px; font-size: 9px; letter-spacing: 0.15em; }
+
+/* ── INPUT ── */
+.cyber-input {
+  width: 100%; background: var(--panel2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--mono); font-size: 13px;
+  padding: 12px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.cyber-input:focus { border-color: var(--cyan); box-shadow: 0 0 12px rgba(0,245,255,0.15); }
+.cyber-input::placeholder { color: var(--muted); }
+.cyber-input.error { border-color: var(--red); box-shadow: 0 0 10px rgba(255,61,61,0.2); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes msgIn   { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
+@keyframes msgInR  { from { opacity:0; transform:translateX(8px); }  to { opacity:1; transform:translateX(0); } }
+@keyframes sysIn   { from { opacity:0; } to { opacity:1; } }
+
+/* ══════════════════════════════════════
+   JOIN SCREEN
+   ══════════════════════════════════════ */
+#screenJoin {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100dvh; padding: 60px 16px 40px;
+  animation: fadeIn 0.4s ease both;
+}
+.join-wrap { width: 100%; max-width: 440px; }
+
+.join-logo {
+  font-family: var(--orb); font-size: clamp(18px,4vw,26px); font-weight: 900;
+  letter-spacing: 0.08em; color: var(--cyan);
+  text-shadow: 0 0 20px rgba(0,245,255,0.6);
+  margin-bottom: 4px;
+}
+.join-logo span { color: var(--pink); text-shadow: 0 0 20px rgba(255,45,120,0.6); }
+.join-sub { font-family: var(--orb); font-size: 10px; letter-spacing: 0.3em; color: var(--dim); text-transform: uppercase; margin-bottom: 28px; }
+
+.field-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; display: block; }
+
+.code-row { display: flex; gap: 8px; }
+.code-row .cyber-input { font-family: var(--orb); font-size: 16px; letter-spacing: 0.22em; text-transform: uppercase; }
+
+.color-preview {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 11px; color: var(--dim);
+  margin-top: 8px;
+}
+.color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); }
+
+.field-gap { margin-bottom: 18px; }
+
+.join-footer { margin-top: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.join-status { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.08em; }
+.join-status.err { color: var(--red); }
+
+.home-btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--dim);
+  text-decoration: none; border: 1px solid var(--muted); padding: 5px 12px;
+  text-transform: uppercase; transition: all 0.15s; display: inline-block;
+}
+.home-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+
+/* ══════════════════════════════════════
+   CHAT SCREEN
+   ══════════════════════════════════════ */
+#screenChat {
+  position: fixed; inset: 0; z-index: 2;
+  display: flex; flex-direction: column;
+  max-width: 760px; margin: 0 auto;
+}
+
+/* Chat header */
+.chat-hdr {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 12px; border-bottom: 1px solid var(--border);
+  background: rgba(4,6,15,0.92); backdrop-filter: blur(8px);
+  gap: 12px; flex-wrap: wrap;
+}
+.chat-hdr-left { display: flex; align-items: center; gap: 14px; }
+.chat-logo { font-family: var(--orb); font-size: clamp(12px,2.5vw,16px); font-weight: 900; letter-spacing: 0.08em; color: var(--cyan); text-shadow: 0 0 14px rgba(0,245,255,0.5); }
+.chat-logo span { color: var(--pink); }
+.room-badge {
+  font-family: var(--orb); font-size: 11px; letter-spacing: 0.2em;
+  border: 1px solid var(--muted); color: var(--dim); padding: 4px 10px;
+}
+.room-badge strong { color: var(--yellow); letter-spacing: 0.25em; }
+.chat-hdr-right { display: flex; align-items: center; gap: 10px; }
+.sig-badge {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em;
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--muted); color: var(--dim); padding: 4px 10px;
+  text-transform: uppercase; transition: all 0.3s;
+}
+.sig-badge.online { border-color: var(--green); color: var(--green); box-shadow: 0 0 10px rgba(57,255,122,0.2); }
+.sig-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); transition: all 0.3s; }
+.sig-badge.online .sig-dot { background: var(--green); box-shadow: 0 0 6px var(--green); animation: sigPulse 1.2s ease-in-out infinite; }
+@keyframes sigPulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+/* Users bar */
+.users-bar {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 8px 18px; border-bottom: 1px solid var(--border);
+  background: rgba(8,12,26,0.9); min-height: 38px;
+}
+.users-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin-right: 4px; }
+.user-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+  border: 1px solid; padding: 3px 8px; text-transform: uppercase;
+  animation: fadeIn 0.2s ease both;
+}
+.user-chip-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+/* Messages area */
+.messages {
+  flex: 1; overflow-y: auto;
+  padding: 18px 18px 8px; display: flex; flex-direction: column; gap: 14px;
+  scroll-behavior: smooth;
+}
+.messages::-webkit-scrollbar { width: 3px; }
+.messages::-webkit-scrollbar-track { background: transparent; }
+.messages::-webkit-scrollbar-thumb { background: var(--muted); }
+
+/* System message */
+.msg-sys {
+  text-align: center; font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase;
+  animation: sysIn 0.3s ease both;
+}
+.msg-sys span { color: var(--dim); }
+
+/* Chat bubble wrapper */
+.msg-wrap { display: flex; flex-direction: column; max-width: 72%; animation: msgIn 0.2s ease both; }
+.msg-wrap.self { align-self: flex-end; align-items: flex-end; animation-name: msgInR; }
+
+.msg-meta {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.msg-meta .ts { color: var(--muted); font-size: 8px; }
+
+.msg-bubble {
+  background: var(--panel2); border: 1px solid var(--border);
+  padding: 10px 14px; font-family: var(--mono); font-size: 12px;
+  line-height: 1.55; color: var(--text); word-break: break-word;
+  position: relative; overflow: hidden;
+}
+.msg-bubble::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  opacity: 0.5;
+}
+.msg-wrap.self .msg-bubble {
+  border-color: rgba(0,245,255,0.2);
+  background: rgba(0,245,255,0.04);
+}
+.msg-wrap.self .msg-bubble::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
+
+/* Input area */
+.input-area {
+  flex-shrink: 0;
+  display: flex; gap: 0; border-top: 1px solid var(--border);
+  background: rgba(4,6,15,0.95); backdrop-filter: blur(8px);
+  padding: 12px 18px;
+}
+.input-prefix {
+  font-family: var(--mono); font-size: 14px; color: var(--cyan);
+  padding: 11px 12px 11px 0; flex-shrink: 0; user-select: none;
+  text-shadow: 0 0 8px rgba(0,245,255,0.5);
+}
+.msg-input {
+  flex: 1; background: var(--panel2); border: 1px solid var(--border);
+  border-right: none; color: var(--text); font-family: var(--mono); font-size: 13px;
+  padding: 11px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  resize: none; height: 46px; line-height: 1.4;
+}
+.msg-input:focus { border-color: rgba(0,245,255,0.4); box-shadow: inset 0 0 12px rgba(0,245,255,0.05); }
+.msg-input::placeholder { color: var(--muted); }
+.send-btn {
+  font-family: var(--orb); font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+  padding: 0 18px; cursor: pointer; border: 1px solid var(--cyan); border-left: none;
+  background: transparent; color: var(--cyan); text-transform: uppercase;
+  transition: all 0.2s; flex-shrink: 0; height: 46px;
+}
+.send-btn:hover { background: rgba(0,245,255,0.08); box-shadow: 0 0 16px rgba(0,245,255,0.25); }
+.send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* leave btn */
+.leave-btn {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+  background: transparent; border: 1px solid var(--muted); color: var(--dim);
+  padding: 4px 10px; cursor: pointer; transition: all 0.15s;
+}
+.leave-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* scrollbar for screens */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--muted); }
+scrollbar-width: thin;
+scrollbar-color: var(--muted) var(--bg);
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="corner-tag">// CHATROOM</div>
+<div class="clock-fixed"><span id="liveClock">00:00:00</span></div>
+
+<!-- ═══════════ JOIN SCREEN ═══════════ -->
+<div id="screenJoin">
+  <div class="join-wrap">
+
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:28px;">
+      <a href="index.html" class="home-btn">&#8962; HOME</a>
+      <div>
+        <div class="join-logo">PWNY<span>X</span>PRESS</div>
+        <div class="join-sub">// encrypted chatroom</div>
+      </div>
+    </div>
+
+    <div class="panel" style="animation: fadeIn 0.4s ease both;">
+      <div class="panel-title">Connect to Channel</div>
+      <div class="panel-body">
+
+        <div class="field-gap">
+          <label class="field-label" for="roomInput">Channel Code</label>
+          <div class="code-row">
+            <input id="roomInput" class="cyber-input" type="text" maxlength="6"
+                   placeholder="A3F2" autocomplete="off" spellcheck="false"
+                   style="text-transform:uppercase; letter-spacing:0.2em;" />
+            <button class="btn btn-muted btn-sm" onclick="genRoom()" title="Generate random code">&#9734; GEN</button>
+          </div>
+          <div style="font-family:var(--mono); font-size:9px; color:var(--muted); margin-top:6px; letter-spacing:0.1em;">
+            Share this code for others to join your channel.
+          </div>
+        </div>
+
+        <div class="field-gap">
+          <label class="field-label" for="callsignInput">Your Callsign</label>
+          <input id="callsignInput" class="cyber-input" type="text" maxlength="20"
+                 placeholder="GHOST_RUNNER" autocomplete="off" spellcheck="false"
+                 style="text-transform:uppercase;" />
+        </div>
+
+        <div class="field-gap">
+          <label class="field-label">Signal Color</label>
+          <div class="color-preview">
+            <div class="color-dot" id="colorDot"></div>
+            <span id="colorLabel" style="font-family:var(--mono); font-size:10px;"></span>
+            <button class="btn btn-muted btn-sm" onclick="cycleColor()" style="padding:4px 10px;">&#8635; CYCLE</button>
+          </div>
+        </div>
+
+        <div class="join-footer">
+          <button class="btn btn-green" id="joinBtn" onclick="joinRoom()">&#9654; JACK IN</button>
+          <div class="join-status" id="joinStatus">— Enter a channel code to begin.</div>
+        </div>
+
+      </div>
+    </div><!-- /panel -->
+
+  </div>
+</div><!-- /screenJoin -->
+
+<!-- ═══════════ CHAT SCREEN ═══════════ -->
+<div id="screenChat" style="display:none">
+
+  <!-- Header -->
+  <div class="chat-hdr">
+    <div class="chat-hdr-left">
+      <div class="chat-logo">PWNY<span>X</span>PRESS</div>
+      <div class="room-badge">ROOM:&nbsp;<strong id="hdrRoom">----</strong></div>
+    </div>
+    <div class="chat-hdr-right">
+      <div class="sig-badge" id="sigBadge">
+        <div class="sig-dot"></div>
+        <span id="sigLabel">CONNECTING</span>
+      </div>
+      <button class="leave-btn" onclick="leaveRoom()">&#10005; LEAVE</button>
+    </div>
+  </div>
+
+  <!-- Online users -->
+  <div class="users-bar" id="usersBar">
+    <span class="users-label">Online:</span>
+    <!-- user chips injected here -->
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" id="messages">
+    <!-- messages injected here -->
+  </div>
+
+  <!-- Input -->
+  <div class="input-area">
+    <div class="input-prefix">&gt;</div>
+    <textarea class="msg-input" id="msgInput" placeholder="Transmit message..." rows="1" maxlength="500"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">SEND</button>
+  </div>
+
+</div><!-- /screenChat -->
+
+<!-- Gun.js -->
+<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+<script>
+// ── CLOCK ──
+(function tickClock() {
+  const el = document.getElementById('liveClock');
+  function tick() {
+    const t = new Date();
+    el.textContent = String(t.getHours()).padStart(2,'0') + ':' +
+                     String(t.getMinutes()).padStart(2,'0') + ':' +
+                     String(t.getSeconds()).padStart(2,'0');
+  }
+  setInterval(tick, 1000); tick();
+})();
+
+// ── CONSTANTS ──
+const COLORS = [
+  { hex: '#00f5ff', name: 'CYAN'    },
+  { hex: '#ff2d78', name: 'PINK'    },
+  { hex: '#39ff7a', name: 'GREEN'   },
+  { hex: '#b44dff', name: 'PURPLE'  },
+  { hex: '#f5e642', name: 'YELLOW'  },
+  { hex: '#ff7c2a', name: 'ORANGE'  },
+  { hex: '#00ffb3', name: 'TEAL'    },
+  { hex: '#ff4dff', name: 'MAGENTA' },
+  { hex: '#c0ff00', name: 'LIME'    },
+  { hex: '#4dafff', name: 'BLUE'    },
+  { hex: '#ff6b6b', name: 'CORAL'   },
+  { hex: '#ffe066', name: 'GOLD'    },
+];
+
+const ADJ  = ['CHROME','NEON','GHOST','RAZOR','VOID','FLUX','CIPHER','STATIC','ROGUE','IRON','DARK','HYPER','ECHO','WIRE','PHASE'];
+const NOUN = ['RUNNER','JACK','RIDER','HUNTER','WOLF','BLADE','NODE','HAWK','BYTE','DRIFT','PULSE','SHADOW','SPIKE','GRID','CODE'];
+
+const RELAY_PEERS = [
+  'https://gun-manhattan.herokuapp.com/gun',
+  'https://peer.wallie.io/gun',
+];
+
+// ── SESSION STATE ──
+let myId       = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+let myCallsign = ADJ[Math.floor(Math.random()*ADJ.length)] + '_' + NOUN[Math.floor(Math.random()*NOUN.length)];
+let myColorIdx = Math.floor(Math.random() * COLORS.length);
+let roomCode   = '';
+let joinTime   = 0;
+let gun        = null;
+let roomMsgs   = null;
+let roomPres   = null;
+let presTimer  = null;
+let seenKeys   = new Set();
+let onlineUsers = {};  // id → { callsign, color }
+let isOnline   = false;
+
+// ── JOIN SCREEN INIT ──
+document.getElementById('callsignInput').value = myCallsign;
+updateColorPreview();
+genRoom();
+
+function genRoom() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('roomInput').value = code;
+  document.getElementById('joinStatus').textContent = '— Channel ' + code + ' ready. Press JACK IN.';
+  document.getElementById('joinStatus').classList.remove('err');
+}
+
+function cycleColor() {
+  myColorIdx = (myColorIdx + 1) % COLORS.length;
+  updateColorPreview();
+}
+
+function updateColorPreview() {
+  const c = COLORS[myColorIdx];
+  const dot = document.getElementById('colorDot');
+  dot.style.background = c.hex;
+  dot.style.boxShadow  = '0 0 8px ' + c.hex;
+  dot.style.borderColor = c.hex;
+  document.getElementById('colorLabel').textContent = c.name;
+  document.getElementById('colorLabel').style.color = c.hex;
+}
+
+// Uppercase callsign input
+document.getElementById('callsignInput').addEventListener('input', function() {
+  this.value = this.value.toUpperCase().replace(/[^A-Z0-9_]/g, '');
+});
+document.getElementById('roomInput').addEventListener('input', function() {
+  this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+// ── JOIN ROOM ──
+function joinRoom() {
+  const rawCode = document.getElementById('roomInput').value.trim().toUpperCase();
+  const rawSign = document.getElementById('callsignInput').value.trim().toUpperCase() || myCallsign;
+
+  if (rawCode.length < 2) {
+    setJoinStatus('⚠ Enter a channel code (min 2 chars).', true);
+    return;
+  }
+  if (rawSign.length < 1) {
+    setJoinStatus('⚠ Enter a callsign.', true);
+    return;
+  }
+
+  roomCode   = rawCode;
+  myCallsign = rawSign;
+  joinTime   = Date.now();
+
+  document.getElementById('joinBtn').disabled = true;
+  setJoinStatus('Connecting to relay…');
+
+  // Init Gun with no local persistence
+  gun = Gun({ peers: RELAY_PEERS, localStorage: false, radisk: false });
+
+  // Monitor peer connection
+  gun.on('hi',  () => setOnline(true));
+  gun.on('bye', () => { if (Object.keys(gun._.opt.peers || {}).every(p => !gun._.opt.peers[p].wire)) setOnline(false); });
+
+  // Give it a moment then switch screens regardless (works even offline for same-device)
+  setTimeout(() => {
+    switchToChat();
+  }, 800);
+}
+
+function setJoinStatus(msg, isErr) {
+  const el = document.getElementById('joinStatus');
+  el.textContent = (isErr ? '' : '') + msg;
+  el.classList.toggle('err', !!isErr);
+}
+
+// ── SWITCH TO CHAT ──
+function switchToChat() {
+  document.getElementById('screenJoin').style.display = 'none';
+  document.getElementById('screenChat').style.display = 'flex';
+  document.getElementById('hdrRoom').textContent = roomCode;
+
+  // Subscribe to messages
+  roomMsgs = gun.get('pwny-chat-' + roomCode + '-msgs');
+  roomMsgs.map().on(onMessage);
+
+  // Presence
+  roomPres = gun.get('pwny-chat-' + roomCode + '-pres');
+  publishPresence();
+  presTimer = setInterval(publishPresence, 12000);
+  roomPres.map().on(onPresence);
+
+  // Post join system message
+  postSysMsg(myCallsign + ' joined the channel');
+
+  // Focus input
+  document.getElementById('msgInput').focus();
+}
+
+// ── ONLINE STATUS ──
+function setOnline(val) {
+  isOnline = val;
+  const badge = document.getElementById('sigBadge');
+  const label = document.getElementById('sigLabel');
+  if (val) {
+    badge.className = 'sig-badge online';
+    label.textContent = 'ONLINE';
+  } else {
+    badge.className = 'sig-badge';
+    label.textContent = 'SIG LOST';
+  }
+}
+
+// ── PRESENCE ──
+function publishPresence() {
+  if (!roomPres) return;
+  roomPres.get(myId).put({
+    id:       myId,
+    callsign: myCallsign,
+    color:    COLORS[myColorIdx].hex,
+    ts:       Date.now(),
+    active:   true
+  });
+}
+
+function onPresence(data, key) {
+  if (!data || !data.id || !data.callsign) return;
+  const now = Date.now();
+  const stale = now - (data.ts || 0) > 40000; // 40s TTL
+
+  if (data.active && !stale) {
+    onlineUsers[data.id] = { callsign: data.callsign, color: data.color };
+  } else {
+    delete onlineUsers[data.id];
+  }
+  renderUsers();
+  setOnline(true);
+}
+
+function renderUsers() {
+  const bar = document.getElementById('usersBar');
+  bar.innerHTML = '<span class="users-label">Online:</span>';
+  const ids = Object.keys(onlineUsers);
+  if (ids.length === 0) {
+    const em = document.createElement('span');
+    em.style.cssText = 'font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.1em;';
+    em.textContent = 'no users detected';
+    bar.appendChild(em);
+    return;
+  }
+  ids.forEach(id => {
+    const u = onlineUsers[id];
+    const chip = document.createElement('div');
+    chip.className = 'user-chip';
+    chip.style.borderColor = u.color + '55';
+    chip.style.color = u.color;
+    chip.innerHTML = `<div class="user-chip-dot" style="background:${u.color};box-shadow:0 0 5px ${u.color}"></div>${escHtml(u.callsign)}${id===myId?' <span style="opacity:0.5">(you)</span>':''}`;
+    bar.appendChild(chip);
+  });
+}
+
+// ── MESSAGES ──
+function onMessage(data, key) {
+  if (!data || !data.time || !data.callsign) return;
+  if (data.time < joinTime) return;      // don't show history
+  if (seenKeys.has(key)) return;         // dedup
+  seenKeys.add(key);
+  addBubble(data);
+}
+
+function postSysMsg(text) {
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg-sys';
+  el.innerHTML = `<span>// SYS //</span> ${escHtml(text)}`;
+  msgs.appendChild(el);
+  scrollBottom();
+}
+
+function addBubble(data) {
+  const msgs    = document.getElementById('messages');
+  const isSelf  = data.id === myId;
+  const color   = data.color || '#c8d8f0';
+  const ts      = new Date(data.time);
+  const tsStr   = String(ts.getHours()).padStart(2,'0') + ':' + String(ts.getMinutes()).padStart(2,'0');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap' + (isSelf ? ' self' : '');
+
+  const meta = document.createElement('div');
+  meta.className = 'msg-meta';
+  meta.innerHTML = isSelf
+    ? `<span class="ts">${tsStr}</span> <span style="color:${color};text-shadow:0 0 8px ${color}40">${escHtml(data.callsign)}</span>`
+    : `<span style="color:${color};text-shadow:0 0 8px ${color}40">${escHtml(data.callsign)}</span> <span class="ts">${tsStr}</span>`;
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = data.text;
+  if (!isSelf) {
+    bubble.style.borderColor = color + '33';
+    bubble.style.setProperty('--msg-color', color);
+    bubble.style.cssText += `border-color:${color}33;`;
+    // top accent line in user color
+    bubble.insertAdjacentHTML('afterbegin', `<span style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${color},transparent);opacity:0.4;"></span>`);
+  }
+
+  wrap.appendChild(meta);
+  wrap.appendChild(bubble);
+  msgs.appendChild(wrap);
+  scrollBottom();
+}
+
+function scrollBottom() {
+  const msgs = document.getElementById('messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ── SEND MESSAGE ──
+function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const text  = input.value.trim();
+  if (!text || !roomMsgs) return;
+
+  const payload = {
+    id:       myId,
+    callsign: myCallsign,
+    color:    COLORS[myColorIdx].hex,
+    text:     text,
+    time:     Date.now()
+  };
+
+  roomMsgs.set(payload);
+  input.value = '';
+  input.style.height = 'auto';
+  input.focus();
+}
+
+// Enter to send (Shift+Enter for newline)
+document.getElementById('msgInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// ── LEAVE ROOM ──
+function leaveRoom() {
+  // Post leave message
+  if (roomMsgs) {
+    roomMsgs.set({
+      id: 'sys', callsign: 'SYS', color: '#4a6080',
+      text: myCallsign + ' left the channel',
+      time: Date.now(), sys: true
+    });
+  }
+  // Mark presence offline
+  if (roomPres) roomPres.get(myId).put({ active: false, ts: Date.now() });
+  clearInterval(presTimer);
+
+  // Clear client state
+  seenKeys.clear();
+  onlineUsers = {};
+  document.getElementById('messages').innerHTML = '';
+
+  // Gun cleanup
+  if (gun) {
+    try { gun._.on('out', null); } catch(e) {}
+    gun = null; roomMsgs = null; roomPres = null;
+  }
+
+  // Back to join screen
+  document.getElementById('screenChat').style.display = 'none';
+  const join = document.getElementById('screenJoin');
+  join.style.display = 'flex';
+  document.getElementById('joinBtn').disabled = false;
+  setJoinStatus('— Disconnected from ' + roomCode + '.');
+  isOnline = false;
+}
+
+// Clean up on tab close
+window.addEventListener('beforeunload', () => {
+  if (roomPres) roomPres.get(myId).put({ active: false, ts: Date.now() });
+  seenKeys.clear();
+  onlineUsers = {};
+});
+
+// ── HELPERS ──
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
