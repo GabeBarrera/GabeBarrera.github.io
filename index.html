@@ -1,126 +1,704 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PWNYXPRESS</title>
-  <style>
-    :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      color-scheme: light dark;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWNYXPRESS</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    * {
-      box-sizing: border-box;
-    }
+:root {
+  --bg:     #04060f;
+  --panel:  #080c1a;
+  --border: #0f2040;
+  --cyan:   #00f5ff;
+  --pink:   #ff2d78;
+  --yellow: #f5e642;
+  --green:  #39ff7a;
+  --purple: #b44dff;
+  --muted:  #2a3a55;
+  --text:   #c8d8f0;
+  --dim:    #4a6080;
+  --mono:   'Share Tech Mono', monospace;
+  --orb:    'Orbitron', monospace;
+  --raj:    'Rajdhani', sans-serif;
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      background: radial-gradient(circle at top, #1f2933 0, #020617 55%);
-      color: #e5e7eb;
-    }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--raj);
+  overflow: hidden;
+  cursor: crosshair;
+}
 
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 1.25rem;
-      padding: 1.75rem 1.5rem;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      backdrop-filter: blur(18px);
-      text-align: center;
-    }
+/* ── SCANLINES ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,0.09) 2px, rgba(0,0,0,0.09) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
 
-    h1 {
-      margin: 0 0 0.5rem;
-      font-size: 1.4rem;
-      letter-spacing: 0.02em;
-    }
+/* ── GRID ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+  z-index: 0;
+}
 
-    p.subtitle {
-      margin: 0 0 1.25rem;
-      font-size: 0.95rem;
-      color: #9ca3af;
-    }
+/* ── PERSPECTIVE GRID FLOOR ── */
+.grid-floor {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 45vh;
+  background:
+    linear-gradient(transparent 0%, rgba(0,245,255,0.04) 100%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0,245,255,0.07) 0px, rgba(0,245,255,0.07) 1px,
+      transparent 1px, transparent 60px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,245,255,0.07) 0px, rgba(0,245,255,0.07) 1px,
+      transparent 1px, transparent 40px
+    );
+  transform: perspective(400px) rotateX(60deg);
+  transform-origin: bottom center;
+  pointer-events: none;
+  z-index: 0;
+}
 
-    .btn-row {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-      margin-top: 1.25rem;
-      flex-wrap: wrap;
-    }
+/* ── GLOW ORBS ── */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  animation: orbDrift 12s ease-in-out infinite alternate;
+}
+.orb1 { width: 340px; height: 340px; background: rgba(0,245,255,0.07); top: -60px; left: -80px; }
+.orb2 { width: 280px; height: 280px; background: rgba(255,45,120,0.07); bottom: 40px; right: -60px; animation-delay: -6s; }
+.orb3 { width: 200px; height: 200px; background: rgba(180,77,255,0.06); top: 40%; left: 60%; animation-delay: -3s; }
 
-    button,
-    a.button-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      padding: 0.7rem 1.2rem;
-      border-radius: 999px;
-      border: none;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: #22c55e;
-      color: #022c22;
-      transition: transform 0.12s ease, box-shadow 0.12s ease,
-        background 0.12s ease;
-      box-shadow: 0 12px 24px rgba(34, 197, 94, 0.28);
-      text-decoration: none;
-    }
+@keyframes orbDrift {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(20px, 30px) scale(1.08); }
+}
 
-    button:active,
-    a.button-link:active {
-      transform: translateY(1px) scale(0.99);
-      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
-    }
+/* ── MAIN LAYOUT ── */
+.stage {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 20px;
+}
 
-    button.secondary,
-    a.button-link.secondary {
-      background: #60a5fa;
-      color: #06203b;
-      box-shadow: 0 12px 24px rgba(96, 165, 250, 0.18);
-    }
-  </style>
+/* ── ASCII HORSE ── */
+.horse-wrap {
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.4vw, 13px);
+  line-height: 1.35;
+  white-space: pre;
+  letter-spacing: 0.05em;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.8s ease both;
+  user-select: none;
+  position: relative;
+}
+
+.horse-glitch-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* Base layer */
+.horse-base {
+  color: var(--cyan);
+  text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4);
+  position: relative;
+  display: block;
+  white-space: pre;
+}
+
+/* Shared ghost layer styles */
+.horse-r, .horse-b, .horse-w {
+  position: absolute;
+  top: 0; left: 0;
+  white-space: pre;
+  pointer-events: none;
+  display: block;
+  opacity: 0;
+}
+
+.horse-r { color: var(--pink);  text-shadow: 0 0 5px rgba(255,45,120,1); }
+.horse-b { color: #00ccff;      text-shadow: 0 0 5px rgba(0,200,255,1); }
+.horse-w { color: #ffffff;      text-shadow: 0 0 4px rgba(255,255,255,0.9); }
+
+/* Static noise canvas sits over the horse */
+.horse-noise {
+  position: absolute;
+  inset: -4px;
+  pointer-events: none;
+  opacity: 0.18;
+  mix-blend-mode: screen;
+}
+
+/* Horizontal tear bars — JS will reposition these */
+.tear {
+  position: absolute;
+  left: -8px; right: -8px;
+  height: 2px;
+  background: var(--cyan);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.tear-w {
+  position: absolute;
+  left: -8px; right: -8px;
+  height: 1px;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Glow flicker on base */
+@keyframes baseFlicker {
+  0%   { opacity: 1;    text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4); }
+  92%  { opacity: 1;    text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4); }
+  92.5%{ opacity: 0.4;  text-shadow: none; }
+  93%  { opacity: 1;    text-shadow: 0 0 20px rgba(0,245,255,1), 0 0 40px rgba(0,245,255,0.7); }
+  93.4%{ opacity: 0.7;  }
+  93.8%{ opacity: 1;    }
+  97%  { opacity: 1;    text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4); }
+  97.3%{ opacity: 0.2;  text-shadow: none; }
+  97.6%{ opacity: 1;    text-shadow: 0 0 30px rgba(0,245,255,1); }
+  98%  { opacity: 1;    text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4); }
+  100% { opacity: 1;    }
+}
+.horse-base { animation: baseFlicker 3.7s infinite; }
+
+/* ── TITLE BLOCK ── */
+.title-block {
+  text-align: center;
+  margin-bottom: 36px;
+  animation: fadeIn 0.6s 0.15s ease both;
+}
+
+.site-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  color: var(--pink);
+  text-shadow: 0 0 12px rgba(255,45,120,0.6);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.site-title {
+  font-family: var(--orb);
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: var(--cyan);
+  text-shadow:
+    0 0 20px rgba(0,245,255,0.8),
+    0 0 50px rgba(0,245,255,0.4),
+    0 0 100px rgba(0,245,255,0.15);
+  animation: titlePulse 4s ease-in-out infinite;
+}
+
+.site-title .x { color: var(--pink); text-shadow: 0 0 20px rgba(255,45,120,0.9), 0 0 50px rgba(255,45,120,0.4); }
+
+.site-sub {
+  font-family: var(--mono);
+  font-size: clamp(9px, 1.5vw, 12px);
+  letter-spacing: 0.28em;
+  color: var(--dim);
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+@keyframes titlePulse {
+  0%, 100% { text-shadow: 0 0 20px rgba(0,245,255,0.8), 0 0 50px rgba(0,245,255,0.4), 0 0 100px rgba(0,245,255,0.15); }
+  50%       { text-shadow: 0 0 30px rgba(0,245,255,1),   0 0 70px rgba(0,245,255,0.6), 0 0 120px rgba(0,245,255,0.25); }
+}
+
+/* ── MENU ── */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 400px;
+  animation: fadeIn 0.6s 0.3s ease both;
+}
+
+.menu-btn {
+  position: relative;
+  font-family: var(--orb);
+  font-size: clamp(11px, 1.8vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--muted);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+  outline: none;
+  width: 100%;
+  text-align: left;
+}
+
+/* Corner accents */
+.menu-btn::before,
+.menu-btn::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  transition: all 0.2s;
+}
+.menu-btn::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+.menu-btn::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+
+/* Sweep shine */
+.menu-btn .shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+.menu-btn:hover .shine { transform: translateX(100%); }
+
+.menu-btn .icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.menu-btn:hover .icon { transform: scale(1.2); }
+
+.menu-btn .label { flex: 1; }
+
+.menu-btn .arrow {
+  font-family: var(--mono);
+  font-size: 14px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: all 0.2s;
+}
+.menu-btn:hover .arrow { opacity: 1; transform: translateX(0); }
+
+/* Per-button colors */
+.btn-budget {
+  --c: var(--cyan);
+  border-color: rgba(0,245,255,0.25);
+}
+.btn-budget::before, .btn-budget::after { border-color: var(--cyan); }
+.btn-budget:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 24px rgba(0,245,255,0.2), inset 0 0 20px rgba(0,245,255,0.05);
+  background: rgba(0,245,255,0.04);
+}
+
+.btn-tracker {
+  --c: var(--pink);
+  border-color: rgba(255,45,120,0.25);
+}
+.btn-tracker::before, .btn-tracker::after { border-color: var(--pink); }
+.btn-tracker:hover {
+  border-color: var(--pink);
+  color: var(--pink);
+  box-shadow: 0 0 24px rgba(255,45,120,0.2), inset 0 0 20px rgba(255,45,120,0.05);
+  background: rgba(255,45,120,0.04);
+}
+
+.btn-reload {
+  --c: var(--yellow);
+  border-color: rgba(245,230,66,0.2);
+}
+.btn-reload::before, .btn-reload::after { border-color: var(--yellow); }
+.btn-reload:hover {
+  border-color: var(--yellow);
+  color: var(--yellow);
+  box-shadow: 0 0 24px rgba(245,230,66,0.2), inset 0 0 20px rgba(245,230,66,0.05);
+  background: rgba(245,230,66,0.04);
+}
+
+/* ── FOOTER ── */
+.footer {
+  position: fixed;
+  bottom: 14px;
+  left: 0; right: 0;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  z-index: 2;
+  text-transform: uppercase;
+}
+
+.footer span { color: var(--pink); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CLOCK ── */
+.clock {
+  position: fixed;
+  top: 14px; right: 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  z-index: 2;
+}
+.clock span { color: var(--cyan); }
+
+/* ── CORNER LOGO TAG ── */
+.corner-tag {
+  position: fixed;
+  top: 14px; left: 18px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  z-index: 2;
+  text-transform: uppercase;
+}
+</style>
 </head>
 <body>
-  <main class="card">
-    <h1>Main Menu</h1>
-    <p class="subtitle">Choose a page to navigate to:</p>
 
-    <div class="btn-row">
-      <button id="openBudget" type="button">💰 Open Budget Calculator</button>
-      <button id="openTracker" type="button">📍 Open Tracker</button>
-      <button id="openCyberMain" type="button">🤖 Open CyberDev</button>
-      <button id="reload" class="secondary" type="button">Reload Page</button>
+<!-- Background layers -->
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="grid-floor"></div>
+
+<!-- Corner UI chrome -->
+<div class="corner-tag">// SYS:MAIN</div>
+<div class="clock"><span id="clk">00:00:00</span> — ONLINE</div>
+
+<div class="stage">
+
+  <!-- ASCII HORSE — static glitch logo -->
+  <div class="horse-wrap" aria-label="ASCII horse logo">
+    <div class="horse-glitch-wrap" id="horseWrap">
+      <canvas class="horse-noise" id="horseNoise"></canvas>
+      <div class="tear" id="tear1"></div>
+      <div class="tear" id="tear2"></div>
+      <div class="tear" id="tear3"></div>
+      <div class="tear-w" id="tearW1"></div>
+      <div class="tear-w" id="tearW2"></div>
+      <span class="horse-r" id="horseR">           ,--,
+     _ ___/ /\|
+ ,;'( )__,  )  ~
+//  //    '--;
+'    \     | ^
+      ^    ^  </span>
+      <span class="horse-b" id="horseB">           ,--,
+     _ ___/ /\|
+ ,;'( )__,  )  ~
+//  //    '--;
+'    \     | ^
+      ^    ^  </span>
+      <span class="horse-w" id="horseW">           ,--,
+     _ ___/ /\|
+ ,;'( )__,  )  ~
+//  //    '--;
+'    \     | ^
+      ^    ^  </span>
+      <span class="horse-base" id="horseBase">           ,--,
+     _ ___/ /\|
+ ,;'( )__,  )  ~
+//  //    '--;
+'    \     | ^
+      ^    ^  </span>
     </div>
-  </main>
+  </div>
 
-  <script>
-    document.getElementById('openBudget').addEventListener('click', () => {
-      window.location.href = 'budget.html';
-    });
+  <!-- TITLE -->
+  <div class="title-block">
+    <div class="site-tag">▸ welcome to</div>
+    <div class="site-title">PWNY<span class="x">X</span>PRESS</div>
+    <div class="site-sub">// ride the data stream //</div>
+  </div>
 
-    document.getElementById('openTracker').addEventListener('click', () => {
-      window.location.href = 'tracker.html';
-    });
+  <!-- MENU -->
+  <nav class="menu" role="navigation" aria-label="Main menu">
 
-    document.getElementById('openCyberMain').addEventListener('click', () => {
-      window.location.href = 'cyber-main.html';
-    });
+    <a href="budget.html" class="menu-btn btn-budget">
+      <span class="shine"></span>
+      <span class="icon">◈</span>
+      <span class="label">Budget Planner</span>
+      <span class="arrow">▶</span>
+    </a>
 
-    document.getElementById('reload').addEventListener('click', () => {
-      window.location.href = 'index.html';
-    });
-  </script>
+    <a href="tracker.html" class="menu-btn btn-tracker">
+      <span class="shine"></span>
+      <span class="icon">◉</span>
+      <span class="label">Expense Tracker</span>
+      <span class="arrow">▶</span>
+    </a>
+
+    <button onclick="location.reload()" class="menu-btn btn-reload">
+      <span class="shine"></span>
+      <span class="icon">↺</span>
+      <span class="label">Reload System</span>
+      <span class="arrow">▶</span>
+    </button>
+
+  </nav>
+</div>
+
+<div class="footer">PWNY<span>X</span>PRESS &nbsp;·&nbsp; ALL SYSTEMS NOMINAL &nbsp;·&nbsp; v1.0.0</div>
+
+<script>
+// ── CLOCK ──
+function tick() {
+  const n = new Date();
+  document.getElementById('clk').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' +
+    String(n.getMinutes()).padStart(2,'0') + ':' +
+    String(n.getSeconds()).padStart(2,'0');
+}
+setInterval(tick, 1000); tick();
+
+// ══════════════════════════════════════
+//  HORSE GLITCH ENGINE
+// ══════════════════════════════════════
+
+const wrap  = document.getElementById('horseWrap');
+const base  = document.getElementById('horseBase');
+const rLayer= document.getElementById('horseR');
+const bLayer= document.getElementById('horseB');
+const wLayer= document.getElementById('horseW');
+const tears = [
+  document.getElementById('tear1'),
+  document.getElementById('tear2'),
+  document.getElementById('tear3'),
+];
+const tearWs = [
+  document.getElementById('tearW1'),
+  document.getElementById('tearW2'),
+];
+const noiseCanvas = document.getElementById('horseNoise');
+const ctx = noiseCanvas.getContext('2d');
+
+// ── SIZE canvas to horse ──
+function sizeNoise() {
+  const r = wrap.getBoundingClientRect();
+  noiseCanvas.width  = r.width  + 8;
+  noiseCanvas.height = r.height + 8;
+}
+window.addEventListener('resize', sizeNoise);
+setTimeout(sizeNoise, 100);
+
+// ── STATIC NOISE — runs every frame ──
+function drawNoise() {
+  const w = noiseCanvas.width, h = noiseCanvas.height;
+  if (!w || !h) { requestAnimationFrame(drawNoise); return; }
+  const img = ctx.createImageData(w, h);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = Math.random() > 0.55 ? Math.floor(Math.random() * 255) : 0;
+    d[i]   = 0;
+    d[i+1] = v;       // green channel → cyan tint
+    d[i+2] = v;
+    d[i+3] = v > 0 ? Math.floor(v * 0.6) : 0;
+  }
+  ctx.putImageData(img, 0, 0);
+  requestAnimationFrame(drawNoise);
+}
+drawNoise();
+
+// ── UTILS ──
+const rand = (a, b) => Math.random() * (b - a) + a;
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+function getH() {
+  return (wrap.getBoundingClientRect().height || 100);
+}
+
+function hideTears() {
+  tears.forEach(t => { t.style.opacity = 0; });
+  tearWs.forEach(t => { t.style.opacity = 0; });
+}
+
+function hideGhosts() {
+  rLayer.style.opacity = 0;
+  bLayer.style.opacity = 0;
+  wLayer.style.opacity = 0;
+  rLayer.style.clipPath = 'inset(0 0 100% 0)';
+  bLayer.style.clipPath = 'inset(0 0 100% 0)';
+  wLayer.style.clipPath = 'inset(0 0 100% 0)';
+  rLayer.style.transform = 'translate(0,0)';
+  bLayer.style.transform = 'translate(0,0)';
+  wrap.style.transform = '';
+  wrap.style.filter = '';
+}
+
+// ── MICRO TWITCH — very subtle, near-constant ──
+// Fires frequently but stays small so the horse always feels "alive"
+function microTwitch() {
+  const dur = rand(40, 120);
+  rLayer.style.opacity = rand(0.1, 0.35).toString();
+  rLayer.style.clipPath = `inset(${rand(0,80)}% 0 ${rand(0,15)}% 0)`;
+  rLayer.style.transform = `translate(${rand(-2,2)}px, 0)`;
+
+  bLayer.style.opacity = rand(0.1, 0.3).toString();
+  bLayer.style.clipPath = `inset(${rand(0,80)}% 0 ${rand(0,15)}% 0)`;
+  bLayer.style.transform = `translate(${rand(-2,2)}px, 0)`;
+
+  // Occasional white flash slice
+  if (Math.random() > 0.7) {
+    const top = rand(10,80), bot = rand(5, 30 - 5);
+    wLayer.style.opacity = rand(0.15, 0.5).toString();
+    wLayer.style.clipPath = `inset(${top}% 0 ${bot}% 0)`;
+  }
+
+  setTimeout(() => {
+    hideGhosts();
+    // Schedule next micro twitch — frequent, irregular
+    setTimeout(microTwitch, rand(200, 900));
+  }, dur);
+}
+
+// ── TEAR BAR — a single horizontal slice jump ──
+function fireTear() {
+  const h = getH();
+  const t = pick(tears);
+  const top = rand(5, 90);
+  t.style.top = `${top}%`;
+  t.style.opacity = rand(0.5, 1).toString();
+  t.style.height = `${rand(1, 4)}px`;
+  t.style.boxShadow = `0 0 ${rand(4,12)}px rgba(0,245,255,0.8)`;
+  // Slight horizontal shift of content above tear
+  wrap.style.transform = `translate(${rand(-6,6)}px, 0) skewX(${rand(-1,1)}deg)`;
+
+  const dur = rand(30, 100);
+  setTimeout(() => {
+    t.style.opacity = 0;
+    wrap.style.transform = '';
+    if (Math.random() > 0.5) {
+      // chain a white tear
+      const tw = pick(tearWs);
+      tw.style.top = `${rand(0,100)}%`;
+      tw.style.opacity = '0.8';
+      setTimeout(() => { tw.style.opacity = 0; }, rand(20,60));
+    }
+  }, dur);
+}
+
+// ── BIG BURST — full distortion event ──
+function glitchBurst() {
+  const h = getH();
+  const steps = Math.floor(rand(4, 9));
+  let delay = 0;
+
+  for (let i = 0; i < steps; i++) {
+    const t = delay;
+    delay += rand(30, 90);
+
+    setTimeout(() => {
+      // RGB split with random clip slices
+      const r1 = rand(0, 70), r2 = rand(0, 25);
+      const b1 = rand(0, 70), b2 = rand(0, 25);
+
+      rLayer.style.opacity = rand(0.5, 0.95).toString();
+      rLayer.style.clipPath = `inset(${r1}% 0 ${r2}% 0)`;
+      rLayer.style.transform = `translate(${rand(-8, -2)}px, ${rand(-1,1)}px)`;
+
+      bLayer.style.opacity = rand(0.4, 0.85).toString();
+      bLayer.style.clipPath = `inset(${b1}% 0 ${b2}% 0)`;
+      bLayer.style.transform = `translate(${rand(2, 9)}px, ${rand(-1,1)}px)`;
+
+      // Whole-body transform
+      wrap.style.transform = `translate(${rand(-4,4)}px, ${rand(-1,1)}px) skewX(${rand(-2,2)}deg)`;
+      wrap.style.filter = `brightness(${rand(0.7, 2.0)}) hue-rotate(${rand(-40,40)}deg)`;
+
+      // Tear bars
+      if (Math.random() > 0.3) fireTear();
+
+      // White flash slice
+      if (Math.random() > 0.5) {
+        const top = rand(5, 75);
+        wLayer.style.opacity = rand(0.3, 0.8).toString();
+        wLayer.style.clipPath = `inset(${top}% 0 ${rand(5,20)}% 0)`;
+      }
+
+    }, t);
+
+    // Reset after each step
+    setTimeout(() => {
+      if (i === steps - 1) {
+        hideGhosts();
+        hideTears();
+        wrap.style.transform = '';
+        wrap.style.filter = '';
+      } else {
+        hideGhosts();
+      }
+    }, delay + 15);
+  }
+}
+
+// ── SCHEDULER ──
+// Low-level constant micro twitches + medium tears + big burst events
+
+// Start micro twitches immediately
+setTimeout(microTwitch, rand(300, 800));
+
+// Regular tear bars every 1.2–2.5s
+function tearLoop() {
+  fireTear();
+  setTimeout(tearLoop, rand(1200, 2500));
+}
+setTimeout(tearLoop, rand(400, 1000));
+
+// Big burst every 2.5–5s
+function burstLoop() {
+  glitchBurst();
+  setTimeout(burstLoop, rand(2500, 5000));
+}
+setTimeout(burstLoop, rand(800, 2000));
+</script>
 </body>
 </html>

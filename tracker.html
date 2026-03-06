@@ -1,348 +1,875 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Location Tracker</title>
-  <style>
-    :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      color-scheme: light dark;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWNYXPRESS // TRACKER</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+/* ── MAP ── */
+#mapContainer {
+  width: 100%; height: 380px;
+  position: relative; overflow: hidden;
+  border: 1px solid var(--border);
+  background: #060a14;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+/* Dark cyberpunk tile filter */
+#mapContainer .leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.75) contrast(1.1);
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      background: radial-gradient(circle at top, #1f2933 0, #020617 55%);
-      color: #e5e7eb;
-    }
+/* Cyan crosshair marker */
+.cyber-marker {
+  width: 18px; height: 18px;
+  border: 2px solid var(--cyan);
+  border-radius: 50%;
+  background: rgba(0,245,255,0.25);
+  box-shadow: 0 0 10px var(--cyan), 0 0 24px rgba(0,245,255,0.4);
+  animation: markerPulse 1.4s ease-in-out infinite;
+}
+@keyframes markerPulse {
+  0%,100% { box-shadow: 0 0 10px var(--cyan), 0 0 24px rgba(0,245,255,0.4); transform: scale(1); }
+  50%      { box-shadow: 0 0 18px var(--cyan), 0 0 40px rgba(0,245,255,0.6); transform: scale(1.15); }
+}
 
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: rgba(15, 23, 42, 0.9);
-      border-radius: 1.25rem;
-      padding: 1.75rem 1.5rem;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      backdrop-filter: blur(18px);
-    }
+/* Accuracy circle style override */
+.leaflet-interactive.acc-circle { cursor: default !important; }
 
-    h1 {
-      margin: 0 0 0.5rem;
-      font-size: 1.4rem;
-      letter-spacing: 0.02em;
-    }
+/* Map overlay — recenter button */
+.map-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px 0; flex-wrap: wrap; gap: 8px;
+}
+.map-toolbar-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--dim);
+}
+.btn-xs {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 5px 12px; cursor: pointer;
+  border: 1px solid; background: transparent; transition: all 0.15s;
+}
+.btn-xs.recenter { border-color: var(--cyan); color: var(--cyan); }
+.btn-xs.recenter:hover { background: rgba(0,245,255,0.08); box-shadow: 0 0 10px rgba(0,245,255,0.3); }
+.btn-xs.trail-toggle { border-color: var(--yellow); color: var(--yellow); }
+.btn-xs.trail-toggle:hover { background: rgba(245,230,66,0.08); box-shadow: 0 0 10px rgba(245,230,66,0.3); }
+.btn-xs:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    p.subtitle {
-      margin: 0 0 1.25rem;
-      font-size: 0.9rem;
-      color: #9ca3af;
-    }
+/* Map await overlay */
+.map-await {
+  position: absolute; inset: 0; z-index: 500;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(4,6,15,0.88);
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.15em;
+  color: var(--dim); text-transform: uppercase; gap: 10px;
+  pointer-events: none;
+}
+.map-await .await-icon { font-size: 28px; opacity: 0.3; animation: awaitPulse 2s ease-in-out infinite; }
+@keyframes awaitPulse { 0%,100%{opacity:0.3;} 50%{opacity:0.7;} }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      padding: 0.7rem 1.2rem;
-      border-radius: 999px;
-      border: none;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      background: #22c55e;
-      color: #022c22;
-      transition: transform 0.12s ease, box-shadow 0.12s ease,
-        background 0.12s ease;
-      box-shadow: 0 12px 24px rgba(34, 197, 94, 0.28);
-    }
+:root {
+  --bg:     #04060f;
+  --panel:  #080c1a;
+  --panel2: #0b1020;
+  --border: #0f2040;
+  --cyan:   #00f5ff;
+  --pink:   #ff2d78;
+  --yellow: #f5e642;
+  --green:  #39ff7a;
+  --purple: #b44dff;
+  --red:    #ff3d3d;
+  --muted:  #2a3a55;
+  --text:   #c8d8f0;
+  --dim:    #4a6080;
+  --mono:   'Share Tech Mono', monospace;
+  --orb:    'Orbitron', monospace;
+  --raj:    'Rajdhani', sans-serif;
+}
 
-    button:active {
-      transform: translateY(1px) scale(0.99);
-      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
-    }
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--raj); overflow-x: hidden; cursor: crosshair; }
 
-    button.stop {
-      background: #f97316;
-      box-shadow: 0 12px 24px rgba(248, 113, 22, 0.28);
-      color: #111827;
-    }
+/* scanlines */
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  pointer-events: none; z-index: 9999;
+}
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
-      box-shadow: none;
-    }
+/* grid */
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px; pointer-events: none; z-index: 0;
+}
 
-    #status {
-      margin-top: 0.75rem;
-      font-size: 0.85rem;
-      min-height: 1.2em;
-      color: #e5e7eb;
-    }
+/* glow orbs */
+.orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; animation: orbDrift 14s ease-in-out infinite alternate; }
+.orb1 { width: 320px; height: 320px; background: rgba(0,245,255,0.06); top: -80px; left: -60px; }
+.orb2 { width: 260px; height: 260px; background: rgba(255,45,120,0.06); bottom: 60px; right: -40px; animation-delay: -7s; }
+.orb3 { width: 180px; height: 180px; background: rgba(57,255,122,0.05); top: 50%; left: 55%; animation-delay: -3s; }
+@keyframes orbDrift { from { transform: translate(0,0) scale(1); } to { transform: translate(18px,28px) scale(1.06); } }
 
-    #status.error {
-      color: #f97373;
-    }
+.app { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 24px 16px 80px; }
 
-    #output {
-      margin-top: 1.25rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(148, 163, 184, 0.4);
-      font-size: 0.9rem;
-    }
+/* ── HEADER ── */
+.hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+  animation: fadeIn 0.5s ease both;
+}
+.hdr-left { display: flex; align-items: center; gap: 16px; }
+.logo { font-family: var(--orb); font-size: clamp(15px,3.5vw,22px); font-weight: 900; letter-spacing: 0.08em; color: var(--cyan); text-shadow: 0 0 18px rgba(0,245,255,0.6); }
+.logo span { color: var(--pink); text-shadow: 0 0 18px rgba(255,45,120,0.6); }
+.page-title { font-family: var(--orb); font-size: clamp(9px,1.8vw,12px); letter-spacing: 0.3em; color: var(--dim); text-transform: uppercase; }
+.hdr-right { font-family: var(--mono); font-size: 11px; color: var(--dim); text-align: right; line-height: 1.7; }
+#liveClock { color: var(--cyan); font-size: 13px; }
 
-    .kv {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.4rem;
-      gap: 0.75rem;
-    }
+.home-btn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--dim);
+  text-decoration: none; border: 1px solid var(--muted); padding: 5px 12px;
+  text-transform: uppercase; transition: all 0.15s;
+}
+.home-btn:hover { color: var(--cyan); border-color: var(--cyan); }
 
-    .kv span.label {
-      color: #9ca3af;
-    }
+/* ── PANEL ── */
+.panel {
+  background: var(--panel); border: 1px solid var(--border);
+  position: relative; overflow: hidden; margin-bottom: 16px;
+  animation: fadeIn 0.4s ease both;
+}
+.panel::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent); opacity: 0.5;
+}
+.panel.accent-pink::before { background: linear-gradient(90deg, transparent, var(--pink), transparent); }
+.panel.accent-green::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+.panel-title {
+  font-family: var(--orb); font-size: 10px; font-weight: 700; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--cyan); padding: 14px 20px 0; opacity: 0.8;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-title::before { content: '//'; color: var(--pink); opacity: 0.7; }
+.panel-body { padding: 16px 20px 20px; }
 
-    a#mapsLink {
-      display: inline-flex;
-      margin-top: 0.8rem;
-      font-size: 0.9rem;
-      text-decoration: none;
-      padding: 0.5rem 0.9rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      color: #e5e7eb;
-    }
+/* ── LIVE INDICATOR ── */
+.live-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; padding: 5px 14px;
+  border: 1px solid var(--muted); color: var(--dim);
+  transition: all 0.3s;
+}
+.live-badge.active {
+  border-color: var(--green); color: var(--green);
+  box-shadow: 0 0 16px rgba(57,255,122,0.25);
+}
+.live-badge.error-state {
+  border-color: var(--red); color: var(--red);
+  box-shadow: 0 0 12px rgba(255,61,61,0.2);
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--muted); flex-shrink: 0; transition: background 0.3s;
+}
+.live-badge.active .live-dot {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: livePulse 1s ease-in-out infinite;
+}
+.live-badge.error-state .live-dot { background: var(--red); box-shadow: 0 0 8px var(--red); }
+@keyframes livePulse { 0%,100% { opacity: 1; box-shadow: 0 0 8px var(--green); } 50% { opacity: 0.4; box-shadow: 0 0 3px var(--green); } }
 
-    a#mapsLink:hover {
-      text-decoration: underline;
-    }
+/* ── CONTROLS ── */
+.controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
 
-    .hint {
-      margin-top: 0.8rem;
-      font-size: 0.75rem;
-      color: #6b7280;
-    }
+.btn {
+  font-family: var(--orb); font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; border: none; padding: 12px 22px; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.05); opacity: 0; transition: opacity 0.15s; }
+.btn:hover::after { opacity: 1; }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      font-size: 0.75rem;
-      color: #9ca3af;
-      margin-top: 0.5rem;
-    }
+.btn-green { background: transparent; border: 1px solid var(--green); color: var(--green); box-shadow: 0 0 14px rgba(57,255,122,0.2); }
+.btn-green:hover { background: rgba(57,255,122,0.07); box-shadow: 0 0 26px rgba(57,255,122,0.4); }
+.btn-green:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
 
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
-      animation: pulse 1.2s infinite alternate;
-    }
+.btn-red { background: transparent; border: 1px solid var(--red); color: var(--red); box-shadow: 0 0 14px rgba(255,61,61,0.2); }
+.btn-red:hover { background: rgba(255,61,61,0.07); box-shadow: 0 0 26px rgba(255,61,61,0.4); }
+.btn-red:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
 
-    .dot.idle {
-      background: #6b7280;
-      box-shadow: none;
-      animation: none;
-    }
+.btn-cyan { background: transparent; border: 1px solid var(--cyan); color: var(--cyan); box-shadow: 0 0 14px rgba(0,245,255,0.2); }
+.btn-cyan:hover { background: rgba(0,245,255,0.07); box-shadow: 0 0 26px rgba(0,245,255,0.4); }
+.btn-cyan:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
 
-    @keyframes pulse {
-      from {
-        transform: scale(0.9);
-        opacity: 0.7;
-      }
-      to {
-        transform: scale(1.2);
-        opacity: 1;
-      }
-    }
-  </style>
+.btn-pink { background: transparent; border: 1px solid var(--pink); color: var(--pink); box-shadow: 0 0 14px rgba(255,45,120,0.2); }
+.btn-pink:hover { background: rgba(255,45,120,0.07); box-shadow: 0 0 26px rgba(255,45,120,0.4); }
+
+/* ── COORD GRID ── */
+.coord-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;
+}
+@media (min-width: 540px) { .coord-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.coord-card {
+  background: var(--panel2); border: 1px solid var(--border);
+  padding: 14px 16px; position: relative; overflow: hidden;
+  transition: border-color 0.3s;
+}
+.coord-card.has-data { border-color: rgba(0,245,255,0.25); }
+.coord-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; transition: background 0.3s; }
+.coord-card.has-data::after { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.coord-card.c-pink.has-data::after { background: var(--pink); box-shadow: 0 0 8px var(--pink); }
+.coord-card.c-yellow.has-data::after { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+.coord-card.c-green.has-data::after { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+.coord-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+.coord-val { font-family: var(--orb); font-size: clamp(13px,2.5vw,18px); font-weight: 700; color: var(--muted); transition: color 0.3s, text-shadow 0.3s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.coord-card.has-data .coord-val { color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.5); }
+.coord-card.c-pink.has-data .coord-val { color: var(--pink); text-shadow: 0 0 12px rgba(255,45,120,0.5); }
+.coord-card.c-yellow.has-data .coord-val { color: var(--yellow); text-shadow: 0 0 12px rgba(245,230,66,0.5); }
+.coord-card.c-green.has-data .coord-val { color: var(--green); text-shadow: 0 0 12px rgba(57,255,122,0.5); }
+.coord-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
+
+/* ── CITY BLOCK ── */
+.city-block {
+  background: var(--panel2); border: 1px solid var(--border);
+  padding: 18px 20px; margin-bottom: 16px; position: relative; overflow: hidden;
+  transition: border-color 0.3s;
+}
+.city-block.has-data { border-color: rgba(180,77,255,0.35); }
+.city-block::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; }
+.city-block.has-data::after { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
+
+.city-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+.city-name { font-family: var(--orb); font-size: clamp(18px,4vw,28px); font-weight: 900; letter-spacing: 0.05em; color: var(--muted); transition: all 0.4s; }
+.city-block.has-data .city-name { color: var(--purple); text-shadow: 0 0 20px rgba(180,77,255,0.6), 0 0 40px rgba(180,77,255,0.2); }
+.city-detail { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-top: 6px; letter-spacing: 0.08em; line-height: 1.6; }
+
+/* ── LOG ── */
+.log-wrap { max-height: 200px; overflow-y: auto; }
+.log-entry {
+  font-family: var(--mono); font-size: 11px; padding: 7px 0;
+  border-bottom: 1px solid rgba(15,32,64,0.6); display: flex; gap: 12px;
+  animation: rowIn 0.25s ease both;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-time { color: var(--dim); flex-shrink: 0; width: 56px; }
+.log-msg { color: var(--text); flex: 1; }
+.log-msg.ok { color: var(--green); }
+.log-msg.err { color: var(--red); }
+.log-msg.warn { color: var(--yellow); }
+.log-empty { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 16px 0; text-align: center; letter-spacing: 0.1em; }
+
+/* ── APPLE MAPS BTN ── */
+.maps-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+/* ── SIGNAL METER ── */
+.signal-wrap { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
+.signal-bar {
+  width: 5px; background: var(--muted); border-radius: 1px; transition: background 0.3s;
+}
+.signal-bar:nth-child(1) { height: 5px; }
+.signal-bar:nth-child(2) { height: 9px; }
+.signal-bar:nth-child(3) { height: 13px; }
+.signal-bar:nth-child(4) { height: 17px; }
+.signal-bar:nth-child(5) { height: 20px; }
+.signal-wrap.s1 .signal-bar:nth-child(1) { background: var(--red); box-shadow: 0 0 4px var(--red); }
+.signal-wrap.s2 .signal-bar:nth-child(1),
+.signal-wrap.s2 .signal-bar:nth-child(2) { background: var(--yellow); box-shadow: 0 0 4px var(--yellow); }
+.signal-wrap.s3 .signal-bar:nth-child(1),
+.signal-wrap.s3 .signal-bar:nth-child(2),
+.signal-wrap.s3 .signal-bar:nth-child(3) { background: var(--yellow); box-shadow: 0 0 4px var(--yellow); }
+.signal-wrap.s4 .signal-bar:nth-child(1),
+.signal-wrap.s4 .signal-bar:nth-child(2),
+.signal-wrap.s4 .signal-bar:nth-child(3),
+.signal-wrap.s4 .signal-bar:nth-child(4) { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.signal-wrap.s5 .signal-bar { background: var(--green); box-shadow: 0 0 4px var(--green); }
+
+/* ── HEADING/SPEED (if available) ── */
+.extra-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+@media (min-width: 480px) { .extra-grid { grid-template-columns: repeat(3,1fr); } }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--muted); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes rowIn  { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:translateX(0); } }
+@keyframes dataFlash { 0%,100% {} 50% { background: rgba(0,245,255,0.06); } }
+.data-flash { animation: dataFlash 0.4s ease; }
+
+/* ── FOOTER ── */
+.footer { position: fixed; bottom: 14px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:9px; letter-spacing:0.2em; color:var(--muted); z-index:2; text-transform:uppercase; }
+.footer span { color: var(--pink); }
+.corner-tag { position:fixed; top:14px; left:18px; font-family:var(--mono); font-size:10px; letter-spacing:0.2em; color:var(--dim); z-index:2; text-transform:uppercase; }
+.clock-fixed { position:fixed; top:14px; right:18px; font-family:var(--mono); font-size:11px; color:var(--dim); letter-spacing:0.12em; z-index:2; }
+.clock-fixed span { color: var(--cyan); }
+</style>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-  <main class="card">
-    <h1>Live Location Tracker</h1>
-    <p class="subtitle">
-      Start tracking to see your location update as you move. Works on iOS over
-      HTTPS with location permission granted.
-    </p>
 
-    <button id="locBtn" type="button">
-      📍 Start live tracking
-    </button>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
 
-    <div class="badge">
-      <span class="dot idle" id="liveDot"></span>
-      <span id="liveLabel">Not tracking</span>
+<div class="corner-tag">// GPS:TRACKER</div>
+<div class="clock-fixed"><span id="liveClock">00:00:00</span> — ONLINE</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <a href="index.html" class="home-btn">⌂ HOME</a>
+      <div>
+        <div class="logo">PWNY<span>X</span>PRESS</div>
+        <div class="page-title">// location tracker</div>
+      </div>
     </div>
-
-    <div id="status"></div>
-
-    <section id="output" hidden>
-      <div class="kv">
-        <span class="label">Latitude</span>
-        <span id="lat"></span>
-      </div>
-      <div class="kv">
-        <span class="label">Longitude</span>
-        <span id="lng"></span>
-      </div>
-      <div class="kv">
-        <span class="label">Accuracy</span>
-        <span id="acc"></span>
-      </div>
-      <div class="kv">
-        <span class="label">Last update</span>
-        <span id="ts"></span>
-      </div>
-      <a id="mapsLink" href="#" target="_blank" rel="noopener noreferrer">
-        Open in Maps
-      </a>
-      <p class="hint">
-        iOS will usually open Apple Maps. Location updates continue while this
-        page is in the foreground.
-      </p>
-    </section>
-
-    <div style="margin-top:1rem; display:flex; justify-content:center;">
-      <button id="backBtn" type="button">← Back</button>
+    <div class="hdr-right">
+      <div id="liveClock2">00:00:00</div>
+      <div>SYS:GPS v1.0</div>
     </div>
-  </main>
+  </div>
 
-  <script>
-    const locBtn = document.getElementById("locBtn");
-    const statusEl = document.getElementById("status");
-    const outputEl = document.getElementById("output");
-    const latEl = document.getElementById("lat");
-    const lngEl = document.getElementById("lng");
-    const accEl = document.getElementById("acc");
-    const tsEl = document.getElementById("ts");
-    const mapsLinkEl = document.getElementById("mapsLink");
-    const liveDot = document.getElementById("liveDot");
-    const liveLabel = document.getElementById("liveLabel");
-    const backBtn = document.getElementById('backBtn');
+  <!-- CONTROLS PANEL -->
+  <div class="panel" style="animation-delay:0.05s">
+    <div class="panel-title">Tracking Control</div>
+    <div class="panel-body">
+      <div class="controls">
+        <button class="btn btn-green" id="btnStart" onclick="startTracking()">▶ START TRACKING</button>
+        <button class="btn btn-red"   id="btnStop"  onclick="stopTracking()" disabled>■ STOP</button>
+        <div class="live-badge" id="liveBadge">
+          <div class="live-dot"></div>
+          <span id="liveLabel">OFFLINE</span>
+        </div>
+        <div class="signal-wrap" id="signalMeter">
+          <div class="signal-bar"></div>
+          <div class="signal-bar"></div>
+          <div class="signal-bar"></div>
+          <div class="signal-bar"></div>
+          <div class="signal-bar"></div>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.08em;" id="statusLine">
+        — Awaiting signal. Press START TRACKING to begin.
+      </div>
+    </div>
+  </div>
 
-    let watchId = null;
+  <!-- COORDINATES -->
+  <div class="panel accent-pink" style="animation-delay:0.1s">
+    <div class="panel-title">Coordinates</div>
+    <div class="panel-body">
+      <div class="coord-grid">
+        <div class="coord-card" id="cardLat">
+          <div class="coord-label">Latitude</div>
+          <div class="coord-val" id="valLat">---.------</div>
+          <div class="coord-sub">decimal degrees</div>
+        </div>
+        <div class="coord-card c-pink" id="cardLng">
+          <div class="coord-label">Longitude</div>
+          <div class="coord-val" id="valLng">---.------</div>
+          <div class="coord-sub">decimal degrees</div>
+        </div>
+        <div class="coord-card c-yellow" id="cardAcc">
+          <div class="coord-label">Accuracy</div>
+          <div class="coord-val" id="valAcc">--- m</div>
+          <div class="coord-sub" id="subAcc">±radius</div>
+        </div>
+        <div class="coord-card c-green" id="cardAlt">
+          <div class="coord-label">Altitude</div>
+          <div class="coord-val" id="valAlt">--- m</div>
+          <div class="coord-sub">above sea level</div>
+        </div>
+      </div>
+      <!-- Extra: speed + heading -->
+      <div class="extra-grid">
+        <div class="coord-card" id="cardSpeed" style="border-color:rgba(180,77,255,0.2);">
+          <div class="coord-label">Speed</div>
+          <div class="coord-val" id="valSpeed" style="font-size:14px;">-- m/s</div>
+          <div class="coord-sub" id="valSpeedKph">-- km/h</div>
+        </div>
+        <div class="coord-card" id="cardHeading" style="border-color:rgba(180,77,255,0.2);">
+          <div class="coord-label">Heading</div>
+          <div class="coord-val" id="valHeading" style="font-size:14px;">---°</div>
+          <div class="coord-sub" id="valHeadingDir">--</div>
+        </div>
+        <div class="coord-card" id="cardUpdated" style="border-color:rgba(180,77,255,0.2);">
+          <div class="coord-label">Last Fix</div>
+          <div class="coord-val" id="valUpdated" style="font-size:13px;">--:--:--</div>
+          <div class="coord-sub" id="valFixCount">0 fixes</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    function setStatus(message, isError = false) {
-      statusEl.textContent = message || "";
-      statusEl.classList.toggle("error", Boolean(isError));
+  <!-- LIVE MAP -->
+  <div class="panel" style="animation-delay:0.13s; overflow:visible;">
+    <div class="panel-title">Live Map</div>
+    <div class="map-toolbar">
+      <span class="map-toolbar-label" id="mapZoomLabel">// awaiting signal</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-xs trail-toggle" id="btnTrail" onclick="toggleTrail()" disabled>◉ TRAIL ON</button>
+        <button class="btn-xs recenter"     id="btnRecenter" onclick="recenterMap()" disabled>⊕ RECENTER</button>
+      </div>
+    </div>
+    <div style="padding:10px 0 0;">
+      <div id="mapContainer">
+        <div class="map-await" id="mapAwait">
+          <div class="await-icon">◎</div>
+          <div>Awaiting GPS signal</div>
+        </div>
+        <div id="liveMap" style="width:100%;height:100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CITY / LOCATION -->
+  <div class="panel accent-green" style="animation-delay:0.15s">
+    <div class="panel-title">Approximate Location</div>
+    <div class="panel-body">
+      <div class="city-block" id="cityBlock">
+        <div class="city-label">// reverse geocode</div>
+        <div class="city-name" id="cityName">AWAITING SIGNAL</div>
+        <div class="city-detail" id="cityDetail">Country · Region · Postal Code will appear here</div>
+      </div>
+      <div class="maps-row">
+        <button class="btn btn-pink" id="btnMaps" onclick="openAppleMaps()" disabled>
+          ⌖ OPEN IN APPLE MAPS
+        </button>
+        <button class="btn btn-cyan" id="btnCopy" onclick="copyCoords()" disabled>
+          ⎘ COPY COORDS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENT LOG -->
+  <div class="panel" style="animation-delay:0.2s">
+    <div class="panel-title">Signal Log</div>
+    <div class="panel-body">
+      <div class="log-wrap" id="logWrap">
+        <div class="log-empty" id="logEmpty">No events logged yet.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end app -->
+
+<div class="footer">PWNY<span>X</span>PRESS &nbsp;·&nbsp; GPS TRACKER &nbsp;·&nbsp; v1.0.0</div>
+
+<script>
+// ── CLOCK ──
+function tick() {
+  const t = new Date();
+  const s = String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+':'+String(t.getSeconds()).padStart(2,'0');
+  document.getElementById('liveClock').textContent = s;
+  document.getElementById('liveClock2').textContent = s;
+}
+setInterval(tick, 1000); tick();
+
+// ── STATE ──
+let watchId    = null;
+let fixCount   = 0;
+let lastPos    = null;
+let geocodeTimeout = null;
+
+// ── MAP STATE ──
+let map          = null;
+let marker       = null;
+let accCircle    = null;
+let trailLine    = null;
+let trailPoints  = [];
+let trailEnabled = true;
+let autoFollow   = true;
+
+// ── ELEMENTS ──
+const btnStart   = document.getElementById('btnStart');
+const btnStop    = document.getElementById('btnStop');
+const btnMaps    = document.getElementById('btnMaps');
+const btnCopy    = document.getElementById('btnCopy');
+const liveBadge  = document.getElementById('liveBadge');
+const liveLabel  = document.getElementById('liveLabel');
+const statusLine = document.getElementById('statusLine');
+const signalMeter= document.getElementById('signalMeter');
+const logWrap    = document.getElementById('logWrap');
+const logEmpty   = document.getElementById('logEmpty');
+
+// coord elements
+const valLat     = document.getElementById('valLat');
+const valLng     = document.getElementById('valLng');
+const valAcc     = document.getElementById('valAcc');
+const valAlt     = document.getElementById('valAlt');
+const valSpeed   = document.getElementById('valSpeed');
+const valSpeedKph= document.getElementById('valSpeedKph');
+const valHeading = document.getElementById('valHeading');
+const valHeadingDir = document.getElementById('valHeadingDir');
+const valUpdated = document.getElementById('valUpdated');
+const valFixCount= document.getElementById('valFixCount');
+
+// city elements
+const cityBlock  = document.getElementById('cityBlock');
+const cityName   = document.getElementById('cityName');
+const cityDetail = document.getElementById('cityDetail');
+
+// cards
+const cards = {
+  lat:     document.getElementById('cardLat'),
+  lng:     document.getElementById('cardLng'),
+  acc:     document.getElementById('cardAcc'),
+  alt:     document.getElementById('cardAlt'),
+};
+
+// ── LOGGING ──
+function addLog(msg, type='') {
+  logEmpty.style.display = 'none';
+  const now = new Date();
+  const ts  = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  const row = document.createElement('div');
+  row.className = 'log-entry';
+  row.innerHTML = `<span class="log-time">${ts}</span><span class="log-msg ${type}">${msg}</span>`;
+  logWrap.insertBefore(row, logWrap.firstChild);
+  // cap log at 40 entries
+  while (logWrap.querySelectorAll('.log-entry').length > 40) {
+    logWrap.removeChild(logWrap.lastChild);
+  }
+}
+
+// ── SIGNAL QUALITY from accuracy ──
+function signalLevel(acc) {
+  if (acc <= 10)  return 5;
+  if (acc <= 30)  return 4;
+  if (acc <= 80)  return 3;
+  if (acc <= 200) return 2;
+  return 1;
+}
+
+function updateSignal(acc) {
+  const lvl = acc != null ? signalLevel(acc) : 0;
+  signalMeter.className = 'signal-wrap' + (lvl > 0 ? ' s'+lvl : '');
+}
+
+// ── HEADING to compass ──
+function headingStr(h) {
+  if (h == null) return '--';
+  const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+  return dirs[Math.round(h / 45) % 8];
+}
+
+// ── FLASH animation on card ──
+function flashCard(el) {
+  el.classList.remove('data-flash');
+  void el.offsetWidth;
+  el.classList.add('data-flash');
+  setTimeout(() => el.classList.remove('data-flash'), 400);
+}
+
+// ── UPDATE DISPLAY ──
+function updateDisplay(pos) {
+  const c = pos.coords;
+  lastPos = pos;
+  fixCount++;
+
+  const lat = c.latitude.toFixed(6);
+  const lng = c.longitude.toFixed(6);
+  const acc = Math.round(c.accuracy);
+
+  valLat.textContent = lat;
+  valLng.textContent = lng;
+  valAcc.textContent = acc + ' m';
+  document.getElementById('subAcc').textContent = acc <= 20 ? 'high precision' : acc <= 100 ? 'medium precision' : 'low precision';
+  valAlt.textContent = c.altitude != null ? Math.round(c.altitude) + ' m' : 'N/A';
+
+  const spd = c.speed;
+  if (spd != null) {
+    valSpeed.textContent   = spd.toFixed(1) + ' m/s';
+    valSpeedKph.textContent = (spd * 3.6).toFixed(1) + ' km/h';
+  } else {
+    valSpeed.textContent   = 'N/A';
+    valSpeedKph.textContent = '--';
+  }
+
+  const hdg = c.heading;
+  valHeading.textContent   = hdg != null ? Math.round(hdg) + '°' : 'N/A';
+  valHeadingDir.textContent = headingStr(hdg);
+
+  const now = new Date();
+  valUpdated.textContent  = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  valFixCount.textContent = fixCount + ' fix' + (fixCount !== 1 ? 'es' : '');
+
+  // activate cards
+  Object.values(cards).forEach(c => c.classList.add('has-data'));
+  [cards.lat, cards.lng, cards.acc, cards.alt].forEach(flashCard);
+
+  updateSignal(c.accuracy);
+  statusLine.textContent = `▶ LIVE — fix #${fixCount} — accuracy ±${acc}m`;
+  btnMaps.disabled = false;
+  btnCopy.disabled = false;
+
+  // ── Update live map ──
+  updateMap(c.latitude, c.longitude, c.accuracy);
+
+  addLog(`Fix #${fixCount} — Lat ${lat}, Lng ${lng}, Acc ±${acc}m`, 'ok');
+
+  // Reverse geocode (throttle to once every 10s)
+  if (!geocodeTimeout) {
+    reverseGeocode(c.latitude, c.longitude);
+    geocodeTimeout = setTimeout(() => { geocodeTimeout = null; }, 10000);
+  }
+}
+
+// ── REVERSE GEOCODE via nominatim ──
+function reverseGeocode(lat, lng) {
+  cityName.textContent  = 'RESOLVING...';
+  cityDetail.textContent = '';
+  cityBlock.classList.remove('has-data');
+
+  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, {
+    headers: { 'Accept-Language': 'en' }
+  })
+  .then(r => r.json())
+  .then(d => {
+    const a = d.address || {};
+    const city    = a.city || a.town || a.village || a.county || a.municipality || 'Unknown locality';
+    const region  = a.state || a.region || '';
+    const country = a.country || '';
+    const postal  = a.postcode || '';
+
+    cityName.textContent  = city.toUpperCase();
+    cityDetail.textContent = [region, country, postal ? 'ZIP: ' + postal : ''].filter(Boolean).join('  ·  ');
+    cityBlock.classList.add('has-data');
+    addLog(`Location resolved: ${city}, ${region}, ${country}`, 'ok');
+  })
+  .catch(() => {
+    cityName.textContent  = 'GEOCODE FAILED';
+    cityDetail.textContent = 'Could not resolve location name (network or API error)';
+    addLog('Reverse geocode failed — check network connection', 'warn');
+  });
+}
+
+// ── INIT MAP ──
+function initMap(lat, lng) {
+  if (map) return; // already initialised
+
+  // Hide await overlay
+  document.getElementById('mapAwait').style.display = 'none';
+
+  map = L.map('liveMap', {
+    center: [lat, lng],
+    zoom: 16,
+    zoomControl: true,
+    attributionControl: false
+  });
+
+  // OpenStreetMap tiles — filtered to dark/cyan via CSS
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  // Minimal attribution in corner
+  L.control.attribution({ prefix: false, position: 'bottomright' })
+    .addAttribution('<span style="font-family:monospace;font-size:9px;color:#4a6080;">© OSM</span>')
+    .addTo(map);
+
+  // Custom cyan pulsing marker
+  const icon = L.divIcon({
+    className: '',
+    html: '<div class="cyber-marker"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+  });
+
+  marker    = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(map);
+  accCircle = L.circle([lat, lng], {
+    radius: 50,
+    color: '#00f5ff',
+    fillColor: '#00f5ff',
+    fillOpacity: 0.06,
+    weight: 1,
+    opacity: 0.4,
+    className: 'acc-circle'
+  }).addTo(map);
+
+  trailLine = L.polyline([], {
+    color: '#ff2d78',
+    weight: 2,
+    opacity: 0.7,
+    smoothFactor: 1
+  }).addTo(map);
+
+  // Stop auto-follow when user manually pans
+  map.on('dragstart', () => { autoFollow = false; });
+  map.on('zoomstart', (e) => { if (e.target._lastCenter) autoFollow = false; });
+
+  // Enable toolbar buttons
+  document.getElementById('btnRecenter').disabled = false;
+  document.getElementById('btnTrail').disabled    = false;
+
+  updateMapZoomLabel();
+  map.on('zoomend', updateMapZoomLabel);
+}
+
+function updateMapZoomLabel() {
+  if (!map) return;
+  document.getElementById('mapZoomLabel').textContent = `// zoom ${map.getZoom()} — OSM live tiles`;
+}
+
+// ── UPDATE MAP on each GPS fix ──
+function updateMap(lat, lng, accuracy) {
+  if (!map) {
+    initMap(lat, lng);
+  }
+
+  const latlng = [lat, lng];
+
+  // Move marker
+  marker.setLatLng(latlng);
+
+  // Update accuracy circle
+  accCircle.setLatLng(latlng);
+  accCircle.setRadius(accuracy);
+
+  // Append trail point
+  if (trailEnabled) {
+    trailPoints.push(latlng);
+    trailLine.setLatLngs(trailPoints);
+  }
+
+  // Pan map if auto-follow is on
+  if (autoFollow) {
+    map.panTo(latlng, { animate: true, duration: 0.8 });
+  }
+}
+
+// ── RECENTER ──
+function recenterMap() {
+  if (!map || !lastPos) return;
+  autoFollow = true;
+  map.setView(
+    [lastPos.coords.latitude, lastPos.coords.longitude],
+    map.getZoom(),
+    { animate: true, duration: 0.6 }
+  );
+  addLog('Map recentered on current position.', '');
+}
+
+// ── TRAIL TOGGLE ──
+function toggleTrail() {
+  trailEnabled = !trailEnabled;
+  const btn = document.getElementById('btnTrail');
+  if (trailEnabled) {
+    btn.textContent = '◉ TRAIL ON';
+    btn.style.borderColor = 'var(--yellow)';
+    btn.style.color       = 'var(--yellow)';
+    addLog('Trail enabled.', '');
+  } else {
+    // Clear existing trail from map
+    trailPoints = [];
+    if (trailLine) trailLine.setLatLngs([]);
+    btn.textContent = '◎ TRAIL OFF';
+    btn.style.borderColor = 'var(--muted)';
+    btn.style.color       = 'var(--dim)';
+    addLog('Trail cleared and disabled.', 'warn');
+  }
+}
+
+// ── START TRACKING ──
+function startTracking() {
+  if (!navigator.geolocation) {
+    setError('Geolocation is not supported by this browser.');
+    return;
+  }
+
+  addLog('Requesting location permission...', 'warn');
+  statusLine.textContent = '⌛ Requesting GPS access...';
+
+  btnStart.disabled = true;
+  btnStop.disabled  = false;
+  liveBadge.className = 'live-badge active';
+  liveLabel.textContent = 'LIVE';
+
+  watchId = navigator.geolocation.watchPosition(
+    updateDisplay,
+    handleError,
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
     }
+  );
 
-    function formatTime(date) {
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-    }
+  addLog('GPS watch started — high accuracy mode', 'ok');
+}
 
-    function updateLiveIndicator(active) {
-      if (active) {
-        liveDot.classList.remove("idle");
-        liveLabel.textContent = "Tracking live";
-      } else {
-        liveDot.classList.add("idle");
-        liveLabel.textContent = "Not tracking";
-      }
-    }
+// ── STOP TRACKING ──
+function stopTracking() {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+  btnStart.disabled = false;
+  btnStop.disabled  = true;
+  liveBadge.className = 'live-badge';
+  liveLabel.textContent = 'OFFLINE';
+  statusLine.textContent = '■ Tracking stopped. Last fix preserved above.';
+  updateSignal(null);
+  addLog('Tracking stopped by user.', 'warn');
+}
 
-    function handleSuccess(position) {
-      const { latitude, longitude, accuracy } = position.coords;
-      const lat = latitude.toFixed(6);
-      const lng = longitude.toFixed(6);
-      const acc = Math.round(accuracy);
+// ── ERROR HANDLER ──
+function handleError(err) {
+  let msg;
+  switch(err.code) {
+    case 1: msg = 'PERMISSION DENIED — location access was blocked.'; break;
+    case 2: msg = 'POSITION UNAVAILABLE — GPS signal lost.'; break;
+    case 3: msg = 'TIMEOUT — GPS fix took too long.'; break;
+    default: msg = 'Unknown geolocation error.';
+  }
+  setError(msg);
+  addLog(msg, 'err');
+}
 
-      latEl.textContent = lat;
-      lngEl.textContent = lng;
-      accEl.textContent = acc + " m";
-      tsEl.textContent = formatTime(new Date());
+function setError(msg) {
+  liveBadge.className   = 'live-badge error-state';
+  liveLabel.textContent = 'ERROR';
+  statusLine.textContent = '⚠ ' + msg;
+  btnStart.disabled = false;
+  btnStop.disabled  = true;
+}
 
-      mapsLinkEl.href = `https://maps.apple.com/?ll=${lat},${lng}&q=My+Live+Location`;
+// ── APPLE MAPS ──
+function openAppleMaps() {
+  if (!lastPos) return;
+  const lat = lastPos.coords.latitude;
+  const lng = lastPos.coords.longitude;
+  // maps.apple.com URL — opens Apple Maps on iOS/macOS, falls back to maps.google.com on other devices
+  const url = `https://maps.apple.com/?ll=${lat},${lng}&q=My+Location&t=m`;
+  window.open(url, '_blank');
+  addLog(`Opened Apple Maps at ${lat.toFixed(6)}, ${lng.toFixed(6)}`, '');
+}
 
-      outputEl.hidden = false;
-      setStatus("Location updated.");
-    }
-
-    function handleError(error) {
-      let message = "Unable to get your location.";
-
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          message = "Location permission denied. Check iOS app/Browser settings.";
-          break;
-        case error.POSITION_UNAVAILABLE:
-          message = "Location information is unavailable.";
-          break;
-        case error.TIMEOUT:
-          message = "Location request timed out.";
-          break;
-      }
-
-      setStatus(message, true);
-    }
-
-    function startTracking() {
-      if (!("geolocation" in navigator)) {
-        setStatus("Geolocation is not supported in this browser.", true);
-        return;
-      }
-
-      if (watchId !== null) {
-        // already tracking
-        return;
-      }
-
-      setStatus("Starting live tracking…");
-      updateLiveIndicator(true);
-      locBtn.textContent = "🛑 Stop live tracking";
-      locBtn.classList.add("stop");
-
-      watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, {
-        enableHighAccuracy: true,
-        maximumAge: 2000,   // allow a couple seconds of cache
-        timeout: 15000      // per-update timeout
-      });
-    }
-
-    function stopTracking() {
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-      }
-      setStatus("Tracking stopped.");
-      updateLiveIndicator(false);
-      locBtn.textContent = "📍 Start live tracking";
-      locBtn.classList.remove("stop");
-    }
-
-    locBtn.addEventListener("click", () => {
-      if (watchId === null) {
-        startTracking();
-      } else {
-        stopTracking();
-      }
-    });
-
-    if (backBtn) {
-      backBtn.addEventListener('click', () => {
-        window.location.href = 'index.html';
-      });
-    }
-  </script>
+// ── COPY COORDS ──
+function copyCoords() {
+  if (!lastPos) return;
+  const c   = lastPos.coords;
+  const txt = `${c.latitude.toFixed(6)}, ${c.longitude.toFixed(6)}`;
+  navigator.clipboard.writeText(txt).then(() => {
+    addLog(`Copied to clipboard: ${txt}`, 'ok');
+    const orig = btnCopy.textContent;
+    btnCopy.textContent = '✓ COPIED';
+    setTimeout(() => { btnCopy.textContent = '⎘ COPY COORDS'; }, 1800);
+  }).catch(() => {
+    addLog('Clipboard write failed.', 'err');
+  });
+}
+</script>
 </body>
 </html>
