@@ -357,6 +357,18 @@ body::before {
   background: rgba(245,230,66,0.04);
 }
 
+.btn-camera {
+  --c: var(--purple);
+  border-color: rgba(180,77,255,0.25);
+}
+.btn-camera::before, .btn-camera::after { border-color: var(--purple); }
+.btn-camera:hover {
+  border-color: var(--purple);
+  color: var(--purple);
+  box-shadow: 0 0 24px rgba(180,77,255,0.2), inset 0 0 20px rgba(180,77,255,0.05);
+  background: rgba(180,77,255,0.04);
+}
+
 /* ── FOOTER ── */
 .footer {
   position: fixed;
@@ -467,14 +479,21 @@ body::before {
     <a href="budget.html" class="menu-btn btn-budget">
       <span class="shine"></span>
       <span class="icon">◈</span>
-      <span class="label">Budget Planner</span>
+      <span class="label">NEON//LEDGER</span>
       <span class="arrow">▶</span>
     </a>
 
     <a href="tracker.html" class="menu-btn btn-tracker">
       <span class="shine"></span>
       <span class="icon">◉</span>
-      <span class="label">Expense Tracker</span>
+      <span class="label">EAGLE//EYE</span>
+      <span class="arrow">▶</span>
+    </a>
+
+    <a href="camera.html" class="menu-btn btn-camera">
+      <span class="shine"></span>
+      <span class="icon">◎</span>
+      <span class="label">Optics//Protocol</span>
       <span class="arrow">▶</span>
     </a>
 
