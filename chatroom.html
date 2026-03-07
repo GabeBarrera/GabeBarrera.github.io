@@ -403,9 +403,26 @@ scrollbar-color: var(--muted) var(--bg);
 
 </div><!-- /screenChat -->
 
-<!-- Gun.js -->
-<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+<!-- Firebase v9 compat -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
+// ════════════════════════════════════════════════════════════════
+//  FIREBASE SETUP  (one-time, ~5 minutes)
+//
+//  1. https://firebase.google.com → Create a project
+//  2. Project → Add App → Web → copy config values below
+//  3. Build → Realtime Database → Create database → Test mode
+//
+//  Replace the three placeholder strings below with your values.
+// ════════════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:      "YOUR_API_KEY",
+  databaseURL: "https://YOUR-PROJECT-ID-default-rtdb.firebaseio.com",
+  projectId:   "YOUR-PROJECT-ID",
+};
+// ════════════════════════════════════════════════════════════════
+
 // ── CLOCK ──
 (function tickClock() {
   const el = document.getElementById('liveClock');
@@ -437,24 +454,20 @@ const COLORS = [
 const ADJ  = ['CHROME','NEON','GHOST','RAZOR','VOID','FLUX','CIPHER','STATIC','ROGUE','IRON','DARK','HYPER','ECHO','WIRE','PHASE'];
 const NOUN = ['RUNNER','JACK','RIDER','HUNTER','WOLF','BLADE','NODE','HAWK','BYTE','DRIFT','PULSE','SHADOW','SPIKE','GRID','CODE'];
 
-const RELAY_PEERS = [
-  'https://gun-manhattan.herokuapp.com/gun',
-  'https://peer.wallie.io/gun',
-];
-
 // ── SESSION STATE ──
-let myId       = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-let myCallsign = ADJ[Math.floor(Math.random()*ADJ.length)] + '_' + NOUN[Math.floor(Math.random()*NOUN.length)];
-let myColorIdx = Math.floor(Math.random() * COLORS.length);
-let roomCode   = '';
-let joinTime   = 0;
-let gun        = null;
-let roomMsgs   = null;
-let roomPres   = null;
-let presTimer  = null;
-let seenKeys   = new Set();
-let onlineUsers = {};  // id → { callsign, color }
-let isOnline   = false;
+let myId        = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+let myCallsign  = ADJ[Math.floor(Math.random()*ADJ.length)] + '_' + NOUN[Math.floor(Math.random()*NOUN.length)];
+let myColorIdx  = Math.floor(Math.random() * COLORS.length);
+let roomCode    = '';
+let joinTime    = 0;
+let db          = null;
+let msgsRef     = null;
+let presRef     = null;
+let myPresRef   = null;
+let msgsListener = null;
+let presListener = null;
+let onlineUsers = {};
+let isOnline    = false;
 
 // ── JOIN SCREEN INIT ──
 document.getElementById('callsignInput').value = myCallsign;
@@ -498,12 +511,12 @@ function joinRoom() {
   const rawCode = document.getElementById('roomInput').value.trim().toUpperCase();
   const rawSign = document.getElementById('callsignInput').value.trim().toUpperCase() || myCallsign;
 
-  if (rawCode.length < 2) {
-    setJoinStatus('⚠ Enter a channel code (min 2 chars).', true);
-    return;
-  }
-  if (rawSign.length < 1) {
-    setJoinStatus('⚠ Enter a callsign.', true);
+  if (rawCode.length < 2) { setJoinStatus('⚠ Enter a channel code (min 2 chars).', true); return; }
+  if (rawSign.length < 1) { setJoinStatus('⚠ Enter a callsign.', true); return; }
+
+  // Check Firebase is configured
+  if (FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
+    setJoinStatus('⚠ Firebase not configured — see setup instructions in the source file.', true);
     return;
   }
 
@@ -512,24 +525,25 @@ function joinRoom() {
   joinTime   = Date.now();
 
   document.getElementById('joinBtn').disabled = true;
-  setJoinStatus('Connecting to relay…');
+  setJoinStatus('Connecting…');
 
-  // Init Gun with no local persistence
-  gun = Gun({ peers: RELAY_PEERS, localStorage: false, radisk: false });
+  try {
+    const app = firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database(app);
+  } catch(e) {
+    // Already initialized (page reload without leaving)
+    db = firebase.database();
+  }
 
-  // Monitor peer connection
-  gun.on('hi',  () => setOnline(true));
-  gun.on('bye', () => { if (Object.keys(gun._.opt.peers || {}).every(p => !gun._.opt.peers[p].wire)) setOnline(false); });
+  // Track Firebase connection state
+  db.ref('.info/connected').on('value', snap => setOnline(!!snap.val()));
 
-  // Give it a moment then switch screens regardless (works even offline for same-device)
-  setTimeout(() => {
-    switchToChat();
-  }, 800);
+  switchToChat();
 }
 
 function setJoinStatus(msg, isErr) {
   const el = document.getElementById('joinStatus');
-  el.textContent = (isErr ? '' : '') + msg;
+  el.textContent = msg;
   el.classList.toggle('err', !!isErr);
 }
 
@@ -539,20 +553,39 @@ function switchToChat() {
   document.getElementById('screenChat').style.display = 'flex';
   document.getElementById('hdrRoom').textContent = roomCode;
 
-  // Subscribe to messages
-  roomMsgs = gun.get('pwny-chat-' + roomCode + '-msgs');
-  roomMsgs.map().on(onMessage);
+  const roomPath = 'pwny-chat/' + roomCode;
+  msgsRef = db.ref(roomPath + '/msgs');
+  presRef = db.ref(roomPath + '/users');
+  myPresRef = presRef.child(myId);
 
-  // Presence
-  roomPres = gun.get('pwny-chat-' + roomCode + '-pres');
-  publishPresence();
-  presTimer = setInterval(publishPresence, 12000);
-  roomPres.map().on(onPresence);
+  // Presence: write on connect, auto-remove on disconnect
+  myPresRef.set({ id: myId, callsign: myCallsign, color: COLORS[myColorIdx].hex });
+  myPresRef.onDisconnect().remove();
 
-  // Post join system message
-  postSysMsg(myCallsign + ' joined the channel');
+  // Watch who is online
+  presListener = presRef.on('value', snap => {
+    onlineUsers = {};
+    snap.forEach(child => {
+      const u = child.val();
+      if (u && u.id) onlineUsers[u.id] = { callsign: u.callsign, color: u.color };
+    });
+    renderUsers();
+  });
 
-  // Focus input
+  // Listen for new messages only (startAt joinTime filters out history)
+  msgsListener = msgsRef.orderByChild('time').startAt(joinTime).on('child_added', snap => {
+    addBubble(snap.val());
+  });
+
+  // Clean up messages older than 2 hours to keep db tidy
+  msgsRef.orderByChild('time').endBefore(Date.now() - 7200000).once('value', snap => {
+    snap.forEach(child => child.ref.remove());
+  });
+
+  // Post join system message (visible to all currently connected)
+  msgsRef.push({ id: 'sys', callsign: 'SYS', color: '#4a6080',
+                 text: myCallsign + ' joined the channel', time: Date.now(), sys: true });
+
   document.getElementById('msgInput').focus();
 }
 
@@ -561,41 +594,11 @@ function setOnline(val) {
   isOnline = val;
   const badge = document.getElementById('sigBadge');
   const label = document.getElementById('sigLabel');
-  if (val) {
-    badge.className = 'sig-badge online';
-    label.textContent = 'ONLINE';
-  } else {
-    badge.className = 'sig-badge';
-    label.textContent = 'SIG LOST';
-  }
+  badge.className = 'sig-badge' + (val ? ' online' : '');
+  label.textContent = val ? 'ONLINE' : 'SIG LOST';
 }
 
-// ── PRESENCE ──
-function publishPresence() {
-  if (!roomPres) return;
-  roomPres.get(myId).put({
-    id:       myId,
-    callsign: myCallsign,
-    color:    COLORS[myColorIdx].hex,
-    ts:       Date.now(),
-    active:   true
-  });
-}
-
-function onPresence(data, key) {
-  if (!data || !data.id || !data.callsign) return;
-  const now = Date.now();
-  const stale = now - (data.ts || 0) > 40000; // 40s TTL
-
-  if (data.active && !stale) {
-    onlineUsers[data.id] = { callsign: data.callsign, color: data.color };
-  } else {
-    delete onlineUsers[data.id];
-  }
-  renderUsers();
-  setOnline(true);
-}
-
+// ── RENDER USERS ──
 function renderUsers() {
   const bar = document.getElementById('usersBar');
   bar.innerHTML = '<span class="users-label">Online:</span>';
@@ -618,59 +621,45 @@ function renderUsers() {
   });
 }
 
-// ── MESSAGES ──
-function onMessage(data, key) {
-  if (!data || !data.time || !data.callsign) return;
-  if (data.time < joinTime) return;      // don't show history
-  if (seenKeys.has(key)) return;         // dedup
-  seenKeys.add(key);
-  addBubble(data);
-}
-
-function postSysMsg(text) {
-  const msgs = document.getElementById('messages');
-  const el = document.createElement('div');
-  el.className = 'msg-sys';
-  el.innerHTML = `<span>// SYS //</span> ${escHtml(text)}`;
-  msgs.appendChild(el);
-  scrollBottom();
-}
-
+// ── ADD MESSAGE BUBBLE ──
 function addBubble(data) {
-  const msgs    = document.getElementById('messages');
-  const isSelf  = data.id === myId;
-  const color   = data.color || '#c8d8f0';
-  const ts      = new Date(data.time);
-  const tsStr   = String(ts.getHours()).padStart(2,'0') + ':' + String(ts.getMinutes()).padStart(2,'0');
+  if (!data || !data.time || !data.callsign) return;
+  const msgs   = document.getElementById('messages');
+  const isSelf = data.id === myId;
+  const isSys  = !!data.sys;
+  const color  = data.color || '#c8d8f0';
+  const ts     = new Date(data.time);
+  const tsStr  = String(ts.getHours()).padStart(2,'0') + ':' + String(ts.getMinutes()).padStart(2,'0');
 
-  const wrap = document.createElement('div');
-  wrap.className = 'msg-wrap' + (isSelf ? ' self' : '');
+  if (isSys) {
+    const el = document.createElement('div');
+    el.className = 'msg-sys';
+    el.innerHTML = `<span>// SYS //</span> ${escHtml(data.text)}`;
+    msgs.appendChild(el);
+  } else {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-wrap' + (isSelf ? ' self' : '');
 
-  const meta = document.createElement('div');
-  meta.className = 'msg-meta';
-  meta.innerHTML = isSelf
-    ? `<span class="ts">${tsStr}</span> <span style="color:${color};text-shadow:0 0 8px ${color}40">${escHtml(data.callsign)}</span>`
-    : `<span style="color:${color};text-shadow:0 0 8px ${color}40">${escHtml(data.callsign)}</span> <span class="ts">${tsStr}</span>`;
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.innerHTML = isSelf
+      ? `<span class="ts">${tsStr}</span> <span style="color:${color};text-shadow:0 0 8px ${color}40">${escHtml(data.callsign)}</span>`
+      : `<span style="color:${color};text-shadow:0 0 8px ${color}40">${escHtml(data.callsign)}</span> <span class="ts">${tsStr}</span>`;
 
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-  bubble.textContent = data.text;
-  if (!isSelf) {
-    bubble.style.borderColor = color + '33';
-    bubble.style.setProperty('--msg-color', color);
-    bubble.style.cssText += `border-color:${color}33;`;
-    // top accent line in user color
-    bubble.insertAdjacentHTML('afterbegin', `<span style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${color},transparent);opacity:0.4;"></span>`);
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.textContent = data.text;
+    if (!isSelf) {
+      bubble.style.cssText += `border-color:${color}33;`;
+      bubble.insertAdjacentHTML('afterbegin',
+        `<span style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${color},transparent);opacity:0.4;"></span>`);
+    }
+
+    wrap.appendChild(meta);
+    wrap.appendChild(bubble);
+    msgs.appendChild(wrap);
   }
 
-  wrap.appendChild(meta);
-  wrap.appendChild(bubble);
-  msgs.appendChild(wrap);
-  scrollBottom();
-}
-
-function scrollBottom() {
-  const msgs = document.getElementById('messages');
   msgs.scrollTop = msgs.scrollHeight;
 }
 
@@ -678,78 +667,63 @@ function scrollBottom() {
 function sendMessage() {
   const input = document.getElementById('msgInput');
   const text  = input.value.trim();
-  if (!text || !roomMsgs) return;
+  if (!text || !msgsRef) return;
 
-  const payload = {
+  msgsRef.push({
     id:       myId,
     callsign: myCallsign,
     color:    COLORS[myColorIdx].hex,
     text:     text,
     time:     Date.now()
-  };
+  });
 
-  roomMsgs.set(payload);
   input.value = '';
-  input.style.height = 'auto';
   input.focus();
 }
 
 // Enter to send (Shift+Enter for newline)
 document.getElementById('msgInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 
 // ── LEAVE ROOM ──
 function leaveRoom() {
-  // Post leave message
-  if (roomMsgs) {
-    roomMsgs.set({
-      id: 'sys', callsign: 'SYS', color: '#4a6080',
-      text: myCallsign + ' left the channel',
-      time: Date.now(), sys: true
-    });
+  if (msgsRef) {
+    msgsRef.push({ id: 'sys', callsign: 'SYS', color: '#4a6080',
+                   text: myCallsign + ' left the channel', time: Date.now(), sys: true });
   }
-  // Mark presence offline
-  if (roomPres) roomPres.get(myId).put({ active: false, ts: Date.now() });
-  clearInterval(presTimer);
 
-  // Clear client state
-  seenKeys.clear();
+  // Remove presence immediately + cancel the onDisconnect handler
+  if (myPresRef) { myPresRef.onDisconnect().cancel(); myPresRef.remove(); }
+
+  // Detach listeners
+  if (msgsRef && msgsListener) msgsRef.off('child_added', msgsListener);
+  if (presRef  && presListener) presRef.off('value', presListener);
+
+  // Clear local state
   onlineUsers = {};
   document.getElementById('messages').innerHTML = '';
-
-  // Gun cleanup
-  if (gun) {
-    try { gun._.on('out', null); } catch(e) {}
-    gun = null; roomMsgs = null; roomPres = null;
-  }
+  msgsRef = null; presRef = null; myPresRef = null;
 
   // Back to join screen
   document.getElementById('screenChat').style.display = 'none';
-  const join = document.getElementById('screenJoin');
-  join.style.display = 'flex';
+  document.getElementById('screenJoin').style.display = 'flex';
   document.getElementById('joinBtn').disabled = false;
   setJoinStatus('— Disconnected from ' + roomCode + '.');
-  isOnline = false;
+  setOnline(false);
 }
 
-// Clean up on tab close
+// Clean up on tab close — onDisconnect() handles presence server-side
 window.addEventListener('beforeunload', () => {
-  if (roomPres) roomPres.get(myId).put({ active: false, ts: Date.now() });
-  seenKeys.clear();
   onlineUsers = {};
+  document.getElementById('messages').innerHTML = '';
 });
 
 // ── HELPERS ──
 function escHtml(str) {
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 </script>
 </body>

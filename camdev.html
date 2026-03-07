@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWNYXPRESS // FACEDEV</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #04060f;
+  --panel:  #080c1a;
+  --panel2: #0b1020;
+  --border: #0f2040;
+  --cyan:   #00f5ff;
+  --pink:   #ff2d78;
+  --yellow: #f5e642;
+  --green:  #39ff7a;
+  --purple: #b44dff;
+  --red:    #ff3d3d;
+  --orange: #ff8c00;
+  --muted:  #2a3a55;
+  --text:   #c8d8f0;
+  --dim:    #4a6080;
+  --mono:   'Share Tech Mono', monospace;
+  --orb:    'Orbitron', monospace;
+  --raj:    'Rajdhani', sans-serif;
+}
+
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--raj); overflow-x: hidden; cursor: crosshair; }
+
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  pointer-events: none; z-index: 9999;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px; pointer-events: none; z-index: 0;
+}
+
+.orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; animation: orbDrift 14s ease-in-out infinite alternate; }
+.orb1 { width: 320px; height: 320px; background: rgba(0,245,255,0.06); top: -80px; left: -60px; }
+.orb2 { width: 260px; height: 260px; background: rgba(255,45,120,0.06); bottom: 60px; right: -40px; animation-delay: -7s; }
+.orb3 { width: 180px; height: 180px; background: rgba(57,255,122,0.05); top: 45%; left: 60%; animation-delay: -4s; }
+@keyframes orbDrift { from { transform: translate(0,0) scale(1); } to { transform: translate(18px,28px) scale(1.07); } }
+
+.app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+
+/* ── HEADER ── */
+.hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--border); animation: fadeIn 0.5s ease both; }
+.hdr-left { display: flex; align-items: center; gap: 16px; }
+.logo { font-family: var(--orb); font-size: clamp(15px,3.5vw,22px); font-weight: 900; letter-spacing: 0.08em; color: var(--cyan); text-shadow: 0 0 18px rgba(0,245,255,0.6); }
+.logo span { color: var(--pink); text-shadow: 0 0 18px rgba(255,45,120,0.6); }
+.page-title { font-family: var(--orb); font-size: clamp(9px,1.8vw,11px); letter-spacing: 0.3em; color: var(--dim); text-transform: uppercase; }
+.hdr-right { font-family: var(--mono); font-size: 11px; color: var(--dim); text-align: right; line-height: 1.7; }
+#liveClock { color: var(--cyan); font-size: 13px; }
+.home-btn { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--dim); text-decoration: none; border: 1px solid var(--muted); padding: 5px 12px; text-transform: uppercase; transition: all 0.15s; }
+.home-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+
+/* ── PANEL ── */
+.panel { background: var(--panel); border: 1px solid var(--border); position: relative; overflow: hidden; margin-bottom: 16px; animation: fadeIn 0.4s ease both; }
+.panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); opacity: 0.5; }
+.panel.accent-pink::before   { background: linear-gradient(90deg, transparent, var(--pink),   transparent); }
+.panel.accent-green::before  { background: linear-gradient(90deg, transparent, var(--green),  transparent); }
+.panel.accent-yellow::before { background: linear-gradient(90deg, transparent, var(--yellow), transparent); }
+.panel.accent-purple::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+.panel-title { font-family: var(--orb); font-size: 10px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--cyan); padding: 14px 20px 0; opacity: 0.8; display: flex; align-items: center; gap: 8px; }
+.panel-title::before { content: '//'; color: var(--pink); opacity: 0.7; }
+.panel-body { padding: 14px 20px 20px; }
+
+/* ── BUTTONS ── */
+.btn { font-family: var(--orb); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; border: none; padding: 11px 20px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 8px; }
+.btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.05); opacity: 0; transition: opacity 0.15s; }
+.btn:hover::after { opacity: 1; }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.btn-green  { background: transparent; border: 1px solid var(--green);  color: var(--green);  box-shadow: 0 0 14px rgba(57,255,122,0.2); }
+.btn-green:hover  { background: rgba(57,255,122,0.07);  box-shadow: 0 0 26px rgba(57,255,122,0.4); }
+.btn-red    { background: transparent; border: 1px solid var(--red);    color: var(--red);    box-shadow: 0 0 14px rgba(255,61,61,0.2); }
+.btn-red:hover    { background: rgba(255,61,61,0.07);    box-shadow: 0 0 26px rgba(255,61,61,0.4); }
+.btn-cyan   { background: transparent; border: 1px solid var(--cyan);   color: var(--cyan);   box-shadow: 0 0 14px rgba(0,245,255,0.2); }
+.btn-cyan:hover   { background: rgba(0,245,255,0.07);   box-shadow: 0 0 26px rgba(0,245,255,0.4); }
+.btn-yellow { background: transparent; border: 1px solid var(--yellow); color: var(--yellow); box-shadow: 0 0 14px rgba(245,230,66,0.2); }
+.btn-yellow:hover { background: rgba(245,230,66,0.07); box-shadow: 0 0 26px rgba(245,230,66,0.4); }
+.btn-pink   { background: transparent; border: 1px solid var(--pink);   color: var(--pink);   box-shadow: 0 0 14px rgba(255,45,120,0.2); }
+.btn-pink:hover   { background: rgba(255,45,120,0.07);  box-shadow: 0 0 26px rgba(255,45,120,0.4); }
+.btn-purple { background: transparent; border: 1px solid var(--purple); color: var(--purple); box-shadow: 0 0 14px rgba(180,77,255,0.2); }
+.btn-purple:hover { background: rgba(180,77,255,0.07); box-shadow: 0 0 26px rgba(180,77,255,0.4); }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* ── STATUS BADGE ── */
+.status-badge { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; padding: 5px 12px; border: 1px solid var(--muted); color: var(--dim); transition: all 0.3s; }
+.status-badge.live    { border-color: var(--green);  color: var(--green);  box-shadow: 0 0 12px rgba(57,255,122,0.2); }
+.status-badge.enroll  { border-color: var(--yellow); color: var(--yellow); box-shadow: 0 0 12px rgba(245,230,66,0.2); }
+.status-badge.recog   { border-color: var(--cyan);   color: var(--cyan);   box-shadow: 0 0 12px rgba(0,245,255,0.2); }
+.status-badge.error   { border-color: var(--red);    color: var(--red);    box-shadow: 0 0 12px rgba(255,61,61,0.2); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
+.status-badge.live   .status-dot { background: var(--green);  box-shadow: 0 0 6px var(--green);  animation: dotPulse 1s ease-in-out infinite; }
+.status-badge.enroll .status-dot { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation: dotPulse 1s ease-in-out infinite; }
+.status-badge.recog  .status-dot { background: var(--cyan);   box-shadow: 0 0 6px var(--cyan);   animation: dotPulse 1s ease-in-out infinite; }
+.status-badge.error  .status-dot { background: var(--red);    box-shadow: 0 0 6px var(--red); }
+@keyframes dotPulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* ── VIEWPORT ── */
+.viewport-wrap { position: relative; width: 100%; background: #000; border: 1px solid var(--border); overflow: hidden; aspect-ratio: 4/3; }
+#videoEl { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
+#detCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform: scaleX(-1); }
+.viewport-wrap::before,
+.viewport-wrap::after { content: ''; position: absolute; width: 22px; height: 22px; z-index: 10; pointer-events: none; }
+.viewport-wrap::before { top: 0; left: 0; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); box-shadow: -2px -2px 8px rgba(0,245,255,0.4); }
+.viewport-wrap::after  { bottom: 0; right: 0; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); box-shadow: 2px 2px 8px rgba(0,245,255,0.4); }
+
+/* Face guide oval during enroll */
+#faceGuide {
+  position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  display: flex; align-items: center; justify-content: center; display: none;
+}
+#faceGuide svg { width: 38%; height: 55%; opacity: 0.4; }
+
+/* Await overlay */
+.cam-await {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(4,6,15,0.95); gap: 12px; pointer-events: none;
+}
+.cam-await .await-icon { font-size: 36px; color: var(--cyan); opacity: 0.3; animation: awaitPulse 2s ease-in-out infinite; }
+.cam-await .await-text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--dim); text-transform: uppercase; }
+.cam-await .await-sub  { font-family: var(--mono); font-size: 9px;  letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+@keyframes awaitPulse { 0%,100%{opacity:0.3;} 50%{opacity:0.8;} }
+
+.model-bar-wrap { display: none; width: 220px; }
+.model-bar-track { height: 3px; background: var(--border); width: 100%; }
+.model-bar-fill  { height: 100%; background: var(--cyan); width: 0%; box-shadow: 0 0 8px var(--cyan); transition: width 0.2s; }
+
+.phase-badge {
+  position: absolute; top: 12px; left: 14px; z-index: 15;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 4px 10px; display: none;
+}
+.phase-badge.enroll { display: inline-block; border: 1px solid var(--yellow); color: var(--yellow); background: rgba(4,6,15,0.7); }
+.phase-badge.recog  { display: inline-block; border: 1px solid var(--cyan);   color: var(--cyan);   background: rgba(4,6,15,0.7); }
+
+.det-ticker {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 15;
+  background: rgba(4,6,15,0.78); padding: 6px 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+  color: var(--cyan); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; display: none;
+}
+
+/* ── ENROLL PANEL ── */
+.enroll-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.sample-count { font-family: var(--mono); font-size: 11px; color: var(--dim); letter-spacing: 0.1em; }
+.sample-count strong { color: var(--yellow); font-size: 18px; font-family: var(--orb); }
+
+.sample-row { display: flex; gap: 8px; flex-wrap: wrap; min-height: 72px; align-items: flex-start; }
+.sample-thumb {
+  position: relative; width: 64px; height: 64px; flex-shrink: 0;
+  border: 1px solid var(--muted); overflow: hidden;
+  animation: fadeIn 0.2s ease both; cursor: default;
+  transition: border-color 0.15s;
+}
+.sample-thumb:hover { border-color: var(--red); }
+.sample-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(0.6) brightness(0.9); }
+.sample-thumb .del-btn {
+  position: absolute; inset: 0; background: rgba(255,61,61,0.0); display: flex;
+  align-items: center; justify-content: center; font-family: var(--mono); font-size: 16px;
+  color: var(--red); opacity: 0; transition: all 0.15s; cursor: pointer;
+}
+.sample-thumb:hover .del-btn { background: rgba(255,61,61,0.55); opacity: 1; }
+.sample-num { position: absolute; bottom: 2px; right: 4px; font-family: var(--mono); font-size: 8px; color: rgba(255,255,255,0.5); pointer-events: none; }
+
+.sample-empty { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.12em; padding: 20px 0; }
+
+.enroll-hint { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.1em; margin-top: 12px; line-height: 1.7; }
+
+/* ── RECOGNITION RESULT ── */
+.id-display {
+  display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
+  padding: 20px 24px; background: var(--panel2); border: 1px solid var(--border);
+  margin-bottom: 14px; transition: border-color 0.3s;
+}
+.id-display.you      { border-color: rgba(57,255,122,0.3); }
+.id-display.stranger { border-color: rgba(255,45,120,0.3); }
+.id-display.idle     { border-color: var(--border); }
+
+.id-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+.id-value { font-family: var(--orb); font-size: clamp(22px,5vw,40px); font-weight: 900; letter-spacing: 0.06em; color: var(--muted); transition: all 0.3s; }
+.id-display.you      .id-value { color: var(--green);  text-shadow: 0 0 28px rgba(57,255,122,0.6); }
+.id-display.stranger .id-value { color: var(--pink);   text-shadow: 0 0 28px rgba(255,45,120,0.6); }
+
+.id-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 6px; }
+
+/* ── DET STATS GRID ── */
+.det-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+@media (min-width:500px) { .det-grid { grid-template-columns: repeat(4,1fr); } }
+.det-card { background: var(--panel2); border: 1px solid var(--border); padding: 12px 14px; position: relative; overflow: hidden; }
+.det-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; }
+.det-card.c-cyan::after   { background: var(--cyan);   box-shadow: 0 0 6px var(--cyan); }
+.det-card.c-pink::after   { background: var(--pink);   box-shadow: 0 0 6px var(--pink); }
+.det-card.c-green::after  { background: var(--green);  box-shadow: 0 0 6px var(--green); }
+.det-card.c-yellow::after { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+.det-card-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+.det-card-val   { font-family: var(--orb);  font-size: clamp(16px,2.8vw,22px); font-weight: 700; color: var(--muted); transition: all 0.3s; }
+.det-card.active .det-card-val { text-shadow: 0 0 12px; }
+.det-card.c-cyan.active   .det-card-val { color: var(--cyan);   text-shadow: 0 0 12px rgba(0,245,255,0.5); }
+.det-card.c-pink.active   .det-card-val { color: var(--pink);   text-shadow: 0 0 12px rgba(255,45,120,0.5); }
+.det-card.c-green.active  .det-card-val { color: var(--green);  text-shadow: 0 0 12px rgba(57,255,122,0.5); }
+.det-card.c-yellow.active .det-card-val { color: var(--yellow); text-shadow: 0 0 12px rgba(245,230,66,0.5); }
+.det-card-sub   { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 3px; }
+
+/* Threshold row */
+.threshold-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; }
+.threshold-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--dim); white-space: nowrap; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 140px; height: 4px; background: var(--border); border-radius: 2px; outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); cursor: pointer; transition: box-shadow 0.15s; }
+input[type=range]:hover::-webkit-slider-thumb { box-shadow: 0 0 14px var(--cyan); }
+.threshold-val { font-family: var(--orb); font-size: 13px; font-weight: 700; color: var(--cyan); min-width: 42px; }
+
+/* ── LOG ── */
+.det-log-wrap { max-height: 180px; overflow-y: auto; }
+.det-log-row { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(15,32,64,0.5); font-family: var(--mono); font-size: 11px; animation: rowIn 0.2s ease both; }
+.det-log-row:last-child { border-bottom: none; }
+.det-log-time { color: var(--dim); flex-shrink: 0; width: 54px; }
+.det-log-you  { color: var(--green); }
+.det-log-str  { color: var(--pink); }
+.det-log-sys  { color: var(--cyan); }
+.det-log-warn { color: var(--yellow); }
+.det-log-empty { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 14px 0; text-align: center; letter-spacing: 0.1em; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--muted); }
+scrollbar-width: thin; scrollbar-color: var(--muted) var(--bg);
+
+/* animations */
+@keyframes fadeIn { from {opacity:0;transform:translateY(10px);} to {opacity:1;transform:translateY(0);} }
+@keyframes rowIn  { from {opacity:0;transform:translateX(-6px);} to {opacity:1;transform:translateX(0);} }
+
+.footer { position: fixed; bottom: 14px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:9px; letter-spacing:0.2em; color:var(--muted); z-index:2; text-transform:uppercase; }
+.footer span { color: var(--pink); }
+.corner-tag  { position:fixed; top:14px; left:18px; font-family:var(--mono); font-size:10px; letter-spacing:0.2em; color:var(--dim); z-index:2; text-transform:uppercase; }
+.clock-fixed { position:fixed; top:14px; right:18px; font-family:var(--mono); font-size:11px; color:var(--dim); letter-spacing:0.12em; z-index:2; }
+.clock-fixed span { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="corner-tag">// SYS:FACEDEV</div>
+<div class="clock-fixed"><span id="clockCorner">00:00:00</span> — ONLINE</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <a href="index.html" class="home-btn">&#8962; HOME</a>
+      <div>
+        <div class="logo">PWNY<span>X</span>PRESS</div>
+        <div class="page-title">// facedev · biometric recognition</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div id="liveClock">00:00:00</div>
+      <div id="modelVerEl">face-api · loading</div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="panel" style="animation-delay:0.04s">
+    <div class="panel-title">System Control</div>
+    <div class="panel-body">
+      <div class="controls" style="margin-bottom:12px;">
+        <button class="btn btn-green"  id="btnStart"  onclick="startCamera()">&#9654; START CAMERA</button>
+        <button class="btn btn-red"    id="btnStop"   onclick="stopCamera()"  disabled>&#9632; STOP</button>
+        <button class="btn btn-yellow" id="btnFlip"   onclick="flipCamera()"  disabled>&#8647; FLIP</button>
+        <button class="btn btn-pink"   id="btnReset"  onclick="resetAll()"    disabled>&#9664;&#9664; RESET</button>
+        <div class="status-badge" id="camBadge">
+          <div class="status-dot"></div>
+          <span id="camLabel">OFFLINE</span>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;" id="modelStatus">
+        Model: not loaded — press START CAMERA to initialise
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEWPORT -->
+  <div class="panel" style="animation-delay:0.07s; overflow:hidden; padding:0; margin-bottom:16px;">
+    <div class="viewport-wrap" id="viewportWrap">
+      <div class="cam-await" id="camAwait">
+        <div class="await-icon">&#9672;</div>
+        <div class="await-text">Camera offline</div>
+        <div class="await-sub">Press START CAMERA to begin</div>
+        <div class="model-bar-wrap" id="modelBarWrap">
+          <div class="model-bar-track"><div class="model-bar-fill" id="modelBarFill"></div></div>
+        </div>
+      </div>
+      <!-- phase badge -->
+      <div class="phase-badge" id="phaseBadge"></div>
+      <!-- face guide oval (enroll mode) -->
+      <div id="faceGuide">
+        <svg viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="100" cy="130" rx="72" ry="105" stroke="#f5e642" stroke-width="2" stroke-dasharray="8 5"/>
+        </svg>
+      </div>
+      <video id="videoEl" autoplay playsinline muted></video>
+      <canvas id="detCanvas"></canvas>
+      <div class="det-ticker" id="detTicker">◈ awaiting detections...</div>
+    </div>
+  </div>
+
+  <!-- ENROLL PANEL -->
+  <div class="panel accent-yellow" id="enrollPanel" style="animation-delay:0.10s;">
+    <div class="panel-title" style="color:var(--yellow);">Enroll — Training Data</div>
+    <div class="panel-body">
+      <div class="enroll-top">
+        <div>
+          <div class="sample-count">Samples: <strong id="sampleCountVal">0</strong> / <span id="sampleTargetVal">8</span></div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-yellow" id="btnCapture" onclick="captureSample()" disabled>
+            &#9679; CAPTURE SAMPLE
+          </button>
+          <button class="btn btn-green" id="btnTrain" onclick="trainModel()" disabled>
+            &#9670; TRAIN MODEL
+          </button>
+        </div>
+      </div>
+
+      <!-- Thumbnail strip -->
+      <div class="sample-row" id="sampleRow">
+        <div class="sample-empty" id="sampleEmpty">No samples captured yet — start camera and press CAPTURE SAMPLE</div>
+      </div>
+
+      <div class="enroll-hint" id="enrollHint">
+        Position your face inside the oval guide and capture 6–10 samples from slightly different angles.<br>
+        Need at least <span style="color:var(--yellow)">3 samples</span> to train. More samples = better accuracy.
+        Once trained, the model switches to live recognition.
+      </div>
+    </div>
+  </div>
+
+  <!-- RECOGNITION PANEL (hidden until trained) -->
+  <div class="panel accent-green" id="recognizePanel" style="animation-delay:0.10s; display:none;">
+    <div class="panel-title" style="color:var(--green);">Recognition — Live ID</div>
+    <div class="panel-body">
+
+      <div class="id-display idle" id="idDisplay">
+        <div>
+          <div class="id-label">Identity</div>
+          <div class="id-value" id="idValue">NO FACE</div>
+          <div class="id-sub" id="idSub">awaiting detection</div>
+        </div>
+        <div>
+          <div class="id-label">Confidence</div>
+          <div class="id-value" id="confValue" style="font-size:clamp(20px,4vw,34px);">--%</div>
+        </div>
+        <div>
+          <div class="id-label">Distance</div>
+          <div class="id-value" id="distValue" style="font-size:clamp(20px,4vw,34px);">--</div>
+          <div class="id-sub">lower = closer match</div>
+        </div>
+      </div>
+
+      <div class="det-grid">
+        <div class="det-card c-cyan"   id="cardFaces">
+          <div class="det-card-label">Faces</div>
+          <div class="det-card-val" id="statFaces">0</div>
+          <div class="det-card-sub">in frame</div>
+        </div>
+        <div class="det-card c-green"  id="cardYou">
+          <div class="det-card-label">Matched</div>
+          <div class="det-card-val" id="statYou">0</div>
+          <div class="det-card-sub">YOU</div>
+        </div>
+        <div class="det-card c-pink"   id="cardStr">
+          <div class="det-card-label">Unknown</div>
+          <div class="det-card-val" id="statStr">0</div>
+          <div class="det-card-sub">STRANGERS</div>
+        </div>
+        <div class="det-card c-yellow" id="cardFPS">
+          <div class="det-card-label">Recog FPS</div>
+          <div class="det-card-val" id="statFPS">--</div>
+          <div class="det-card-sub">inferences/s</div>
+        </div>
+      </div>
+
+      <div class="threshold-row">
+        <span class="threshold-label">MATCH THRESHOLD:</span>
+        <input type="range" id="threshSlider" min="30" max="75" value="50" oninput="updateThreshold(this.value)">
+        <span class="threshold-val" id="threshVal">0.50</span>
+        <span class="threshold-label" style="color:var(--muted)">lower = stricter</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENT LOG -->
+  <div class="panel accent-pink" style="animation-delay:0.13s;">
+    <div class="panel-title">Event Log</div>
+    <div class="panel-body">
+      <div class="det-log-wrap" id="logWrap">
+        <div class="det-log-empty" id="logEmpty">No events yet.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end app -->
+
+<div class="footer">PWNY<span>X</span>PRESS &nbsp;·&nbsp; FACEDEV &nbsp;·&nbsp; face-api.js</div>
+
+<!-- face-api.js (@vladmandic fork — models on jsDelivr) -->
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+<script>
+// ── CLOCK ──
+(function() {
+  function tick() {
+    const t = new Date();
+    const s = String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+':'+String(t.getSeconds()).padStart(2,'0');
+    document.getElementById('liveClock').textContent = s;
+    document.getElementById('clockCorner').textContent = s;
+  }
+  setInterval(tick, 1000); tick();
+})();
+
+// ── CONSTANTS ──
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+const MIN_SAMPLES   = 3;
+const REC_INTERVAL  = 120; // ms between inference frames (~8 fps)
+
+// ── STATE ──
+let stream         = null;
+let modelsLoaded   = false;
+let facingMode     = 'user';
+let phase          = 'idle';      // 'idle' | 'enrolling' | 'recognizing'
+let trainingData   = [];          // array of Float32Array descriptors
+let faceMatcher    = null;
+let recognizing    = false;
+let recLoopId      = null;
+let matchThreshold = 0.50;
+let lastFrameTime  = 0;
+let fpsSamples     = [];
+let capturing      = false;       // debounce capture
+
+// ── ELEMENTS ──
+const videoEl       = document.getElementById('videoEl');
+const detCanvas     = document.getElementById('detCanvas');
+const ctx           = detCanvas.getContext('2d');
+const camAwait      = document.getElementById('camAwait');
+const detTicker     = document.getElementById('detTicker');
+const modelBarWrap  = document.getElementById('modelBarWrap');
+const modelBarFill  = document.getElementById('modelBarFill');
+const modelStatus   = document.getElementById('modelStatus');
+const phaseBadge    = document.getElementById('phaseBadge');
+const faceGuide     = document.getElementById('faceGuide');
+const btnStart      = document.getElementById('btnStart');
+const btnStop       = document.getElementById('btnStop');
+const btnFlip       = document.getElementById('btnFlip');
+const btnReset      = document.getElementById('btnReset');
+const btnCapture    = document.getElementById('btnCapture');
+const btnTrain      = document.getElementById('btnTrain');
+const camBadge      = document.getElementById('camBadge');
+const camLabel      = document.getElementById('camLabel');
+const sampleRow     = document.getElementById('sampleRow');
+const sampleEmpty   = document.getElementById('sampleEmpty');
+const sampleCountEl = document.getElementById('sampleCountVal');
+const enrollPanel   = document.getElementById('enrollPanel');
+const recognizePanel= document.getElementById('recognizePanel');
+const idDisplay     = document.getElementById('idDisplay');
+const idValue       = document.getElementById('idValue');
+const idSub         = document.getElementById('idSub');
+const confValue     = document.getElementById('confValue');
+const distValue     = document.getElementById('distValue');
+
+// ── LOG ──
+function addLog(msg, type = 'sys') {
+  const wrap  = document.getElementById('logWrap');
+  const empty = document.getElementById('logEmpty');
+  if (empty) empty.style.display = 'none';
+  const now = new Date();
+  const ts  = String(now.getHours()).padStart(2,'0')+':'+
+              String(now.getMinutes()).padStart(2,'0')+':'+
+              String(now.getSeconds()).padStart(2,'0');
+  const row = document.createElement('div');
+  row.className = 'det-log-row';
+  row.innerHTML = `<span class="det-log-time">${ts}</span><span class="det-log-${type}">${msg}</span>`;
+  wrap.insertBefore(row, wrap.firstChild);
+  while (wrap.querySelectorAll('.det-log-row').length > 60) wrap.removeChild(wrap.lastChild);
+}
+
+// ── LOAD MODELS ──
+async function loadModels() {
+  modelStatus.textContent = 'Model: loading...';
+  modelStatus.style.color = 'var(--yellow)';
+  modelBarWrap.style.display = 'block';
+  camAwait.querySelector('.await-text').textContent = 'Loading AI models';
+  camAwait.querySelector('.await-sub').textContent  = 'SSD MobileNet + landmarks + recognition net';
+
+  let prog = 0;
+  const ticker = setInterval(() => {
+    prog = Math.min(prog + Math.random() * 5, 90);
+    modelBarFill.style.width = prog + '%';
+  }, 180);
+
+  try {
+    await Promise.all([
+      faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+      faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+    ]);
+
+    clearInterval(ticker);
+    modelBarFill.style.width = '100%';
+    setTimeout(() => { modelBarWrap.style.display = 'none'; }, 500);
+
+    modelsLoaded = true;
+    modelStatus.textContent = 'Models: ready ✓  (SSD MobileNet · Landmark68 · Recognition)';
+    modelStatus.style.color = 'var(--green)';
+    document.getElementById('modelVerEl').textContent = 'face-api.js · ready';
+
+    addLog('All face-api models loaded successfully.', 'sys');
+    enterEnrollPhase();
+
+  } catch(e) {
+    clearInterval(ticker);
+    modelStatus.textContent = 'Model load failed: ' + e.message;
+    modelStatus.style.color = 'var(--red)';
+    addLog('Model load error: ' + e.message, 'warn');
+    camAwait.querySelector('.await-text').textContent = 'Model load failed';
+    camAwait.querySelector('.await-sub').textContent  = e.message;
+  }
+}
+
+// ── ENTER PHASES ──
+function enterEnrollPhase() {
+  phase = 'enrolling';
+  phaseBadge.className = 'phase-badge enroll';
+  phaseBadge.textContent = '● ENROLL';
+  faceGuide.style.display = 'flex';
+  detTicker.style.display = 'block';
+  setBadge('enroll', 'ENROLLING');
+  btnCapture.disabled = false;
+  recognizePanel.style.display = 'none';
+  enrollPanel.style.display    = '';
+  addLog('Phase: ENROLL — capture training samples of your face.', 'sys');
+}
+
+function enterRecognizePhase() {
+  phase = 'recognizing';
+  phaseBadge.className = 'phase-badge recog';
+  phaseBadge.textContent = '● RECOGNIZE';
+  faceGuide.style.display = 'none';
+  recognizePanel.style.display = '';
+  enrollPanel.style.display    = 'none';
+  setBadge('recog', 'RECOGNIZING');
+  recognizing = true;
+  lastFrameTime = 0;
+  runRecognition();
+  addLog('Phase: RECOGNIZE — live biometric identification active.', 'sys');
+}
+
+// ── BADGE ──
+function setBadge(cls, label) {
+  camBadge.className = 'status-badge ' + cls;
+  camLabel.textContent = label;
+}
+
+// ── CANVAS SIZE ──
+function sizeCanvas() {
+  detCanvas.width  = videoEl.videoWidth  || videoEl.clientWidth;
+  detCanvas.height = videoEl.videoHeight || videoEl.clientHeight;
+}
+
+// ── START CAMERA ──
+async function startCamera() {
+  btnStart.disabled = true;
+  setBadge('live', 'STARTING');
+  camAwait.style.display = 'flex';
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    videoEl.srcObject = stream;
+    await videoEl.play();
+    videoEl.addEventListener('loadedmetadata', sizeCanvas);
+    sizeCanvas();
+
+    btnStop.disabled  = false;
+    btnFlip.disabled  = false;
+    btnReset.disabled = false;
+    addLog('Camera started — ' + facingMode + ' facing.', 'sys');
+
+    // Hide await overlay once video is playing
+    videoEl.addEventListener('playing', () => {
+      camAwait.style.display = 'none';
+      detTicker.style.display = 'block';
+    }, { once: true });
+
+    if (!modelsLoaded) {
+      await loadModels();
+    } else {
+      camAwait.style.display = 'none';
+      enterEnrollPhase();
+    }
+
+  } catch(err) {
+    btnStart.disabled = false;
+    setBadge('error', 'ERROR');
+    camAwait.querySelector('.await-text').textContent = 'Camera access denied';
+    camAwait.querySelector('.await-sub').textContent  = err.message;
+    addLog('Camera error: ' + err.message, 'warn');
+  }
+}
+
+// ── STOP CAMERA ──
+function stopCamera() {
+  recognizing = false;
+  if (recLoopId) cancelAnimationFrame(recLoopId);
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  videoEl.srcObject = null;
+  ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
+
+  camAwait.querySelector('.await-text').textContent = 'Camera offline';
+  camAwait.querySelector('.await-sub').textContent  = 'Press START CAMERA to begin';
+  camAwait.style.display = 'flex';
+  detTicker.style.display = 'none';
+  phaseBadge.className = 'phase-badge';
+
+  setBadge('', 'OFFLINE');
+  btnStart.disabled   = false;
+  btnStop.disabled    = true;
+  btnFlip.disabled    = true;
+  btnCapture.disabled = true;
+  phase = 'idle';
+  addLog('Camera stopped.', 'sys');
+}
+
+// ── FLIP CAMERA ──
+async function flipCamera() {
+  facingMode = facingMode === 'user' ? 'environment' : 'user';
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    videoEl.srcObject = stream;
+    await videoEl.play();
+    sizeCanvas();
+    addLog('Camera flipped to ' + facingMode + '.', 'sys');
+  } catch(err) {
+    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    addLog('Flip failed: ' + err.message, 'warn');
+  }
+}
+
+// ── RESET ──
+function resetAll() {
+  recognizing = false;
+  if (recLoopId) cancelAnimationFrame(recLoopId);
+  trainingData = [];
+  faceMatcher  = null;
+  ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
+  // Clear thumbnails
+  sampleRow.innerHTML = '';
+  sampleRow.appendChild(sampleEmpty);
+  sampleEmpty.style.display = '';
+  updateSampleCount();
+  btnTrain.disabled   = true;
+  btnCapture.disabled = stream ? false : true;
+  recognizePanel.style.display = 'none';
+  enrollPanel.style.display    = '';
+  resetIdDisplay();
+  if (stream) enterEnrollPhase();
+  addLog('Reset complete — training data cleared.', 'warn');
+}
+
+// ── THRESHOLD ──
+function updateThreshold(v) {
+  matchThreshold = parseInt(v) / 100;
+  document.getElementById('threshVal').textContent = matchThreshold.toFixed(2);
+  if (faceMatcher) {
+    const descs = trainingData.map(d => d);
+    const ld = new faceapi.LabeledFaceDescriptors('ME', descs);
+    faceMatcher = new faceapi.FaceMatcher([ld], matchThreshold);
+  }
+}
+
+// ── CAPTURE SAMPLE ──
+async function captureSample() {
+  if (capturing || !stream || !modelsLoaded) return;
+  capturing = true;
+  btnCapture.disabled = true;
+  btnCapture.textContent = '⌛ DETECTING...';
+
+  try {
+    const detection = await faceapi
+      .detectSingleFace(videoEl, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (!detection) {
+      addLog('No face detected — reposition and try again.', 'warn');
+      flashTicker('⚠ No face detected — centre your face in the oval guide', 'var(--yellow)');
+    } else {
+      trainingData.push(detection.descriptor);
+      addThumbnail(detection);
+      updateSampleCount();
+      addLog(`Sample ${trainingData.length} captured (det. confidence ${(detection.detection.score*100).toFixed(0)}%).`, 'you');
+      flashTicker(`✓ Sample ${trainingData.length} captured`, 'var(--green)');
+      if (trainingData.length >= MIN_SAMPLES) btnTrain.disabled = false;
+    }
+  } catch(e) {
+    addLog('Capture error: ' + e.message, 'warn');
+  }
+
+  capturing = false;
+  btnCapture.disabled = false;
+  btnCapture.textContent = '● CAPTURE SAMPLE';
+}
+
+function flashTicker(msg, color) {
+  detTicker.textContent = msg;
+  detTicker.style.color = color || 'var(--cyan)';
+}
+
+// ── THUMBNAIL ──
+function addThumbnail(detection) {
+  sampleEmpty.style.display = 'none';
+  const idx = trainingData.length; // already pushed
+
+  // Draw face crop to offscreen canvas
+  const { x, y, width, height } = detection.detection.box;
+  const off = document.createElement('canvas');
+  off.width = 64; off.height = 64;
+  const octx = off.getContext('2d');
+  // Account for mirrored video
+  octx.save();
+  octx.scale(-1, 1);
+  octx.drawImage(videoEl, x, y, width, height, -64, 0, 64, 64);
+  octx.restore();
+
+  const thumb = document.createElement('div');
+  thumb.className = 'sample-thumb';
+  thumb.dataset.idx = idx - 1;
+
+  const img = document.createElement('img');
+  img.src = off.toDataURL('image/jpeg', 0.85);
+  img.alt = 'Sample ' + idx;
+
+  const del = document.createElement('div');
+  del.className = 'del-btn';
+  del.textContent = '✕';
+  del.title = 'Remove sample';
+  del.onclick = () => removeSample(thumb, idx - 1);
+
+  const num = document.createElement('div');
+  num.className = 'sample-num';
+  num.textContent = '#' + idx;
+
+  thumb.appendChild(img);
+  thumb.appendChild(del);
+  thumb.appendChild(num);
+  sampleRow.appendChild(thumb);
+}
+
+function removeSample(thumbEl, dataIdx) {
+  trainingData.splice(dataIdx, 1);
+  thumbEl.remove();
+  // Re-number remaining
+  sampleRow.querySelectorAll('.sample-thumb').forEach((el, i) => {
+    el.dataset.idx = i;
+    el.querySelector('.sample-num').textContent = '#' + (i + 1);
+    el.querySelector('.del-btn').onclick = () => removeSample(el, i);
+  });
+  updateSampleCount();
+  if (trainingData.length < MIN_SAMPLES) btnTrain.disabled = true;
+  if (trainingData.length === 0) sampleEmpty.style.display = '';
+  addLog('Sample removed. Remaining: ' + trainingData.length, 'warn');
+}
+
+function updateSampleCount() {
+  sampleCountEl.textContent = trainingData.length;
+}
+
+// ── TRAIN MODEL ──
+async function trainModel() {
+  if (trainingData.length < MIN_SAMPLES) return;
+  btnTrain.disabled   = true;
+  btnCapture.disabled = true;
+  btnTrain.textContent = '⌛ TRAINING...';
+
+  addLog('Training recognition model on ' + trainingData.length + ' samples...', 'sys');
+
+  // Build FaceMatcher from stored descriptors
+  const ld = new faceapi.LabeledFaceDescriptors('ME', trainingData);
+  faceMatcher = new faceapi.FaceMatcher([ld], matchThreshold);
+
+  addLog('Model trained ✓  threshold=' + matchThreshold.toFixed(2) + '  samples=' + trainingData.length, 'you');
+  btnTrain.textContent = '◆ TRAIN MODEL';
+  enterRecognizePhase();
+}
+
+// ── RECOGNITION LOOP ──
+async function runRecognition() {
+  if (!recognizing || !stream || !faceMatcher) return;
+  if (videoEl.readyState < 2 || videoEl.videoWidth === 0) {
+    recLoopId = requestAnimationFrame(runRecognition);
+    return;
+  }
+  sizeCanvas();
+
+  const now = performance.now();
+  if (now - lastFrameTime < REC_INTERVAL) {
+    recLoopId = requestAnimationFrame(runRecognition);
+    return;
+  }
+
+  fpsSamples.push(1000 / (now - lastFrameTime || 1));
+  if (fpsSamples.length > 10) fpsSamples.shift();
+  const fps = (fpsSamples.reduce((a,b)=>a+b,0)/fpsSamples.length).toFixed(1);
+  lastFrameTime = now;
+
+  let detections = [];
+  try {
+    detections = await faceapi
+      .detectAllFaces(videoEl, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 }))
+      .withFaceLandmarks(true)
+      .withFaceDescriptors();
+  } catch(e) {
+    if (recognizing) recLoopId = requestAnimationFrame(runRecognition);
+    return;
+  }
+
+  ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
+
+  let youCount = 0, strCount = 0;
+  let bestMatch = null, bestDist = Infinity;
+
+  const scaleX = detCanvas.width  / videoEl.videoWidth;
+  const scaleY = detCanvas.height / videoEl.videoHeight;
+
+  detections.forEach(det => {
+    const result = faceMatcher.findBestMatch(det.descriptor);
+    const isMe   = result.label === 'ME';
+    const dist   = result.distance;
+    const conf   = Math.max(0, Math.min(100, Math.round((1 - dist) * 100)));
+
+    if (isMe) youCount++; else strCount++;
+    if (dist < bestDist) { bestDist = dist; bestMatch = { isMe, dist, conf }; }
+
+    // Draw box — NOTE: video is CSS-mirrored so canvas is also mirrored; box coords are raw
+    const bx = det.detection.box;
+    const sx = bx.x * scaleX, sy = bx.y * scaleY;
+    const sw = bx.width * scaleX, sh = bx.height * scaleY;
+    const color = isMe ? '#39ff7a' : '#ff2d78';
+    const glow  = isMe ? 'rgba(57,255,122,0.6)' : 'rgba(255,45,120,0.6)';
+
+    // Box
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+    ctx.shadowColor = glow; ctx.shadowBlur = 14;
+    ctx.strokeRect(sx, sy, sw, sh);
+    ctx.shadowBlur = 0;
+
+    // Corner ticks
+    const tick = 14;
+    ctx.lineWidth = 3; ctx.strokeStyle = color;
+    [[sx,sy,1,1],[sx+sw,sy,-1,1],[sx,sy+sh,1,-1],[sx+sw,sy+sh,-1,-1]].forEach(([cx,cy,dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + dy*tick); ctx.lineTo(cx, cy); ctx.lineTo(cx + dx*tick, cy);
+      ctx.stroke();
+    });
+
+    // Label
+    const tag = isMe ? `◉ YOU  ${conf}%` : `✕ STRANGER  ${conf}%`;
+    ctx.font = 'bold 11px "Share Tech Mono",monospace';
+    const tw = ctx.measureText(tag).width + 16;
+    const ly = sy > 24 ? sy - 6 : sy + sh + 18;
+    ctx.fillStyle = color + 'cc';
+    ctx.shadowColor = glow; ctx.shadowBlur = 8;
+    ctx.fillRect(sx, ly - 14, tw, 19);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#04060f';
+    ctx.fillText(tag, sx + 8, ly + 1);
+  });
+
+  // Update stats
+  const totalFaces = detections.length;
+  setStatCard('cardFaces', 'statFaces', totalFaces, totalFaces > 0);
+  setStatCard('cardYou',   'statYou',   youCount,   youCount > 0);
+  setStatCard('cardStr',   'statStr',   strCount,   strCount > 0);
+  setStatCard('cardFPS',   'statFPS',   fps,        true);
+
+  // Update ID display
+  if (bestMatch) {
+    updateIdDisplay(bestMatch);
+    detTicker.textContent = bestMatch.isMe
+      ? `◉ YOU identified  ·  dist ${bestMatch.dist.toFixed(3)}  ·  conf ${bestMatch.conf}%  ·  ${fps} fps`
+      : `✕ STRANGER detected  ·  dist ${bestMatch.dist.toFixed(3)}  ·  ${fps} fps`;
+    detTicker.style.color = bestMatch.isMe ? 'var(--green)' : 'var(--pink)';
+  } else {
+    resetIdDisplay();
+    detTicker.textContent = '◎ No face detected  ·  ' + fps + ' fps';
+    detTicker.style.color = 'var(--dim)';
+  }
+
+  if (recognizing) recLoopId = requestAnimationFrame(runRecognition);
+}
+
+function updateIdDisplay(match) {
+  const cls = match.isMe ? 'you' : 'stranger';
+  idDisplay.className = 'id-display ' + cls;
+  idValue.textContent  = match.isMe ? 'YOU ✓' : 'STRANGER ✕';
+  confValue.textContent = match.conf + '%';
+  distValue.textContent = match.dist.toFixed(3);
+  idSub.textContent = match.isMe ? 'Identity confirmed' : 'Unrecognised subject';
+}
+
+function resetIdDisplay() {
+  idDisplay.className = 'id-display idle';
+  idValue.textContent  = 'NO FACE';
+  confValue.textContent = '--%';
+  distValue.textContent = '--';
+  idSub.textContent = 'awaiting detection';
+}
+
+function setStatCard(cardId, valId, val, active) {
+  document.getElementById(valId).textContent = val;
+  document.getElementById(cardId).classList.toggle('active', active);
+}
+
+</script>
+</body>
+</html>
