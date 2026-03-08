@@ -834,9 +834,10 @@ async function runRecognition() {
   try {
     detections = await faceapi
       .detectAllFaces(videoEl, new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 }))
-      .withFaceLandmarks(true)
+      .withFaceLandmarks()
       .withFaceDescriptors();
   } catch(e) {
+    addLog('Recognition error: ' + e.message, 'warn');
     if (recognizing) recLoopId = requestAnimationFrame(runRecognition);
     return;
   }
