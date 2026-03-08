@@ -443,6 +443,8 @@ let trainingData   = [];          // array of Float32Array descriptors
 let faceMatcher    = null;
 let recognizing    = false;
 let recLoopId      = null;
+let enrollLoopId   = null;        // enrollment preview loop
+let enrolling      = false;       // enrollment preview active
 let matchThreshold = 0.50;
 let lastFrameTime  = 0;
 let fpsSamples     = [];
@@ -550,9 +552,13 @@ function enterEnrollPhase() {
   recognizePanel.style.display = 'none';
   enrollPanel.style.display    = '';
   addLog('Phase: ENROLL — capture training samples of your face.', 'sys');
+  enrolling = true;
+  runEnrollPreview();
 }
 
 function enterRecognizePhase() {
+  enrolling = false;
+  if (enrollLoopId) { cancelAnimationFrame(enrollLoopId); enrollLoopId = null; }
   phase = 'recognizing';
   phaseBadge.className = 'phase-badge recog';
   phaseBadge.textContent = '● RECOGNIZE';
@@ -624,7 +630,9 @@ async function startCamera() {
 // ── STOP CAMERA ──
 function stopCamera() {
   recognizing = false;
+  enrolling = false;
   if (recLoopId) cancelAnimationFrame(recLoopId);
+  if (enrollLoopId) { cancelAnimationFrame(enrollLoopId); enrollLoopId = null; }
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
   videoEl.srcObject = null;
   ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
@@ -808,6 +816,67 @@ async function trainModel() {
   addLog('Model trained ✓  threshold=' + matchThreshold.toFixed(2) + '  samples=' + trainingData.length, 'you');
   btnTrain.textContent = '◆ TRAIN MODEL';
   enterRecognizePhase();
+}
+
+// ── ENROLLMENT PREVIEW LOOP ──
+async function runEnrollPreview() {
+  if (!enrolling || !stream) return;
+  if (videoEl.readyState < 2 || videoEl.videoWidth === 0) {
+    enrollLoopId = requestAnimationFrame(runEnrollPreview);
+    return;
+  }
+  sizeCanvas();
+
+  let det = null;
+  try {
+    det = await faceapi.detectSingleFace(
+      videoEl,
+      new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.4 })
+    );
+  } catch(e) { /* ignore */ }
+
+  ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
+
+  if (det) {
+    const scaleX = detCanvas.width  / videoEl.videoWidth;
+    const scaleY = detCanvas.height / videoEl.videoHeight;
+    const bx = det.box;
+    const sx = bx.x * scaleX, sy = bx.y * scaleY;
+    const sw = bx.width * scaleX, sh = bx.height * scaleY;
+    const color = '#00f5ff';
+    const glow  = 'rgba(0,245,255,0.6)';
+
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+    ctx.shadowColor = glow; ctx.shadowBlur = 14;
+    ctx.strokeRect(sx, sy, sw, sh);
+    ctx.shadowBlur = 0;
+
+    const tick = 14;
+    ctx.lineWidth = 3; ctx.strokeStyle = color;
+    [[sx,sy,1,1],[sx+sw,sy,-1,1],[sx,sy+sh,1,-1],[sx+sw,sy+sh,-1,-1]].forEach(([cx,cy,dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy + dy*tick); ctx.lineTo(cx, cy); ctx.lineTo(cx + dx*tick, cy);
+      ctx.stroke();
+    });
+
+    const conf = Math.round(det.score * 100);
+    const tag = `◎ FACE  ${conf}%`;
+    ctx.font = 'bold 11px "Share Tech Mono",monospace';
+    const tw = ctx.measureText(tag).width + 16;
+    const ly = sy > 24 ? sy - 6 : sy + sh + 18;
+    ctx.fillStyle = color + 'cc';
+    ctx.shadowColor = glow; ctx.shadowBlur = 8;
+    ctx.fillRect(sx, ly - 14, tw, 19);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#04060f';
+    ctx.fillText(tag, sx + 8, ly + 1);
+
+    flashTicker(`◎ Face locked  ·  conf ${conf}%  ·  press CAPTURE SAMPLE`, 'var(--cyan)');
+  } else {
+    flashTicker('◎ No face detected — centre your face in the oval guide', 'var(--dim)');
+  }
+
+  if (enrolling) enrollLoopId = requestAnimationFrame(runEnrollPreview);
 }
 
 // ── RECOGNITION LOOP ──
