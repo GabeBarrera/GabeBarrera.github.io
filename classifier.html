@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PWNYXPRESS // CLASSIFIER</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #04060f;
+  --panel:  #080c1a;
+  --panel2: #0b1020;
+  --border: #0f2040;
+  --cyan:   #00f5ff;
+  --pink:   #ff2d78;
+  --yellow: #f5e642;
+  --green:  #39ff7a;
+  --purple: #b44dff;
+  --red:    #ff3d3d;
+  --orange: #ff8c00;
+  --muted:  #2a3a55;
+  --text:   #c8d8f0;
+  --dim:    #4a6080;
+  --mono:   'Share Tech Mono', monospace;
+  --orb:    'Orbitron', monospace;
+  --raj:    'Rajdhani', sans-serif;
+}
+
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--raj); overflow-x: hidden; cursor: crosshair; }
+
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  pointer-events: none; z-index: 9999;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px; pointer-events: none; z-index: 0;
+}
+
+.orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; animation: orbDrift 14s ease-in-out infinite alternate; }
+.orb1 { width: 320px; height: 320px; background: rgba(0,245,255,0.06); top: -80px; left: -60px; }
+.orb2 { width: 260px; height: 260px; background: rgba(255,45,120,0.06); bottom: 60px; right: -40px; animation-delay: -7s; }
+.orb3 { width: 180px; height: 180px; background: rgba(57,255,122,0.05); top: 45%; left: 60%; animation-delay: -4s; }
+@keyframes orbDrift { from { transform: translate(0,0) scale(1); } to { transform: translate(18px,28px) scale(1.07); } }
+
+.app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+
+/* ── HEADER ── */
+.hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--border); animation: fadeIn 0.5s ease both; }
+.hdr-left { display: flex; align-items: center; gap: 16px; }
+.logo { font-family: var(--orb); font-size: clamp(15px,3.5vw,22px); font-weight: 900; letter-spacing: 0.08em; color: var(--cyan); text-shadow: 0 0 18px rgba(0,245,255,0.6); }
+.logo span { color: var(--pink); text-shadow: 0 0 18px rgba(255,45,120,0.6); }
+.page-title { font-family: var(--orb); font-size: clamp(9px,1.8vw,11px); letter-spacing: 0.3em; color: var(--dim); text-transform: uppercase; }
+.hdr-right { font-family: var(--mono); font-size: 11px; color: var(--dim); text-align: right; line-height: 1.7; }
+#liveClock { color: var(--cyan); font-size: 13px; }
+.home-btn { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--dim); text-decoration: none; border: 1px solid var(--muted); padding: 5px 12px; text-transform: uppercase; transition: all 0.15s; }
+.home-btn:hover { color: var(--cyan); border-color: var(--cyan); }
+
+/* ── PANEL ── */
+.panel { background: var(--panel); border: 1px solid var(--border); position: relative; overflow: hidden; margin-bottom: 16px; animation: fadeIn 0.4s ease both; }
+.panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); opacity: 0.5; }
+.panel.accent-pink::before   { background: linear-gradient(90deg, transparent, var(--pink),   transparent); }
+.panel.accent-green::before  { background: linear-gradient(90deg, transparent, var(--green),  transparent); }
+.panel.accent-yellow::before { background: linear-gradient(90deg, transparent, var(--yellow), transparent); }
+.panel.accent-purple::before { background: linear-gradient(90deg, transparent, var(--purple), transparent); }
+.panel-title { font-family: var(--orb); font-size: 10px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--cyan); padding: 14px 20px 0; opacity: 0.8; display: flex; align-items: center; gap: 8px; }
+.panel-title::before { content: '//'; color: var(--pink); opacity: 0.7; }
+.panel-body { padding: 14px 20px 20px; }
+
+/* ── BUTTONS ── */
+.btn { font-family: var(--orb); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; border: none; padding: 11px 20px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 8px; }
+.btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.05); opacity: 0; transition: opacity 0.15s; }
+.btn:hover::after { opacity: 1; }
+.btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.btn-green  { background: transparent; border: 1px solid var(--green);  color: var(--green);  box-shadow: 0 0 14px rgba(57,255,122,0.2); }
+.btn-green:hover  { background: rgba(57,255,122,0.07);  box-shadow: 0 0 26px rgba(57,255,122,0.4); }
+.btn-red    { background: transparent; border: 1px solid var(--red);    color: var(--red);    box-shadow: 0 0 14px rgba(255,61,61,0.2); }
+.btn-red:hover    { background: rgba(255,61,61,0.07);    box-shadow: 0 0 26px rgba(255,61,61,0.4); }
+.btn-cyan   { background: transparent; border: 1px solid var(--cyan);   color: var(--cyan);   box-shadow: 0 0 14px rgba(0,245,255,0.2); }
+.btn-cyan:hover   { background: rgba(0,245,255,0.07);   box-shadow: 0 0 26px rgba(0,245,255,0.4); }
+.btn-yellow { background: transparent; border: 1px solid var(--yellow); color: var(--yellow); box-shadow: 0 0 14px rgba(245,230,66,0.2); }
+.btn-yellow:hover { background: rgba(245,230,66,0.07); box-shadow: 0 0 26px rgba(245,230,66,0.4); }
+.btn-pink   { background: transparent; border: 1px solid var(--pink);   color: var(--pink);   box-shadow: 0 0 14px rgba(255,45,120,0.2); }
+.btn-pink:hover   { background: rgba(255,45,120,0.07);  box-shadow: 0 0 26px rgba(255,45,120,0.4); }
+.btn-purple { background: transparent; border: 1px solid var(--purple); color: var(--purple); box-shadow: 0 0 14px rgba(180,77,255,0.2); }
+.btn-purple:hover { background: rgba(180,77,255,0.07); box-shadow: 0 0 26px rgba(180,77,255,0.4); }
+.btn-sm { padding: 7px 13px; font-size: 10px; }
+
+.controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* ── STATUS BADGE ── */
+.status-badge { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; padding: 5px 12px; border: 1px solid var(--muted); color: var(--dim); transition: all 0.3s; }
+.status-badge.live    { border-color: var(--green);  color: var(--green);  box-shadow: 0 0 12px rgba(57,255,122,0.2); }
+.status-badge.enroll  { border-color: var(--yellow); color: var(--yellow); box-shadow: 0 0 12px rgba(245,230,66,0.2); }
+.status-badge.recog   { border-color: var(--cyan);   color: var(--cyan);   box-shadow: 0 0 12px rgba(0,245,255,0.2); }
+.status-badge.error   { border-color: var(--red);    color: var(--red);    box-shadow: 0 0 12px rgba(255,61,61,0.2); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
+.status-badge.live   .status-dot { background: var(--green);  box-shadow: 0 0 6px var(--green);  animation: dotPulse 1s ease-in-out infinite; }
+.status-badge.enroll .status-dot { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation: dotPulse 1s ease-in-out infinite; }
+.status-badge.recog  .status-dot { background: var(--cyan);   box-shadow: 0 0 6px var(--cyan);   animation: dotPulse 1s ease-in-out infinite; }
+.status-badge.error  .status-dot { background: var(--red);    box-shadow: 0 0 6px var(--red); }
+@keyframes dotPulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* ── VIEWPORT ── */
+.viewport-wrap { position: relative; width: 100%; background: #000; border: 1px solid var(--border); overflow: hidden; aspect-ratio: 4/3; }
+#videoEl { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
+#detCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.viewport-wrap::before,
+.viewport-wrap::after { content: ''; position: absolute; width: 22px; height: 22px; z-index: 10; pointer-events: none; }
+.viewport-wrap::before { top: 0; left: 0; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); box-shadow: -2px -2px 8px rgba(0,245,255,0.4); }
+.viewport-wrap::after  { bottom: 0; right: 0; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); box-shadow: 2px 2px 8px rgba(0,245,255,0.4); }
+
+/* Capture zone guide */
+#captureGuide {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 55%; aspect-ratio: 1; border: 1.5px dashed rgba(245,230,66,0.45);
+  z-index: 5; pointer-events: none; display: none;
+}
+#captureGuide::before, #captureGuide::after { content: ''; position: absolute; width: 16px; height: 16px; }
+#captureGuide::before { top: -1px; left: -1px; border-top: 2px solid var(--yellow); border-left: 2px solid var(--yellow); }
+#captureGuide::after  { bottom: -1px; right: -1px; border-bottom: 2px solid var(--yellow); border-right: 2px solid var(--yellow); }
+
+/* Await overlay */
+.cam-await {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(4,6,15,0.95); gap: 12px; pointer-events: none;
+}
+.cam-await .await-icon { font-size: 36px; color: var(--cyan); opacity: 0.3; animation: awaitPulse 2s ease-in-out infinite; }
+.cam-await .await-text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--dim); text-transform: uppercase; }
+.cam-await .await-sub  { font-family: var(--mono); font-size: 9px;  letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+@keyframes awaitPulse { 0%,100%{opacity:0.3;} 50%{opacity:0.8;} }
+
+.model-bar-wrap { display: none; width: 220px; }
+.model-bar-track { height: 3px; background: var(--border); width: 100%; }
+.model-bar-fill  { height: 100%; background: var(--cyan); width: 0%; box-shadow: 0 0 8px var(--cyan); transition: width 0.2s; }
+
+.phase-badge {
+  position: absolute; top: 12px; left: 14px; z-index: 15;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 4px 10px; display: none;
+}
+.phase-badge.enroll { display: inline-block; border: 1px solid var(--yellow); color: var(--yellow); background: rgba(4,6,15,0.7); }
+.phase-badge.recog  { display: inline-block; border: 1px solid var(--cyan);   color: var(--cyan);   background: rgba(4,6,15,0.7); }
+
+.det-ticker {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 15;
+  background: rgba(4,6,15,0.78); padding: 6px 14px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+  color: var(--cyan); white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; display: none;
+}
+
+/* ── TRAINING PANEL ── */
+.label-row { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.label-input {
+  flex: 1; min-width: 160px;
+  background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; padding: 10px 14px;
+  outline: none; transition: border-color 0.2s;
+}
+.label-input:focus { border-color: var(--yellow); box-shadow: 0 0 10px rgba(245,230,66,0.15); }
+.label-input::placeholder { color: var(--dim); }
+
+.class-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; min-height: 48px; }
+.class-row {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  background: var(--panel2); border: 1px solid var(--border);
+  animation: fadeIn 0.2s ease both; transition: border-color 0.2s;
+}
+.class-row:hover { border-color: var(--muted); }
+.class-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.class-label { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; flex: 1; }
+.class-count { font-family: var(--mono); font-size: 10px; color: var(--dim); min-width: 72px; text-align: right; }
+.class-count.ready { color: var(--green); }
+.class-actions { display: flex; gap: 6px; }
+.class-empty { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.12em; padding: 14px 0; text-align: center; }
+
+.train-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
+.train-hint { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 0.1em; line-height: 1.8; }
+
+/* ── RECOGNITION PANEL ── */
+.pred-display {
+  display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
+  padding: 20px 24px; background: var(--panel2); border: 1px solid var(--border);
+  margin-bottom: 14px; transition: border-color 0.3s;
+}
+.pred-display.active { border-color: rgba(0,245,255,0.3); }
+
+.pred-label-tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+.pred-class { font-family: var(--orb); font-size: clamp(22px,5vw,40px); font-weight: 900; letter-spacing: 0.06em; color: var(--muted); transition: all 0.2s; }
+.pred-display.active .pred-class { text-shadow: 0 0 28px; }
+.pred-conf-big { font-family: var(--orb); font-size: clamp(20px,4vw,34px); font-weight: 700; color: var(--muted); transition: all 0.2s; }
+.pred-fps { font-family: var(--mono); font-size: 10px; color: var(--dim); margin-top: 6px; }
+
+/* confidence bars */
+.conf-bars { display: flex; flex-direction: column; gap: 8px; }
+.conf-row { display: flex; align-items: center; gap: 10px; }
+.conf-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.conf-name { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.conf-bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.conf-bar-fill  { height: 100%; border-radius: 3px; transition: width 0.15s ease; }
+.conf-pct { font-family: var(--mono); font-size: 10px; color: var(--dim); width: 36px; text-align: right; }
+
+/* ── LOG ── */
+.det-log-wrap { max-height: 180px; overflow-y: auto; }
+.det-log-row { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(15,32,64,0.5); font-family: var(--mono); font-size: 11px; animation: rowIn 0.2s ease both; }
+.det-log-row:last-child { border-bottom: none; }
+.det-log-time { color: var(--dim); flex-shrink: 0; width: 54px; }
+.det-log-you  { color: var(--green); }
+.det-log-str  { color: var(--pink); }
+.det-log-sys  { color: var(--cyan); }
+.det-log-warn { color: var(--yellow); }
+.det-log-empty { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 14px 0; text-align: center; letter-spacing: 0.1em; }
+
+::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--muted); }
+scrollbar-width: thin; scrollbar-color: var(--muted) var(--bg);
+
+@keyframes fadeIn { from {opacity:0;transform:translateY(10px);} to {opacity:1;transform:translateY(0);} }
+@keyframes rowIn  { from {opacity:0;transform:translateX(-6px);} to {opacity:1;transform:translateX(0);} }
+
+.footer { position: fixed; bottom: 14px; left:0; right:0; text-align:center; font-family:var(--mono); font-size:9px; letter-spacing:0.2em; color:var(--muted); z-index:2; text-transform:uppercase; }
+.footer span { color: var(--pink); }
+.corner-tag  { position:fixed; top:14px; left:18px; font-family:var(--mono); font-size:10px; letter-spacing:0.2em; color:var(--dim); z-index:2; text-transform:uppercase; }
+.clock-fixed { position:fixed; top:14px; right:18px; font-family:var(--mono); font-size:11px; color:var(--dim); letter-spacing:0.12em; z-index:2; }
+.clock-fixed span { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="corner-tag">// SYS:CLASSIFIER</div>
+<div class="clock-fixed"><span id="clockCorner">00:00:00</span> — ONLINE</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <a href="index.html" class="home-btn">&#8962; HOME</a>
+      <div>
+        <div class="logo">PWNY<span>X</span>PRESS</div>
+        <div class="page-title">// classifier · object recognition · knn transfer learning</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div id="liveClock">00:00:00</div>
+      <div id="modelVerEl">mobilenet · loading</div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="panel" style="animation-delay:0.04s">
+    <div class="panel-title">System Control</div>
+    <div class="panel-body">
+      <div class="controls" style="margin-bottom:12px;">
+        <button class="btn btn-green"  id="btnStart"  onclick="startCamera()">&#9654; START CAMERA</button>
+        <button class="btn btn-red"    id="btnStop"   onclick="stopCamera()"   disabled>&#9632; STOP</button>
+        <button class="btn btn-yellow" id="btnFlip"   onclick="flipCamera()"   disabled>&#8647; FLIP</button>
+        <button class="btn btn-pink"   id="btnReset"  onclick="resetAll()"     disabled>&#9664;&#9664; RESET</button>
+        <div class="status-badge" id="camBadge">
+          <div class="status-dot"></div>
+          <span id="camLabel">OFFLINE</span>
+        </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;" id="modelStatus">
+        Model: not loaded — press START CAMERA to initialise
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEWPORT -->
+  <div class="panel" style="animation-delay:0.07s; overflow:hidden; padding:0; margin-bottom:16px;">
+    <div class="viewport-wrap" id="viewportWrap">
+      <div class="cam-await" id="camAwait">
+        <div class="await-icon">&#9672;</div>
+        <div class="await-text">Camera offline</div>
+        <div class="await-sub">Press START CAMERA to begin</div>
+        <div class="model-bar-wrap" id="modelBarWrap">
+          <div class="model-bar-track"><div class="model-bar-fill" id="modelBarFill"></div></div>
+        </div>
+      </div>
+      <div class="phase-badge" id="phaseBadge"></div>
+      <div id="captureGuide"></div>
+      <video id="videoEl" autoplay playsinline muted></video>
+      <canvas id="detCanvas"></canvas>
+      <div class="det-ticker" id="detTicker">◈ awaiting detections...</div>
+    </div>
+  </div>
+
+  <!-- TRAINING PANEL -->
+  <div class="panel accent-yellow" id="trainPanel" style="animation-delay:0.10s;">
+    <div class="panel-title" style="color:var(--yellow);">Training — Add Object Classes</div>
+    <div class="panel-body">
+
+      <div class="label-row">
+        <input class="label-input" type="text" id="labelInput"
+          placeholder="Type a class label, e.g. apple, book, cup…"
+          maxlength="32"
+          onkeydown="if(event.key==='Enter') addClassRow()">
+        <button class="btn btn-yellow" id="btnAddClass" onclick="addClassRow()" disabled>&#43; ADD CLASS</button>
+      </div>
+
+      <div class="class-list" id="classList">
+        <div class="class-empty" id="classEmpty">No classes yet — type a label above and press ADD CLASS</div>
+      </div>
+
+      <div class="train-footer">
+        <div class="train-hint" id="trainHint">
+          Add at least <span style="color:var(--yellow)">2 classes</span> with
+          <span style="color:var(--yellow)">5+ samples</span> each, then start recognising.
+        </div>
+        <button class="btn btn-green" id="btnRecognize" onclick="enterRecognizePhase()" disabled>&#9670; START RECOGNISING</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECOGNITION PANEL (hidden until started) -->
+  <div class="panel accent-green" id="recognizePanel" style="animation-delay:0.10s; display:none;">
+    <div class="panel-title" style="color:var(--green);">Recognition — Live Classification</div>
+    <div class="panel-body">
+
+      <div class="pred-display idle" id="predDisplay">
+        <div>
+          <div class="pred-label-tag">Prediction</div>
+          <div class="pred-class" id="predClass">—</div>
+          <div class="pred-fps" id="predFps">-- fps</div>
+        </div>
+        <div>
+          <div class="pred-label-tag">Confidence</div>
+          <div class="pred-conf-big" id="predConf">--%</div>
+        </div>
+      </div>
+
+      <div class="conf-bars" id="confBars"></div>
+
+      <div style="margin-top:14px;">
+        <button class="btn btn-yellow btn-sm" onclick="backToEnroll()">&#9664; BACK TO TRAINING</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENT LOG -->
+  <div class="panel accent-pink" style="animation-delay:0.13s;">
+    <div class="panel-title">Event Log</div>
+    <div class="panel-body">
+      <div class="det-log-wrap" id="logWrap">
+        <div class="det-log-empty" id="logEmpty">No events yet.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end app -->
+
+<div class="footer">PWNY<span>X</span>PRESS &nbsp;·&nbsp; CLASSIFIER &nbsp;·&nbsp; mobilenet · knn · tensorflow.js</div>
+
+<!-- TensorFlow.js + MobileNet + KNN Classifier -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/knn-classifier@1.2.4/dist/knn-classifier.min.js"></script>
+<script>
+// ── CLOCK ──
+(function() {
+  function tick() {
+    const t = new Date();
+    const s = String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+':'+String(t.getSeconds()).padStart(2,'0');
+    document.getElementById('liveClock').textContent = s;
+    document.getElementById('clockCorner').textContent = s;
+  }
+  setInterval(tick, 1000); tick();
+})();
+
+// ── CONSTANTS ──
+const MIN_SAMPLES_PER_CLASS = 5;
+const MIN_CLASSES            = 2;
+const REC_INTERVAL           = 120; // ms between inference frames (~8 fps)
+const CLASS_COLORS = ['#00f5ff','#ff2d78','#39ff7a','#f5e642','#b44dff','#ff8c00','#c8d8f0','#ff6b35'];
+
+// ── STATE ──
+let stream        = null;
+let modelsLoaded  = false;
+let facingMode    = 'user';
+let phase         = 'idle';
+let recognizing   = false;
+let recLoopId     = null;
+let lastFrameTime = 0;
+let fpsSamples    = [];
+let capturing     = false;
+
+let mobileNet     = null;
+let knn           = null;
+let classes       = {};    // label → { count, color, colorIdx }
+let colorIdx      = 0;
+
+// ── ELEMENTS ──
+const videoEl      = document.getElementById('videoEl');
+const detCanvas    = document.getElementById('detCanvas');
+const ctx          = detCanvas.getContext('2d');
+const camAwait     = document.getElementById('camAwait');
+const detTicker    = document.getElementById('detTicker');
+const modelBarWrap = document.getElementById('modelBarWrap');
+const modelBarFill = document.getElementById('modelBarFill');
+const modelStatus  = document.getElementById('modelStatus');
+const phaseBadge   = document.getElementById('phaseBadge');
+const captureGuide = document.getElementById('captureGuide');
+const btnStart     = document.getElementById('btnStart');
+const btnStop      = document.getElementById('btnStop');
+const btnFlip      = document.getElementById('btnFlip');
+const btnReset     = document.getElementById('btnReset');
+const btnAddClass  = document.getElementById('btnAddClass');
+const btnRecognize = document.getElementById('btnRecognize');
+const labelInput   = document.getElementById('labelInput');
+const classList    = document.getElementById('classList');
+const classEmpty   = document.getElementById('classEmpty');
+const trainPanel   = document.getElementById('trainPanel');
+const recognizePanel = document.getElementById('recognizePanel');
+const predDisplay  = document.getElementById('predDisplay');
+const predClass    = document.getElementById('predClass');
+const predConf     = document.getElementById('predConf');
+const predFps      = document.getElementById('predFps');
+const confBars     = document.getElementById('confBars');
+
+// ── LOG ──
+function addLog(msg, type = 'sys') {
+  const wrap  = document.getElementById('logWrap');
+  const empty = document.getElementById('logEmpty');
+  if (empty) empty.style.display = 'none';
+  const now = new Date();
+  const ts  = String(now.getHours()).padStart(2,'0')+':'+
+              String(now.getMinutes()).padStart(2,'0')+':'+
+              String(now.getSeconds()).padStart(2,'0');
+  const row = document.createElement('div');
+  row.className = 'det-log-row';
+  row.innerHTML = `<span class="det-log-time">${ts}</span><span class="det-log-${type}">${msg}</span>`;
+  wrap.insertBefore(row, wrap.firstChild);
+  while (wrap.querySelectorAll('.det-log-row').length > 60) wrap.removeChild(wrap.lastChild);
+}
+
+// ── BADGE ──
+function setBadge(cls, label) {
+  document.getElementById('camBadge').className = 'status-badge ' + cls;
+  document.getElementById('camLabel').textContent = label;
+}
+
+// ── CANVAS SIZE ──
+function sizeCanvas() {
+  detCanvas.width  = videoEl.videoWidth  || videoEl.clientWidth;
+  detCanvas.height = videoEl.videoHeight || videoEl.clientHeight;
+}
+
+// ── LOAD MODELS ──
+async function loadModels() {
+  modelStatus.textContent = 'Model: loading MobileNet…';
+  modelStatus.style.color = 'var(--yellow)';
+  modelBarWrap.style.display = 'block';
+  camAwait.querySelector('.await-text').textContent = 'Loading AI models';
+  camAwait.querySelector('.await-sub').textContent  = 'MobileNet v1 · TensorFlow.js';
+
+  let prog = 0;
+  const ticker = setInterval(() => {
+    prog = Math.min(prog + Math.random() * 6, 90);
+    modelBarFill.style.width = prog + '%';
+  }, 200);
+
+  try {
+    knn = knnClassifier.create();
+    mobileNet = await mobilenet.load({ version: 1, alpha: 1.0 });
+
+    clearInterval(ticker);
+    modelBarFill.style.width = '100%';
+    setTimeout(() => { modelBarWrap.style.display = 'none'; }, 500);
+
+    modelsLoaded = true;
+    modelStatus.textContent = 'Models: ready ✓  (MobileNet v1 · KNN Classifier)';
+    modelStatus.style.color = 'var(--green)';
+    document.getElementById('modelVerEl').textContent = 'mobilenet v1 · ready';
+    btnAddClass.disabled = false;
+    labelInput.disabled  = false;
+
+    addLog('MobileNet loaded — KNN classifier ready.', 'sys');
+    enterEnrollPhase();
+
+  } catch(e) {
+    clearInterval(ticker);
+    modelStatus.textContent = 'Model load failed: ' + e.message;
+    modelStatus.style.color = 'var(--red)';
+    addLog('Model load error: ' + e.message, 'warn');
+    camAwait.querySelector('.await-text').textContent = 'Model load failed';
+    camAwait.querySelector('.await-sub').textContent  = e.message;
+  }
+}
+
+// ── PHASES ──
+function enterEnrollPhase() {
+  phase = 'enrolling';
+  phaseBadge.className   = 'phase-badge enroll';
+  phaseBadge.textContent = '● ENROLL';
+  captureGuide.style.display = 'block';
+  detTicker.style.display    = 'block';
+  setBadge('enroll', 'ENROLLING');
+  trainPanel.style.display     = '';
+  recognizePanel.style.display = 'none';
+  addLog('Phase: ENROLL — add classes and capture samples.', 'sys');
+  flashTicker('◎ Type a label above and press ADD CLASS', 'var(--yellow)');
+}
+
+function enterRecognizePhase() {
+  if (!canStartRecognizing()) return;
+  phase = 'recognizing';
+  phaseBadge.className   = 'phase-badge recog';
+  phaseBadge.textContent = '● RECOGNIZE';
+  captureGuide.style.display = 'none';
+  setBadge('recog', 'RECOGNIZING');
+  trainPanel.style.display     = 'none';
+  recognizePanel.style.display = '';
+  buildConfBars();
+  recognizing = true;
+  lastFrameTime = 0;
+  fpsSamples = [];
+  runRecognition();
+  addLog('Phase: RECOGNIZE — live object classification active.', 'sys');
+}
+
+function backToEnroll() {
+  recognizing = false;
+  if (recLoopId) { cancelAnimationFrame(recLoopId); recLoopId = null; }
+  ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
+  enterEnrollPhase();
+  addLog('Returned to training mode.', 'sys');
+}
+
+// ── START CAMERA ──
+async function startCamera() {
+  btnStart.disabled = true;
+  setBadge('live', 'STARTING');
+  camAwait.style.display = 'flex';
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    videoEl.srcObject = stream;
+    await videoEl.play();
+    videoEl.addEventListener('loadedmetadata', sizeCanvas);
+    sizeCanvas();
+
+    btnStop.disabled  = false;
+    btnFlip.disabled  = false;
+    btnReset.disabled = false;
+    addLog('Camera started — ' + facingMode + ' facing.', 'sys');
+
+    videoEl.addEventListener('playing', () => {
+      camAwait.style.display = 'none';
+      detTicker.style.display = 'block';
+    }, { once: true });
+
+    if (!modelsLoaded) {
+      await loadModels();
+    } else {
+      camAwait.style.display = 'none';
+      enterEnrollPhase();
+    }
+
+  } catch(err) {
+    btnStart.disabled = false;
+    setBadge('error', 'ERROR');
+    camAwait.querySelector('.await-text').textContent = 'Camera access denied';
+    camAwait.querySelector('.await-sub').textContent  = err.message;
+    addLog('Camera error: ' + err.message, 'warn');
+  }
+}
+
+// ── STOP CAMERA ──
+function stopCamera() {
+  recognizing = false;
+  if (recLoopId) { cancelAnimationFrame(recLoopId); recLoopId = null; }
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  videoEl.srcObject = null;
+  ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
+
+  camAwait.querySelector('.await-text').textContent = 'Camera offline';
+  camAwait.querySelector('.await-sub').textContent  = 'Press START CAMERA to begin';
+  camAwait.style.display  = 'flex';
+  detTicker.style.display = 'none';
+  phaseBadge.className    = 'phase-badge';
+  captureGuide.style.display = 'none';
+
+  setBadge('', 'OFFLINE');
+  btnStart.disabled = false;
+  btnStop.disabled  = true;
+  btnFlip.disabled  = true;
+  phase = 'idle';
+  addLog('Camera stopped.', 'sys');
+}
+
+// ── FLIP CAMERA ──
+async function flipCamera() {
+  facingMode = facingMode === 'user' ? 'environment' : 'user';
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    });
+    videoEl.srcObject = stream;
+    await videoEl.play();
+    sizeCanvas();
+    addLog('Camera flipped to ' + facingMode + '.', 'sys');
+  } catch(err) {
+    facingMode = facingMode === 'user' ? 'environment' : 'user';
+    addLog('Flip failed: ' + err.message, 'warn');
+  }
+}
+
+// ── RESET ──
+function resetAll() {
+  recognizing = false;
+  if (recLoopId) { cancelAnimationFrame(recLoopId); recLoopId = null; }
+
+  // Clear KNN
+  if (knn) knn.clearAllClasses();
+  classes   = {};
+  colorIdx  = 0;
+
+  // Clear UI
+  classList.innerHTML = '';
+  classList.appendChild(classEmpty);
+  classEmpty.style.display = '';
+  ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
+  predClass.textContent = '—';
+  predConf.textContent  = '--%';
+  predFps.textContent   = '-- fps';
+  confBars.innerHTML    = '';
+  btnRecognize.disabled = true;
+  predDisplay.className = 'pred-display idle';
+
+  if (stream) enterEnrollPhase();
+  addLog('Reset complete — all training data cleared.', 'warn');
+}
+
+// ── CLASS MANAGEMENT ──
+function addClassRow() {
+  if (!modelsLoaded || !stream) return;
+  const raw = labelInput.value.trim();
+  if (!raw) { labelInput.focus(); return; }
+  const label = raw.toLowerCase().replace(/[^a-z0-9 _-]/g, '').trim();
+  if (!label) { addLog('Invalid label.', 'warn'); return; }
+  if (classes[label]) {
+    addLog(`Class "${label}" already exists.`, 'warn');
+    labelInput.select();
+    return;
+  }
+
+  const color = CLASS_COLORS[colorIdx % CLASS_COLORS.length];
+  colorIdx++;
+  classes[label] = { count: 0, color };
+
+  classEmpty.style.display = 'none';
+
+  const row = document.createElement('div');
+  row.className = 'class-row';
+  row.id = 'row-' + CSS.escape(label);
+  row.dataset.label = label;
+  row.innerHTML = `
+    <div class="class-dot" style="background:${color}; box-shadow: 0 0 6px ${color}88;"></div>
+    <div class="class-label" style="color:${color}">${label}</div>
+    <div class="class-count" id="count-${CSS.escape(label)}">0 samples</div>
+    <div class="class-actions">
+      <button class="btn btn-yellow btn-sm" onclick="captureForClass('${label}')">&#9679; CAPTURE</button>
+      <button class="btn btn-red btn-sm"    onclick="deleteClass('${label}')">&#10005;</button>
+    </div>`;
+  classList.appendChild(row);
+
+  labelInput.value = '';
+  labelInput.focus();
+  checkTrainReady();
+  addLog(`Class added: "${label}" (${color})`, 'sys');
+}
+
+function deleteClass(label) {
+  if (knn) knn.clearClass(label);
+  delete classes[label];
+  const row = document.getElementById('row-' + CSS.escape(label));
+  if (row) row.remove();
+  if (Object.keys(classes).length === 0) classEmpty.style.display = '';
+  checkTrainReady();
+  addLog(`Class removed: "${label}"`, 'warn');
+}
+
+function updateClassCount(label) {
+  const el = document.getElementById('count-' + CSS.escape(label));
+  if (!el) return;
+  const n = classes[label].count;
+  el.textContent = n + (n === 1 ? ' sample' : ' samples');
+  el.className   = 'class-count' + (n >= MIN_SAMPLES_PER_CLASS ? ' ready' : '');
+}
+
+function checkTrainReady() {
+  const labels = Object.keys(classes);
+  const readyClasses = labels.filter(l => classes[l].count >= MIN_SAMPLES_PER_CLASS);
+  const hint = document.getElementById('trainHint');
+  if (labels.length < MIN_CLASSES) {
+    hint.innerHTML = `Add at least <span style="color:var(--yellow)">${MIN_CLASSES} classes</span> with <span style="color:var(--yellow)">${MIN_SAMPLES_PER_CLASS}+ samples</span> each, then start recognising.`;
+    btnRecognize.disabled = true;
+  } else if (readyClasses.length < MIN_CLASSES) {
+    const need = MIN_CLASSES - readyClasses.length;
+    hint.innerHTML = `<span style="color:var(--yellow)">${need} more class${need>1?'es':''}</span> need${need===1?'s':''} ${MIN_SAMPLES_PER_CLASS}+ samples before you can start.`;
+    btnRecognize.disabled = true;
+  } else {
+    hint.innerHTML = `<span style="color:var(--green)">Ready! ${readyClasses.length} classes trained.</span> Press START RECOGNISING to begin live classification.`;
+    btnRecognize.disabled = false;
+  }
+}
+
+function canStartRecognizing() {
+  const readyClasses = Object.keys(classes).filter(l => classes[l].count >= MIN_SAMPLES_PER_CLASS);
+  return readyClasses.length >= MIN_CLASSES;
+}
+
+// ── CAPTURE SAMPLE ──
+async function captureForClass(label) {
+  if (capturing || !stream || !modelsLoaded || !mobileNet) return;
+  if (!classes[label]) return;
+  capturing = true;
+
+  // Visually indicate which class is being captured
+  const btn = document.querySelector(`#row-${CSS.escape(label)} .btn-yellow`);
+  if (btn) { btn.textContent = '⌛'; btn.disabled = true; }
+
+  try {
+    const activation = mobileNet.infer(videoEl, true);
+    knn.addExample(activation, label);
+    // Don't dispose — KNN stores reference internally
+
+    classes[label].count++;
+    updateClassCount(label);
+    checkTrainReady();
+    addLog(`Sample ${classes[label].count} captured for "${label}".`, 'you');
+    flashTicker(`✓ Sample captured for "${label}" — total ${classes[label].count}`, 'var(--green)');
+  } catch(e) {
+    addLog('Capture error: ' + e.message, 'warn');
+  }
+
+  if (btn) { btn.textContent = '● CAPTURE'; btn.disabled = false; }
+  capturing = false;
+}
+
+function flashTicker(msg, color) {
+  detTicker.textContent = msg;
+  detTicker.style.color = color || 'var(--cyan)';
+}
+
+// ── CONFIDENCE BARS ──
+function buildConfBars() {
+  confBars.innerHTML = '';
+  Object.keys(classes).forEach(label => {
+    const color = classes[label].color;
+    const row = document.createElement('div');
+    row.className = 'conf-row';
+    row.id = 'bar-row-' + CSS.escape(label);
+    row.innerHTML = `
+      <div class="conf-dot" style="background:${color}; box-shadow:0 0 5px ${color}88;"></div>
+      <div class="conf-name" style="color:${color}">${label}</div>
+      <div class="conf-bar-track">
+        <div class="conf-bar-fill" id="bar-fill-${CSS.escape(label)}"
+          style="background:${color}; box-shadow:0 0 6px ${color}88; width:0%;"></div>
+      </div>
+      <div class="conf-pct" id="bar-pct-${CSS.escape(label)}">0%</div>`;
+    confBars.appendChild(row);
+  });
+}
+
+function updateConfBars(confidences, topLabel) {
+  Object.keys(confidences).forEach(label => {
+    const pct = Math.round(confidences[label] * 100);
+    const fill = document.getElementById('bar-fill-' + CSS.escape(label));
+    const pctEl = document.getElementById('bar-pct-' + CSS.escape(label));
+    if (fill) fill.style.width = pct + '%';
+    if (pctEl) pctEl.textContent = pct + '%';
+  });
+}
+
+// ── RECOGNITION LOOP ──
+async function runRecognition() {
+  if (!recognizing || !stream || !mobileNet || !knn) return;
+  if (videoEl.readyState < 2 || videoEl.videoWidth === 0) {
+    recLoopId = requestAnimationFrame(runRecognition);
+    return;
+  }
+  sizeCanvas();
+
+  const now = performance.now();
+  if (now - lastFrameTime < REC_INTERVAL) {
+    recLoopId = requestAnimationFrame(runRecognition);
+    return;
+  }
+
+  fpsSamples.push(1000 / (now - lastFrameTime || 1));
+  if (fpsSamples.length > 10) fpsSamples.shift();
+  const fps = (fpsSamples.reduce((a,b)=>a+b,0)/fpsSamples.length).toFixed(1);
+  lastFrameTime = now;
+
+  try {
+    if (knn.getNumClasses() < MIN_CLASSES) {
+      if (recognizing) recLoopId = requestAnimationFrame(runRecognition);
+      return;
+    }
+
+    const activation = mobileNet.infer(videoEl, true);
+    const result = await knn.predictClass(activation, 3);
+    activation.dispose();
+
+    const label = result.label;
+    const conf  = Math.round((result.confidences[label] || 0) * 100);
+    const color = (classes[label] && classes[label].color) || 'var(--cyan)';
+
+    // Update main display
+    predDisplay.className   = 'pred-display active';
+    predClass.textContent   = label.toUpperCase();
+    predClass.style.color   = color;
+    predClass.style.textShadow = `0 0 28px ${color}88`;
+    predConf.textContent    = conf + '%';
+    predConf.style.color    = color;
+    predFps.textContent     = fps + ' fps';
+
+    // Update confidence bars
+    updateConfBars(result.confidences, label);
+
+    // Canvas overlay — prediction label in the center of the frame
+    ctx.clearRect(0, 0, detCanvas.width, detCanvas.height);
+    const cx = detCanvas.width / 2;
+    const cy = detCanvas.height / 2;
+
+    // Horizontal center line
+    ctx.strokeStyle = color + '44'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(detCanvas.width, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, detCanvas.height); ctx.stroke();
+
+    // Center prediction tag
+    ctx.font = 'bold 14px "Share Tech Mono",monospace';
+    const tagText = label.toUpperCase() + '  ' + conf + '%';
+    const tw = ctx.measureText(tagText).width + 24;
+    const tx = cx - tw / 2;
+    const ty = 32;
+
+    ctx.fillStyle = color + 'cc';
+    ctx.shadowColor = color; ctx.shadowBlur = 10;
+    ctx.fillRect(tx, ty - 16, tw, 24);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#04060f';
+    ctx.fillText(tagText, tx + 12, ty + 4);
+
+    flashTicker(`◉ ${label.toUpperCase()}  ·  conf ${conf}%  ·  ${fps} fps`, 'var(--cyan)');
+
+  } catch(e) {
+    addLog('Recognition error: ' + e.message, 'warn');
+  }
+
+  if (recognizing) recLoopId = requestAnimationFrame(runRecognition);
+}
+
+// Disable label input until camera starts
+labelInput.disabled  = true;
+btnAddClass.disabled = true;
+</script>
+</body>
+</html>
