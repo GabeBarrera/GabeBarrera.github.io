@@ -58,6 +58,14 @@
       width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px;
       font-size: 0.9rem; outline: none; transition: border-color 0.2s; font-family: Arial, sans-serif;
     }
+    /* Date input: iOS Safari uses a native min-width that breaks layout */
+    .form-group input[type="date"] {
+      -webkit-appearance: none;
+      appearance: none;
+      min-width: 0;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
       border-color: #5c6bc0; box-shadow: 0 0 0 3px rgba(92,107,192,0.12);
     }
