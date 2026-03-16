@@ -310,26 +310,36 @@
     /* ---- RESPONSIVE: MOBILE ---- */
     .page-body { max-width: 1200px; margin: 0 auto; }
 
-    @media (max-width: 540px) {
-      .topnav { padding: 0 10px; gap: 0; }
-      .topnav .brand { font-size: 0.88rem; margin-right: 10px; flex-shrink: 0; }
-      .nav-btn { padding: 6px 8px; font-size: 0.78rem; }
-      .dark-toggle { padding: 4px 8px; font-size: 0.9rem; }
+    /* Nav: prevent overflow on any screen size */
+    .topnav { overflow: hidden; }
+    .topnav .brand { white-space: nowrap; }
+    .nav-btn { white-space: nowrap; }
+
+    @media (max-width: 600px) {
+      /* Nav: shrink items to fit on one line */
+      .topnav { padding: 0 8px; gap: 0; height: 48px; }
+      .topnav .brand { font-size: 0.82rem; margin-right: 6px; flex-shrink: 0; }
+      .nav-btn { padding: 5px 8px; font-size: 0.76rem; }
+      .dark-toggle { padding: 4px 7px; font-size: 0.88rem; flex-shrink: 0; }
 
       .page-body { padding: 14px 10px 0; }
       h1 { font-size: 1.4rem; }
       .subtitle { font-size: 0.82rem; margin-bottom: 18px; }
 
-      /* Stack label + input vertically on small screens */
+      /* Stack label + input vertically */
       .field-row { flex-wrap: wrap; gap: 6px; }
       .field-label { width: 100%; flex: none; }
       .field-input-wrap { width: 100%; }
       .tax-toggle { width: 100%; justify-content: stretch; }
       .tax-toggle-btn { flex: 1; text-align: center; }
 
-      /* Pay grid: collapse to single-column cards */
-      .pay-grid { grid-template-columns: 1fr 1fr; }
-      .pay-cell.header-cell:first-child { display: none; }
+      /* Pay grid: keep 3-column structure but use auto label column
+         and hide the redundant per-cell labels (pc-label) */
+      .pay-grid { grid-template-columns: auto 1fr 1fr; gap: 6px; }
+      .pay-cell { padding: 8px 6px; }
+      .pay-cell .pc-label { display: none; }
+      .pay-cell .pc-value { font-size: 0.88rem; }
+      .pay-cell.header-cell span { font-size: 0.68rem; }
 
       /* Action buttons: 2-per-row wrap */
       .action-btns { flex-wrap: wrap; }
@@ -340,11 +350,10 @@
       .field-label { font-size: 0.82rem; }
     }
 
-    @media (max-width: 380px) {
-      .nav-btn { padding: 5px 6px; font-size: 0.72rem; }
-      .topnav .brand { font-size: 0.8rem; margin-right: 6px; }
-      .pay-grid { grid-template-columns: 1fr; }
-      .pay-cell.header-cell { display: none; }
+    @media (max-width: 400px) {
+      .topnav { padding: 0 6px; }
+      .topnav .brand { font-size: 0.76rem; margin-right: 4px; }
+      .nav-btn { padding: 5px 6px; font-size: 0.7rem; }
     }
 
     /* ---- PRINT STYLES ---- */

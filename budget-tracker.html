@@ -239,11 +239,17 @@
     body.dark .empty-msg { color: #44446a; }
 
     /* ---- RESPONSIVE: MOBILE ---- */
-    @media (max-width: 540px) {
-      .topnav { padding: 0 10px; gap: 0; }
-      .topnav .brand { font-size: 0.88rem; margin-right: 10px; flex-shrink: 0; }
-      .nav-btn { padding: 6px 8px; font-size: 0.78rem; }
-      .dark-toggle { padding: 4px 8px; font-size: 0.9rem; }
+    /* Nav: prevent overflow on any screen size */
+    .topnav { overflow: hidden; }
+    .topnav .brand { white-space: nowrap; }
+    .nav-btn { white-space: nowrap; }
+
+    @media (max-width: 600px) {
+      /* Nav: shrink items to fit on one line */
+      .topnav { padding: 0 8px; gap: 0; height: 48px; }
+      .topnav .brand { font-size: 0.82rem; margin-right: 6px; flex-shrink: 0; }
+      .nav-btn { padding: 5px 8px; font-size: 0.76rem; }
+      .dark-toggle { padding: 4px 7px; font-size: 0.88rem; flex-shrink: 0; }
 
       .page-body { padding: 14px 10px 0; }
       h1 { font-size: 1.3rem; }
@@ -270,7 +276,7 @@
       .card { padding: 14px 12px; }
       .card-title { font-size: 0.92rem; }
 
-      /* Form: full-width inputs already handled but tighten */
+      /* Form: tighten inputs */
       .form-group label { font-size: 0.78rem; }
       .form-group input,
       .form-group select,
@@ -282,9 +288,10 @@
       .tx-amt { font-size: 0.86rem; }
     }
 
-    @media (max-width: 380px) {
-      .nav-btn { padding: 5px 6px; font-size: 0.72rem; }
-      .topnav .brand { font-size: 0.8rem; margin-right: 6px; }
+    @media (max-width: 400px) {
+      .topnav { padding: 0 6px; }
+      .topnav .brand { font-size: 0.76rem; margin-right: 4px; }
+      .nav-btn { padding: 5px 6px; font-size: 0.7rem; }
       .week-nav .week-label { font-size: 0.8rem; }
       .week-nav button { padding: 5px 10px; font-size: 0.78rem; }
     }
