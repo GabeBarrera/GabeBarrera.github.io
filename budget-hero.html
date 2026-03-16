@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budget Hero</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; min-height: 100vh; padding: 0 0 48px; }
+
+    /* NAV */
+    .topnav {
+      background: #1a1a2e; display: flex; align-items: center;
+      padding: 0 24px; height: 52px; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .topnav .brand { color: #fff; font-weight: 700; font-size: 1rem; margin-right: 24px; }
+    .nav-btn {
+      color: #aaa; text-decoration: none; font-size: 0.88rem;
+      padding: 6px 14px; border-radius: 6px; transition: background 0.15s, color 0.15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-btn.active { background: rgba(255,255,255,0.12); color: #fff; font-weight: 600; }
+
+    .page-body { padding: 24px 16px 0; }
+    h1 { text-align: center; font-size: 1.8rem; margin-bottom: 6px; color: #1a1a2e; }
+    .subtitle { text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 28px; }
+
+    .layout {
+      display: grid; grid-template-columns: 1fr 320px;
+      gap: 20px; max-width: 1100px; margin: 0 auto; align-items: start;
+    }
+    @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+
+    .card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 22px 24px; margin-bottom: 18px;
+    }
+    .card-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #f0f0f0;
+    }
+    .card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .income-icon  { background: #e8f5e9; }
+    .pay-icon     { background: #e8eaf6; }
+    .needs-icon   { background: #e3f2fd; }
+    .wants-icon   { background: #fce4ec; }
+    .savings-icon { background: #f3e5f5; }
+    .acct-icon    { background: #fff8e1; }
+
+    .card-header h2 { font-size: 1.05rem; font-weight: 700; color: #1a1a2e; }
+    .card-header .section-total { margin-left: auto; font-weight: 700; font-size: 1.05rem; }
+    .income-total  { color: #2e7d32; }
+    .needs-total   { color: #1565c0; }
+    .wants-total   { color: #c62828; }
+    .savings-total { color: #6a1b9a; }
+    .acct-total    { color: #e65100; }
+
+    .field-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .field-label { flex: 1; font-size: 0.88rem; color: #444; line-height: 1.3; }
+
+    .field-input-wrap { position: relative; width: 130px; flex-shrink: 0; }
+    .field-input-wrap span {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: #999; font-size: 0.9rem; pointer-events: none;
+    }
+
+    input[type="number"] {
+      width: 100%; padding: 8px 8px 8px 22px;
+      border: 1px solid #ddd; border-radius: 7px;
+      font-size: 0.92rem; outline: none; transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus { border-color: #5c6bc0; box-shadow: 0 0 0 3px rgba(92,107,192,0.15); }
+
+    /* Tax mode toggle */
+    .tax-toggle {
+      display: flex; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+    }
+    .tax-toggle-btn {
+      padding: 7px 14px; font-size: 0.82rem; border: none; background: #f5f5f5;
+      color: #777; cursor: pointer; transition: all 0.15s; font-weight: 600;
+    }
+    .tax-toggle-btn:not(:last-child) { border-right: 1px solid #ddd; }
+    .tax-toggle-btn.active { background: #1a1a2e; color: #fff; }
+
+    /* Pay breakdown grid */
+    .pay-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; }
+    .pay-cell { background: #f8f9ff; border-radius: 8px; padding: 10px 12px; text-align: center; }
+    .pay-cell .pc-label { font-size: 0.72rem; color: #888; margin-bottom: 3px; }
+    .pay-cell .pc-value { font-size: 0.95rem; font-weight: 700; color: #333; }
+    .pay-cell.gross { border-top: 3px solid #90caf9; }
+    .pay-cell.net   { border-top: 3px solid #a5d6a7; }
+    .pay-cell.header-cell { background: transparent; display: flex; align-items: center; justify-content: center; }
+    .pay-cell.header-cell span { font-size: 0.78rem; font-weight: 600; color: #888; text-transform: uppercase; }
+
+    .autofill-btn {
+      display: block; width: 100%; margin-top: 14px; padding: 9px 14px;
+      background: #e8f5e9; border: 1px solid #a5d6a7;
+      border-radius: 8px; font-size: 0.85rem; color: #2e7d32;
+      cursor: pointer; transition: background 0.15s;
+    }
+    .autofill-btn:hover { background: #c8e6c9; }
+
+    /* Sidebar */
+    .sidebar { position: sticky; top: 72px; }
+    .summary-card { padding: 20px 22px; }
+    .summary-card h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; color: #1a1a2e; }
+
+    .income-display { background: #e8f5e9; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; }
+    .income-display .label { font-size: 0.78rem; color: #555; margin-bottom: 2px; }
+    .income-display .value { font-size: 1.4rem; font-weight: 700; color: #2e7d32; }
+
+    .remaining-display { border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; }
+    .remaining-display .label { font-size: 0.78rem; color: #555; margin-bottom: 2px; }
+    .remaining-display .value { font-size: 1.4rem; font-weight: 700; }
+    .remaining-pos  { background: #e8f5e9; } .remaining-pos .value  { color: #2e7d32; }
+    .remaining-neg  { background: #ffebee; } .remaining-neg .value  { color: #c62828; }
+    .remaining-zero { background: #f5f5f5; } .remaining-zero .value { color: #555; }
+
+    .rule-section h3 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 12px; }
+    .rule-item { margin-bottom: 14px; }
+    .rule-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+    .rule-label { font-size: 0.85rem; font-weight: 600; }
+    .rule-amounts { font-size: 0.78rem; color: #666; }
+    .bar-bg { background: #eee; border-radius: 99px; height: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; max-width: 100%; }
+    .bar-needs { background: #1976d2; } .bar-wants { background: #e53935; } .bar-savings { background: #8e24aa; }
+    .rule-status { font-size: 0.75rem; margin-top: 3px; text-align: right; }
+    .status-ok { color: #2e7d32; } .status-over { color: #c62828; } .status-na { color: #aaa; }
+    .rule-divider { border: none; border-top: 1px solid #f0f0f0; margin: 16px 0; }
+
+    .totals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .total-box { border-radius: 8px; padding: 10px 12px; text-align: center; }
+    .total-box .t-label { font-size: 0.75rem; color: #555; margin-bottom: 2px; }
+    .total-box .t-value { font-size: 1rem; font-weight: 700; }
+    .tb-needs   { background: #e3f2fd; } .tb-needs .t-value   { color: #1565c0; }
+    .tb-wants   { background: #fce4ec; } .tb-wants .t-value   { color: #c62828; }
+    .tb-savings { background: #f3e5f5; } .tb-savings .t-value { color: #6a1b9a; }
+    .tb-total   { background: #f5f5f5; } .tb-total .t-value   { color: #333; }
+
+    .chart-section { margin-top: 16px; }
+    .chart-section h3 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 12px; }
+    .donut-wrap { display: flex; flex-direction: column; align-items: center; }
+    .donut-wrap svg { overflow: visible; }
+    .donut-legend { display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.78rem; color: #555; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Dynamic account rows */
+    .acct-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .acct-name-input {
+      flex: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 7px;
+      font-size: 0.88rem; outline: none; color: #444; transition: border-color 0.2s;
+      min-width: 0;
+    }
+    .acct-name-input:focus { border-color: #5c6bc0; box-shadow: 0 0 0 3px rgba(92,107,192,0.15); }
+    .acct-remove-btn {
+      flex-shrink: 0; width: 30px; height: 34px; background: none;
+      border: 1px solid #e0e0e0; border-radius: 7px; color: #ccc;
+      cursor: pointer; font-size: 0.88rem; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .acct-remove-btn:hover:not(:disabled) { background: #ffebee; border-color: #ef9a9a; color: #c62828; }
+    .acct-remove-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .add-account-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 8px 12px; background: #f8f9ff;
+      border: 1px dashed #c5cae9; border-radius: 8px;
+      font-size: 0.85rem; color: #5c6bc0; cursor: pointer; transition: background 0.15s;
+      margin-top: 2px;
+    }
+    .add-account-btn:hover { background: #e8eaf6; }
+
+    /* Export & action buttons */
+    .action-btns { display: flex; gap: 8px; margin-top: 14px; }
+    .export-btn {
+      flex: 1; padding: 9px 4px; border-radius: 8px; font-size: 0.82rem;
+      font-weight: 600; cursor: pointer; border: 1px solid; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .btn-pdf     { background: #fff3f3; border-color: #ffcdd2; color: #c62828; }
+    .btn-pdf:hover { background: #ffcdd2; }
+    .btn-csv     { background: #f1f8e9; border-color: #c5e1a5; color: #33691e; }
+    .btn-csv:hover { background: #dcedc8; }
+    .btn-json-exp { background: #e8eaf6; border-color: #9fa8da; color: #3949ab; }
+    .btn-json-exp:hover { background: #c5cae9; }
+    .btn-json-imp { background: #fce4ec; border-color: #f48fb1; color: #c2185b; }
+    .btn-json-imp:hover { background: #f8bbd0; }
+    .reset-btn {
+      display: block; width: 100%; margin-top: 8px;
+      padding: 10px; background: #f5f5f5; border: 1px solid #ddd;
+      border-radius: 8px; font-size: 0.88rem; color: #555;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .reset-btn:hover { background: #ececec; }
+
+    .saved-badge {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #2e7d32; color: #fff; padding: 8px 16px;
+      border-radius: 20px; font-size: 0.82rem; opacity: 0;
+      transition: opacity 0.3s; pointer-events: none;
+    }
+    .saved-badge.show { opacity: 1; }
+
+    /* ---- DARK MODE TOGGLE BUTTON ---- */
+    .dark-toggle {
+      margin-left: auto; background: none; border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 6px; color: #bbb; cursor: pointer; font-size: 1rem;
+      padding: 4px 10px; transition: all 0.15s; line-height: 1.4;
+    }
+    .dark-toggle:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ---- DARK MODE OVERRIDES ---- */
+    body.dark { background: #12121f; color: #dcdcf0; }
+    body.dark h1 { color: #c8c8e8; }
+    body.dark .subtitle { color: #6868a0; }
+
+    body.dark .topnav { background: #0d0d1e; border-bottom: 1px solid #252545; }
+    body.dark .dark-toggle { color: #ffd54f; border-color: rgba(255,213,79,0.35); }
+
+    body.dark .card { background: #1c1c2e; box-shadow: 0 2px 12px rgba(0,0,0,0.5); }
+    body.dark .card-header { border-bottom-color: #2a2a45; }
+    body.dark .card-header h2 { color: #d0d0f0; }
+    body.dark .field-label { color: #8888b8; }
+    body.dark .field-input-wrap span { color: #5858a0; }
+
+    body.dark input[type="number"] {
+      background: #252540; border-color: #3a3a60; color: #e0e0f8;
+    }
+    body.dark input[type="number"]:focus {
+      border-color: #7986cb; box-shadow: 0 0 0 3px rgba(121,134,203,0.2);
+    }
+    body.dark input[type="text"] {
+      background: #252540; border-color: #3a3a60; color: #e0e0f8;
+    }
+    body.dark input[type="text"]:focus {
+      border-color: #7986cb; box-shadow: 0 0 0 3px rgba(121,134,203,0.2);
+    }
+
+    body.dark .tax-toggle { border-color: #3a3a60; }
+    body.dark .tax-toggle-btn { background: #252540; color: #8888b8; border-right-color: #3a3a60; }
+    body.dark .tax-toggle-btn.active { background: #5c6bc0; color: #fff; }
+
+    body.dark .pay-cell { background: #202038; }
+    body.dark .pay-cell .pc-label { color: #6868a0; }
+    body.dark .pay-cell .pc-value { color: #d0d0f0; }
+    body.dark .pay-cell.header-cell { background: transparent; }
+    body.dark .pay-cell.header-cell span { color: #6868a0; }
+
+    body.dark .autofill-btn { background: #162816; border-color: #2a5a2a; color: #81c784; }
+    body.dark .autofill-btn:hover { background: #1c3a1c; }
+
+    body.dark .income-icon  { background: #162816; }
+    body.dark .pay-icon     { background: #181c3a; }
+    body.dark .needs-icon   { background: #182030; }
+    body.dark .wants-icon   { background: #2c181c; }
+    body.dark .savings-icon { background: #22182e; }
+    body.dark .acct-icon    { background: #2a2210; }
+
+    body.dark .bar-bg { background: #28284a; }
+
+    body.dark .summary-card h2 { color: #d0d0f0; }
+    body.dark .income-display { background: #162816; }
+    body.dark .income-display .label { color: #8888b8; }
+    body.dark .remaining-pos  { background: #162816; }
+    body.dark .remaining-neg  { background: #2c1616; }
+    body.dark .remaining-zero { background: #22223a; }
+    body.dark .remaining-zero .value { color: #9090b8; }
+
+    body.dark .rule-section h3 { color: #5858a0; }
+    body.dark .rule-amounts { color: #6868a0; }
+    body.dark .rule-divider { border-top-color: #28284a; }
+    body.dark .status-na { color: #5858a0; }
+
+    body.dark .tb-needs   { background: #182030; }
+    body.dark .tb-wants   { background: #2c181c; }
+    body.dark .tb-savings { background: #22182e; }
+    body.dark .tb-total   { background: #22223a; }
+    body.dark .tb-total .t-value { color: #d0d0f0; }
+    body.dark .t-label { color: #8888b8; }
+
+    body.dark .chart-section h3 { color: #5858a0; }
+    body.dark .legend-item { color: #8888b8; }
+
+    body.dark .reset-btn { background: #22223a; border-color: #3a3a60; color: #8888b8; }
+    body.dark .reset-btn:hover { background: #2a2a48; }
+
+    body.dark .btn-pdf     { background: #2c1616; border-color: #7a3030; color: #ef9a9a; }
+    body.dark .btn-pdf:hover { background: #3a1c1c; }
+    body.dark .btn-csv     { background: #162816; border-color: #2a5a2a; color: #a5d6a7; }
+    body.dark .btn-csv:hover { background: #1c3a1c; }
+    body.dark .btn-json-exp { background: #181c3a; border-color: #303870; color: #9fa8da; }
+    body.dark .btn-json-exp:hover { background: #1e2448; }
+    body.dark .btn-json-imp { background: #2c1624; border-color: #663055; color: #f48fb1; }
+    body.dark .btn-json-imp:hover { background: #3a1c2e; }
+
+    body.dark .acct-name-input { background: #252540; border-color: #3a3a60; color: #e0e0f8; }
+    body.dark .acct-name-input:focus { border-color: #7986cb; box-shadow: 0 0 0 3px rgba(121,134,203,0.2); }
+    body.dark .acct-remove-btn { border-color: #3a3a60; color: #5050a0; }
+    body.dark .acct-remove-btn:hover:not(:disabled) { background: #2c1616; border-color: #7a3030; color: #ef9a9a; }
+    body.dark .add-account-btn { background: #1e1e38; border-color: #404080; color: #8888c8; }
+    body.dark .add-account-btn:hover { background: #26264a; }
+
+    body.dark .saved-badge { background: #2e7d32; }
+
+    /* ---- PRINT STYLES ---- */
+    @media print {
+      .topnav, .saved-badge, .reset-btn, .autofill-btn,
+      .action-btns, .tax-toggle, .dark-toggle { display: none !important; }
+      body.dark { background: #fff !important; color: #000 !important; }
+      body.dark .card { background: #fff !important; box-shadow: none !important; }
+      body.dark .card-header h2,
+      body.dark h1 { color: #1a1a2e !important; }
+      body { background: #fff; padding: 0; }
+      .page-body { padding: 10px; }
+      .layout { grid-template-columns: 1fr !important; gap: 12px; }
+      .sidebar { position: static; }
+      .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; margin-bottom: 10px; padding: 14px 16px; }
+      h1 { font-size: 1.4rem; }
+      .pay-grid { grid-template-columns: repeat(3,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topnav">
+  <span class="brand">Budget Hero</span>
+  <a href="budget-hero.html" class="nav-btn active">Monthly Budget</a>
+  <a href="budget-tracker.html" class="nav-btn">Daily Tracker</a>
+  <button class="dark-toggle" id="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+</nav>
+
+<div class="page-body">
+<h1>Monthly Budget</h1>
+<p class="subtitle">Track your income, spending, and savings with the 50/30/20 rule</p>
+
+<div class="layout">
+  <div class="left-col">
+
+    <!-- PAY BREAKDOWN -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon pay-icon">📊</div>
+        <h2>Pay Breakdown</h2>
+      </div>
+
+      <div class="field-row">
+        <label class="field-label" for="gross-yearly">Gross Yearly Salary</label>
+        <div class="field-input-wrap"><span>$</span><input type="number" id="gross-yearly" min="0" step="0.01" placeholder="0.00" /></div>
+      </div>
+
+      <!-- Tax mode toggle -->
+      <div class="field-row">
+        <label class="field-label">Tax Input Method</label>
+        <div class="tax-toggle">
+          <button class="tax-toggle-btn active" id="toggle-pct"    onclick="setTaxMode('pct')">% Rate</button>
+          <button class="tax-toggle-btn"        id="toggle-dollar" onclick="setTaxMode('dollar')">$ Amount</button>
+        </div>
+      </div>
+
+      <!-- Tax rate % row -->
+      <div class="field-row" id="tax-pct-row">
+        <label class="field-label" for="tax-rate">Effective Tax Rate</label>
+        <div class="field-input-wrap" style="width:100px">
+          <input type="number" id="tax-rate" min="0" max="100" step="0.1" placeholder="25" style="padding-left:8px" />
+          <span style="right:10px;left:auto">%</span>
+        </div>
+      </div>
+
+      <!-- Tax dollar amount row (hidden by default) -->
+      <div class="field-row" id="tax-dollar-row" style="display:none">
+        <label class="field-label" for="tax-dollar">Annual Taxes Withheld ($)</label>
+        <div class="field-input-wrap"><span>$</span><input type="number" id="tax-dollar" min="0" step="0.01" placeholder="0.00" /></div>
+      </div>
+
+      <div class="pay-grid">
+        <div class="pay-cell header-cell"></div>
+        <div class="pay-cell header-cell"><span>Monthly</span></div>
+        <div class="pay-cell header-cell"><span>Bi-Weekly</span></div>
+
+        <div class="pay-cell" style="background:transparent;display:flex;align-items:center;padding-left:4px">
+          <span style="font-size:0.78rem;font-weight:600;color:#1976d2">Gross</span>
+        </div>
+        <div class="pay-cell gross"><div class="pc-label">Gross Monthly</div><div class="pc-value" id="gross-monthly">—</div></div>
+        <div class="pay-cell gross"><div class="pc-label">Gross Bi-Weekly</div><div class="pc-value" id="gross-biweekly">—</div></div>
+
+        <div class="pay-cell" style="background:transparent;display:flex;align-items:center;padding-left:4px">
+          <span style="font-size:0.78rem;font-weight:600;color:#2e7d32">Net</span>
+        </div>
+        <div class="pay-cell net"><div class="pc-label">Net Monthly</div><div class="pc-value" id="net-monthly">—</div></div>
+        <div class="pay-cell net"><div class="pc-label">Net Bi-Weekly</div><div class="pc-value" id="net-biweekly">—</div></div>
+      </div>
+
+      <button class="autofill-btn" onclick="autofillNetIncome()">Use Net Monthly as After-Tax Income ↓</button>
+    </div>
+
+    <!-- INCOME -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon income-icon">💰</div>
+        <h2>Monthly Income</h2>
+        <span class="section-total income-total" id="total-income">$0</span>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="income-salary">After-tax salary or wages</label>
+        <div class="field-input-wrap"><span>$</span><input type="number" id="income-salary" min="0" step="0.01" placeholder="0.00" /></div>
+      </div>
+      <div class="field-row">
+        <label class="field-label" for="income-other">Additional income (rental, self-employment, pension, etc.)</label>
+        <div class="field-input-wrap"><span>$</span><input type="number" id="income-other" min="0" step="0.01" placeholder="0.00" /></div>
+      </div>
+    </div>
+
+    <!-- NEEDS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon needs-icon">🏠</div>
+        <h2>Needs <span style="font-weight:400;font-size:0.85rem;color:#888">(necessities)</span></h2>
+        <span class="section-total needs-total" id="total-needs">$0</span>
+      </div>
+      <div class="field-row"><label class="field-label">Rent / Mortgage</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Rent/Mortgage" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Homeowners or renters insurance</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Home Insurance" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Property tax (if not in mortgage payment)</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Property Tax" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Auto insurance</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Auto Insurance" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Health insurance</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Health Insurance" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Out-of-pocket medical costs</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Medical Costs" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Life insurance</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Life Insurance" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Electricity &amp; natural gas</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Electricity/Gas" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Water bill</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Water Bill" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Sanitation / garbage</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Sanitation" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Groceries, toiletries &amp; essentials</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Groceries" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Car payment</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Car Payment" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Parking &amp; registration fees</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Parking/Registration" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Car maintenance &amp; repairs</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Car Maintenance" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Gasoline</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Gasoline" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Public transportation</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Public Transit" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Phone bill</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Phone Bill" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Internet bill</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Internet Bill" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Minimum student loan payments</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Min. Student Loans" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Other minimum loan payments</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Other Loans" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Child support or alimony</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Child Support/Alimony" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Other needs</label><div class="field-input-wrap"><span>$</span><input type="number" class="needs" data-label="Other Needs" min="0" step="0.01" placeholder="0.00" /></div></div>
+    </div>
+
+    <!-- WANTS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon wants-icon">🎉</div>
+        <h2>Wants <span style="font-weight:400;font-size:0.85rem;color:#888">(discretionary)</span></h2>
+        <span class="section-total wants-total" id="total-wants">$0</span>
+      </div>
+      <div class="field-row"><label class="field-label">Clothing, jewelry, etc.</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Clothing/Jewelry" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Dining out</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Dining Out" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Special meals at home</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Special Meals" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Alcohol</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Alcohol" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Movie, concert &amp; event tickets</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Entertainment" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Gym or club memberships</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Gym/Clubs" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Travel (airline, hotels, rental cars)</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Travel" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Cable or streaming packages</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Streaming/Cable" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Home decor</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Home Decor" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Other wants</label><div class="field-input-wrap"><span>$</span><input type="number" class="wants" data-label="Other Wants" min="0" step="0.01" placeholder="0.00" /></div></div>
+    </div>
+
+    <!-- SAVINGS & DEBT -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon savings-icon">💼</div>
+        <h2>Savings &amp; Debt Repayment</h2>
+        <span class="section-total savings-total" id="total-savings">$0</span>
+      </div>
+      <div class="field-row"><label class="field-label">Emergency fund contributions</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Emergency Fund" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Savings account contributions</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Savings Account" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">PEPRA / 457 contributions</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="PEPRA/457" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Individual retirement account (IRA)</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="IRA" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Robinhood / Brokerage investments</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Robinhood/Brokerage" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Credit card payments</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Credit Cards" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Student loan payments</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Student Loans" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Mortgage extra payments</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Mortgage Extra" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Fines</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Fines" min="0" step="0.01" placeholder="0.00" /></div></div>
+      <div class="field-row"><label class="field-label">Other savings / debt repayment</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Other Savings" min="0" step="0.01" placeholder="0.00" /></div></div>
+    </div>
+
+    <!-- ACCOUNTS (dynamic) -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon acct-icon">🏦</div>
+        <h2>Account Balances</h2>
+        <span class="section-total acct-total" id="total-accounts">$0</span>
+      </div>
+      <div style="font-size:0.78rem;color:#999;margin-bottom:12px">Track your current account balances (not included in budget calculations)</div>
+      <div id="account-list"></div>
+      <button class="add-account-btn" onclick="addAccountRow()">＋ Add Account</button>
+    </div>
+
+  </div><!-- end left-col -->
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="card summary-card">
+      <h2>Summary</h2>
+
+      <div class="income-display">
+        <div class="label">Monthly Income</div>
+        <div class="value" id="sum-income">$0.00</div>
+      </div>
+
+      <div class="remaining-display remaining-zero" id="remaining-box">
+        <div class="label">Remaining</div>
+        <div class="value" id="sum-remaining">$0.00</div>
+      </div>
+
+      <div class="totals-grid">
+        <div class="total-box tb-needs"><div class="t-label">Needs</div><div class="t-value" id="sum-needs">$0</div></div>
+        <div class="total-box tb-wants"><div class="t-label">Wants</div><div class="t-value" id="sum-wants">$0</div></div>
+        <div class="total-box tb-savings"><div class="t-label">Savings &amp; Debt</div><div class="t-value" id="sum-savings">$0</div></div>
+        <div class="total-box tb-total"><div class="t-label">Total Expenses</div><div class="t-value" id="sum-total-exp">$0</div></div>
+      </div>
+
+      <hr class="rule-divider" />
+
+      <div class="rule-section">
+        <h3>50/30/20 Rule</h3>
+        <div class="rule-item">
+          <div class="rule-item-header">
+            <span class="rule-label" style="color:#1565c0">50% — Needs</span>
+            <span class="rule-amounts" id="needs-amounts">$0 / $0</span>
+          </div>
+          <div class="bar-bg"><div class="bar-fill bar-needs" id="bar-needs" style="width:0%"></div></div>
+          <div class="rule-status status-na" id="status-needs">Enter income to see guidance</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-item-header">
+            <span class="rule-label" style="color:#c62828">30% — Wants</span>
+            <span class="rule-amounts" id="wants-amounts">$0 / $0</span>
+          </div>
+          <div class="bar-bg"><div class="bar-fill bar-wants" id="bar-wants" style="width:0%"></div></div>
+          <div class="rule-status status-na" id="status-wants">Enter income to see guidance</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-item-header">
+            <span class="rule-label" style="color:#6a1b9a">20% — Savings</span>
+            <span class="rule-amounts" id="savings-amounts">$0 / $0</span>
+          </div>
+          <div class="bar-bg"><div class="bar-fill bar-savings" id="bar-savings" style="width:0%"></div></div>
+          <div class="rule-status status-na" id="status-savings">Enter income to see guidance</div>
+        </div>
+      </div>
+
+      <hr class="rule-divider" />
+
+      <div class="chart-section">
+        <h3>Spending Breakdown</h3>
+        <div class="donut-wrap">
+          <svg width="140" height="140" viewBox="0 0 140 140" id="donut-svg">
+            <circle cx="70" cy="70" r="50" fill="#f0f0f0" />
+            <text x="70" y="66" text-anchor="middle" font-size="11" fill="#999" font-family="Arial">No data</text>
+            <text x="70" y="80" text-anchor="middle" font-size="11" fill="#999" font-family="Arial">yet</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#1976d2"></div>Needs</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e53935"></div>Wants</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#8e24aa"></div>Savings</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="rule-divider" />
+
+      <!-- Export / import buttons -->
+      <div class="action-btns">
+        <button class="export-btn btn-pdf" onclick="exportPDF()">🖨 PDF</button>
+        <button class="export-btn btn-csv" onclick="exportCSV()">📥 CSV</button>
+      </div>
+      <div class="action-btns" style="margin-top:6px">
+        <button class="export-btn btn-json-exp" onclick="exportJSON()">⬇ Export JSON</button>
+        <button class="export-btn btn-json-imp" onclick="importJSON()">⬆ Import JSON</button>
+      </div>
+      <input type="file" id="json-import-input" accept=".json" style="display:none" onchange="handleJSONImport(event)" />
+      <button class="reset-btn" onclick="resetAll()">Reset All</button>
+    </div>
+  </div>
+</div>
+</div><!-- end page-body -->
+
+<div class="saved-badge" id="saved-badge">Saved ✓</div>
+
+<script>
+  const fmt    = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtS   = n => '$' + Math.round(n).toLocaleString('en-US');
+  const val    = id => parseFloat(document.getElementById(id).value) || 0;
+  const sumCls = cls => Array.from(document.querySelectorAll('.' + cls)).reduce((a, el) => a + (parseFloat(el.value) || 0), 0);
+
+  let taxMode = 'pct';
+
+  // ---- Tax mode toggle ----
+  function setTaxMode(mode) {
+    taxMode = mode;
+    document.getElementById('toggle-pct').classList.toggle('active', mode === 'pct');
+    document.getElementById('toggle-dollar').classList.toggle('active', mode === 'dollar');
+    document.getElementById('tax-pct-row').style.display    = mode === 'pct'    ? '' : 'none';
+    document.getElementById('tax-dollar-row').style.display = mode === 'dollar' ? '' : 'none';
+    updatePayBreakdown();
+    scheduleSave();
+  }
+
+  // ---- Auto-save: debounce on input + every 30 seconds ----
+  let saveTimer;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveToStorage, 600);
+  }
+  setInterval(saveToStorage, 30000);
+
+  // ---- Read accounts from DOM ----
+  function readAccounts() {
+    return Array.from(document.querySelectorAll('.acct-row')).map(row => ({
+      name:    row.querySelector('.acct-name-input').value,
+      balance: row.querySelector('.account').value
+    }));
+  }
+
+  // ---- Render accounts from data array ----
+  function renderAccountsFromData(arr) {
+    const container = document.getElementById('account-list');
+    container.innerHTML = '';
+    arr.forEach(a => addAccountRow(a.name, a.balance));
+  }
+
+  // ---- Add / remove account rows ----
+  function addAccountRow(name = '', balance = '') {
+    const container = document.getElementById('account-list');
+    const row = document.createElement('div');
+    row.className = 'acct-row';
+    row.innerHTML = `
+      <input type="text" class="acct-name-input" placeholder="Account Name"
+             value="${name.replace(/"/g, '&quot;')}" />
+      <div class="field-input-wrap" style="width:130px;flex-shrink:0">
+        <span>$</span>
+        <input type="number" class="account" min="0" step="0.01" placeholder="0.00"
+               value="${balance}" />
+      </div>
+      <button class="acct-remove-btn" onclick="removeAccountRow(this)" title="Remove">✕</button>`;
+    container.appendChild(row);
+    updateRemoveBtns();
+    // attach listeners to new inputs
+    row.querySelector('.account').addEventListener('input', recalc);
+    row.querySelector('.acct-name-input').addEventListener('input', scheduleSave);
+  }
+
+  function removeAccountRow(btn) {
+    btn.closest('.acct-row').remove();
+    updateRemoveBtns();
+    recalc();
+  }
+
+  function updateRemoveBtns() {
+    const rows = document.querySelectorAll('.acct-row');
+    rows.forEach(r => {
+      r.querySelector('.acct-remove-btn').disabled = rows.length === 1;
+    });
+  }
+
+  // ---- Save / load ----
+  function saveToStorage() {
+    const data = { taxMode, accounts: readAccounts() };
+    ['income-salary','income-other','gross-yearly','tax-rate','tax-dollar'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    ['needs','wants','savings'].forEach(cls => {
+      document.querySelectorAll('.' + cls).forEach((el, i) => {
+        data[cls + '_' + i] = el.value;
+      });
+    });
+    localStorage.setItem('mb_budget', JSON.stringify(data));
+
+    // Structured budget for tracker
+    const budget = {
+      income:  val('income-salary') + val('income-other'),
+      needs:   sumCls('needs'),
+      wants:   sumCls('wants'),
+      savings: sumCls('savings'),
+      categories: { needs: [], wants: [], savings: [] }
+    };
+    ['needs','wants','savings'].forEach(cls => {
+      document.querySelectorAll('.' + cls).forEach(el => {
+        const v = parseFloat(el.value) || 0;
+        if (v > 0) budget.categories[cls].push({ label: el.dataset.label || '', amount: v });
+      });
+    });
+    localStorage.setItem('mb_budget_structured', JSON.stringify(budget));
+
+    const badge = document.getElementById('saved-badge');
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 1500);
+  }
+
+  function loadFromStorage() {
+    const raw = localStorage.getItem('mb_budget');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+
+    if (data.taxMode) setTaxMode(data.taxMode);
+    ['income-salary','income-other','gross-yearly','tax-rate','tax-dollar'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id] !== undefined) el.value = data[id];
+    });
+    ['needs','wants','savings'].forEach(cls => {
+      document.querySelectorAll('.' + cls).forEach((el, i) => {
+        if (data[cls + '_' + i] !== undefined) el.value = data[cls + '_' + i];
+      });
+    });
+    if (data.accounts && data.accounts.length > 0) {
+      renderAccountsFromData(data.accounts);
+    }
+  }
+
+  // ---- Pay breakdown ----
+  function getNetYearly() {
+    const gross = val('gross-yearly');
+    if (gross === 0) return 0;
+    if (taxMode === 'pct') {
+      return gross * (1 - (parseFloat(document.getElementById('tax-rate').value) || 0) / 100);
+    }
+    return gross - val('tax-dollar');
+  }
+
+  function updatePayBreakdown() {
+    const gross = val('gross-yearly');
+    if (gross === 0) {
+      ['gross-monthly','gross-biweekly','net-monthly','net-biweekly'].forEach(id =>
+        document.getElementById(id).textContent = '—');
+      return;
+    }
+    const net = getNetYearly();
+    document.getElementById('gross-monthly').textContent  = fmtS(gross / 12);
+    document.getElementById('gross-biweekly').textContent = fmtS(gross / 26);
+    document.getElementById('net-monthly').textContent    = fmtS(net / 12);
+    document.getElementById('net-biweekly').textContent   = fmtS(net / 26);
+  }
+
+  function autofillNetIncome() {
+    const gross = val('gross-yearly');
+    if (gross === 0) { alert('Enter a gross yearly salary first.'); return; }
+    document.getElementById('income-salary').value = (getNetYearly() / 12).toFixed(2);
+    recalc();
+  }
+
+  // ---- Donut chart ----
+  function updateDonut(needs, wants, savings) {
+    const total = needs + wants + savings;
+    const svg = document.getElementById('donut-svg');
+    if (total === 0) {
+      svg.innerHTML = `<circle cx="70" cy="70" r="50" fill="#f0f0f0"/>
+        <text x="70" y="66" text-anchor="middle" font-size="11" fill="#999" font-family="Arial">No data</text>
+        <text x="70" y="80" text-anchor="middle" font-size="11" fill="#999" font-family="Arial">yet</text>`;
+      return;
+    }
+    const cx = 70, cy = 70, r = 50, sw = 22, circ = 2 * Math.PI * r;
+    const colors = ['#1976d2','#e53935','#8e24aa'];
+    const values = [needs, wants, savings];
+    const labels = ['Needs','Wants','Savings'];
+    let paths = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f0f0f0" stroke-width="${sw}"/>`;
+    let offset = 0;
+    values.forEach((v, i) => {
+      const dash = (v / total) * circ, gap = circ - dash;
+      const rot  = -90 + (offset / total) * 360;
+      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="${sw}"
+        stroke-dasharray="${dash} ${gap}" transform="rotate(${rot} ${cx} ${cy})">
+        <title>${labels[i]}: ${fmt(v)} (${Math.round((v/total)*100)}%)</title></circle>`;
+      offset += v;
+    });
+    paths += `<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="13" font-weight="bold" fill="#333" font-family="Arial">${fmtS(total)}</text>
+      <text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="10" fill="#888" font-family="Arial">total spent</text>`;
+    svg.innerHTML = paths;
+  }
+
+  // ---- Recalculate ----
+  function recalc() {
+    const income   = val('income-salary') + val('income-other');
+    const needs    = sumCls('needs');
+    const wants    = sumCls('wants');
+    const savings  = sumCls('savings');
+    const accts    = sumCls('account');
+    const totalExp = needs + wants + savings;
+    const remaining = income - totalExp;
+
+    document.getElementById('total-income').textContent   = fmtS(income);
+    document.getElementById('total-needs').textContent    = fmtS(needs);
+    document.getElementById('total-wants').textContent    = fmtS(wants);
+    document.getElementById('total-savings').textContent  = fmtS(savings);
+    document.getElementById('total-accounts').textContent = fmtS(accts);
+    document.getElementById('sum-income').textContent     = fmt(income);
+    document.getElementById('sum-needs').textContent      = fmtS(needs);
+    document.getElementById('sum-wants').textContent      = fmtS(wants);
+    document.getElementById('sum-savings').textContent    = fmtS(savings);
+    document.getElementById('sum-total-exp').textContent  = fmtS(totalExp);
+    document.getElementById('sum-remaining').textContent  = fmt(Math.abs(remaining));
+
+    const rb = document.getElementById('remaining-box');
+    rb.className = 'remaining-display ' + (remaining > 0 ? 'remaining-pos' : remaining < 0 ? 'remaining-neg' : 'remaining-zero');
+    rb.querySelector('.label').textContent = remaining < 0 ? 'Over Budget' : 'Remaining';
+
+    const targets = { needs: income * 0.50, wants: income * 0.30, savings: income * 0.20 };
+    ['needs','wants','savings'].forEach(key => {
+      const actual = { needs, wants, savings }[key], target = targets[key];
+      const barPct = income > 0 ? Math.min((actual / target) * 100, 100) : 0;
+      document.getElementById(key + '-amounts').textContent = fmtS(actual) + ' / ' + fmtS(target);
+      document.getElementById('bar-' + key).style.width = barPct + '%';
+      const statEl = document.getElementById('status-' + key);
+      if (income === 0) {
+        statEl.textContent = 'Enter income to see guidance'; statEl.className = 'rule-status status-na';
+      } else if (actual <= target) {
+        statEl.textContent = '✓ Within target — $' + Math.round(target - actual).toLocaleString() + ' remaining';
+        statEl.className = 'rule-status status-ok';
+      } else {
+        statEl.textContent = '↑ Over by $' + Math.round(actual - target).toLocaleString();
+        statEl.className = 'rule-status status-over';
+      }
+    });
+
+    updatePayBreakdown();
+    updateDonut(needs, wants, savings);
+    scheduleSave();
+  }
+
+  // ---- Export PDF ----
+  function exportPDF() { window.print(); }
+
+  // ---- Export CSV ----
+  function exportCSV() {
+    const n   = v => (parseFloat(v) || 0).toFixed(2);
+    const esc = s => '"' + String(s).replace(/"/g,'""') + '"';
+    let rows  = [['Section','Category','Monthly Amount ($)']];
+
+    const gross = val('gross-yearly'), net = getNetYearly();
+    if (gross > 0) {
+      [['Gross Yearly',n(gross)],['Gross Monthly',n(gross/12)],['Gross Bi-Weekly',n(gross/26)],
+       ['Net Yearly',n(net)],['Net Monthly',n(net/12)],['Net Bi-Weekly',n(net/26)]]
+        .forEach(([k,v]) => rows.push(['Pay Breakdown', k, v]));
+    }
+    rows.push(['Income','After-tax Salary',n(val('income-salary'))]);
+    rows.push(['Income','Additional Income',n(val('income-other'))]);
+    rows.push(['Income','Total Income',n(val('income-salary') + val('income-other'))]);
+
+    document.querySelectorAll('.needs').forEach(el => rows.push(['Needs', esc(el.dataset.label), n(el.value)]));
+    rows.push(['Needs','TOTAL NEEDS', n(sumCls('needs'))]);
+
+    document.querySelectorAll('.wants').forEach(el => rows.push(['Wants', esc(el.dataset.label), n(el.value)]));
+    rows.push(['Wants','TOTAL WANTS', n(sumCls('wants'))]);
+
+    document.querySelectorAll('.savings').forEach(el => rows.push(['Savings & Debt', esc(el.dataset.label), n(el.value)]));
+    rows.push(['Savings & Debt','TOTAL SAVINGS & DEBT', n(sumCls('savings'))]);
+
+    readAccounts().forEach(a => rows.push(['Accounts', esc(a.name || 'Unnamed Account'), n(a.balance)]));
+    rows.push(['Accounts','TOTAL ACCOUNTS', n(sumCls('account'))]);
+
+    const income = val('income-salary') + val('income-other');
+    rows.push(['Summary','Total Expenses', n(sumCls('needs') + sumCls('wants') + sumCls('savings'))]);
+    rows.push(['Summary','Income Remaining', n(income - sumCls('needs') - sumCls('wants') - sumCls('savings'))]);
+    rows.push(['Summary','50% Needs Target', n(income * 0.50)]);
+    rows.push(['Summary','30% Wants Target', n(income * 0.30)]);
+    rows.push(['Summary','20% Savings Target', n(income * 0.20)]);
+
+    const csv = rows.map(r => r.join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'monthly_budget_' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  // ---- Export JSON ----
+  function exportJSON() {
+    const gross = val('gross-yearly'), net = getNetYearly();
+    const needsArr = [], wantsArr = [], savingsArr = [];
+
+    document.querySelectorAll('.needs').forEach(el =>
+      needsArr.push({ label: el.dataset.label, amount: parseFloat(el.value) || 0 }));
+    document.querySelectorAll('.wants').forEach(el =>
+      wantsArr.push({ label: el.dataset.label, amount: parseFloat(el.value) || 0 }));
+    document.querySelectorAll('.savings').forEach(el =>
+      savingsArr.push({ label: el.dataset.label, amount: parseFloat(el.value) || 0 }));
+
+    const data = {
+      exportDate: new Date().toISOString(),
+      version: '2.0',
+      payBreakdown: {
+        grossYearly:  gross,
+        taxMode,
+        taxRate:      parseFloat(document.getElementById('tax-rate').value)   || 0,
+        taxDollar:    parseFloat(document.getElementById('tax-dollar').value)  || 0,
+        netYearly:    net,
+        grossMonthly: gross / 12,
+        netMonthly:   net / 12
+      },
+      income: {
+        salary: parseFloat(document.getElementById('income-salary').value) || 0,
+        other:  parseFloat(document.getElementById('income-other').value)  || 0
+      },
+      needs:    needsArr,
+      wants:    wantsArr,
+      savings:  savingsArr,
+      accounts: readAccounts().map(a => ({
+        name:    a.name    || '',
+        balance: parseFloat(a.balance) || 0
+      }))
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'budget_app_data.json';
+    a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  // ---- Import JSON ----
+  function importJSON() {
+    document.getElementById('json-import-input').value = '';
+    document.getElementById('json-import-input').click();
+  }
+
+  function handleJSONImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      let data;
+      try { data = JSON.parse(e.target.result); }
+      catch { alert('Invalid JSON file. Please select a valid budget_app_data.json.'); return; }
+
+      if (!confirm('Import data from "' + file.name + '"? This will overwrite all current values.')) return;
+
+      // Pay breakdown
+      if (data.payBreakdown) {
+        const pb = data.payBreakdown;
+        const mode = pb.taxMode || 'pct';
+        setTaxMode(mode);
+        const gyEl = document.getElementById('gross-yearly');
+        const trEl = document.getElementById('tax-rate');
+        const tdEl = document.getElementById('tax-dollar');
+        if (gyEl) gyEl.value = pb.grossYearly  || '';
+        if (trEl) trEl.value = pb.taxRate       || '';
+        if (tdEl) tdEl.value = pb.taxDollar     || '';
+      }
+
+      // Income
+      if (data.income) {
+        const s = document.getElementById('income-salary');
+        const o = document.getElementById('income-other');
+        if (s) s.value = data.income.salary || '';
+        if (o) o.value = data.income.other  || '';
+      }
+
+      // Needs / Wants / Savings — match by label
+      ['needs','wants','savings'].forEach(cls => {
+        if (!data[cls]) return;
+        const inputs = document.querySelectorAll('.' + cls);
+        inputs.forEach(el => {
+          const match = data[cls].find(d => d.label === el.dataset.label);
+          el.value = match ? (match.amount || '') : '';
+        });
+      });
+
+      // Accounts — rebuild dynamically
+      if (data.accounts && data.accounts.length > 0) {
+        renderAccountsFromData(data.accounts.map(a => ({
+          name:    a.name    || '',
+          balance: a.balance != null ? String(a.balance) : ''
+        })));
+      }
+
+      recalc();
+      saveToStorage();
+      alert('Import successful!');
+    };
+    reader.readAsText(file);
+  }
+
+  // ---- Reset ----
+  function resetAll() {
+    if (!confirm('Reset all budget values?')) return;
+    document.querySelectorAll('input[type="number"]').forEach(el => el.value = '');
+    renderAccountsFromData([{ name: '', balance: '' }]);
+    localStorage.removeItem('mb_budget');
+    localStorage.removeItem('mb_budget_structured');
+    recalc();
+  }
+
+  // ---- Static input listeners ----
+  document.querySelectorAll('input[type="number"]').forEach(el => el.addEventListener('input', recalc));
+
+  // ---- Dark mode ----
+  function toggleDark() {
+    const isDark = document.body.classList.toggle('dark');
+    localStorage.setItem('bh_dark', isDark ? '1' : '0');
+    document.getElementById('dark-toggle').textContent = isDark ? '☀️' : '🌙';
+  }
+
+  // ---- Init ----
+  // Render one blank account row first (will be replaced by loadFromStorage if data exists)
+  addAccountRow();
+  loadFromStorage();
+  recalc();
+  // Apply saved dark mode preference
+  if (localStorage.getItem('bh_dark') === '1') {
+    document.body.classList.add('dark');
+    document.getElementById('dark-toggle').textContent = '☀️';
+  }
+</script>
+</body>
+</html>
