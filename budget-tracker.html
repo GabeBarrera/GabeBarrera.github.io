@@ -6,18 +6,20 @@
   <title>Budget Hero</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; min-height: 100vh; padding: 0 0 60px; }
+    html { overflow-x: hidden; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; min-height: 100vh; padding: 0 0 60px; overflow-x: hidden; width: 100%; }
 
     /* NAV */
     .topnav {
       background: #1a1a2e; display: flex; align-items: center;
       padding: 0 24px; height: 52px; position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2); width: 100%; flex-wrap: nowrap;
     }
-    .topnav .brand { color: #fff; font-weight: 700; font-size: 1rem; margin-right: 24px; }
+    .topnav .brand { color: #fff; font-weight: 700; font-size: 1rem; margin-right: 24px; white-space: nowrap; flex-shrink: 0; }
     .nav-btn {
       color: #aaa; text-decoration: none; font-size: 0.88rem;
       padding: 6px 14px; border-radius: 6px; transition: background 0.15s, color 0.15s;
+      white-space: nowrap; flex-shrink: 1; min-width: 0;
     }
     .nav-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
     .nav-btn.active { background: rgba(255,255,255,0.12); color: #fff; font-weight: 600; }
@@ -239,17 +241,12 @@
     body.dark .empty-msg { color: #44446a; }
 
     /* ---- RESPONSIVE: MOBILE ---- */
-    /* Nav: prevent overflow on any screen size */
-    .topnav { overflow: hidden; }
-    .topnav .brand { white-space: nowrap; }
-    .nav-btn { white-space: nowrap; }
-
     @media (max-width: 600px) {
-      /* Nav: shrink items to fit on one line */
-      .topnav { padding: 0 8px; gap: 0; height: 48px; }
-      .topnav .brand { font-size: 0.82rem; margin-right: 6px; flex-shrink: 0; }
-      .nav-btn { padding: 5px 8px; font-size: 0.76rem; }
-      .dark-toggle { padding: 4px 7px; font-size: 0.88rem; flex-shrink: 0; }
+      /* Nav: shrink all items proportionally so nothing is clipped */
+      .topnav { padding: 0 8px; height: 46px; }
+      .topnav .brand { font-size: 0.8rem; margin-right: 8px; }
+      .nav-btn { padding: 5px 7px; font-size: 0.74rem; }
+      .dark-toggle { padding: 4px 7px; font-size: 0.85rem; flex-shrink: 0; }
 
       .page-body { padding: 14px 10px 0; }
       h1 { font-size: 1.3rem; }
@@ -290,8 +287,8 @@
 
     @media (max-width: 400px) {
       .topnav { padding: 0 6px; }
-      .topnav .brand { font-size: 0.76rem; margin-right: 4px; }
-      .nav-btn { padding: 5px 6px; font-size: 0.7rem; }
+      .topnav .brand { font-size: 0.74rem; margin-right: 4px; }
+      .nav-btn { padding: 4px 5px; font-size: 0.68rem; }
       .week-nav .week-label { font-size: 0.8rem; }
       .week-nav button { padding: 5px 10px; font-size: 0.78rem; }
     }
