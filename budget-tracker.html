@@ -6,8 +6,9 @@
   <title>Budget Hero</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { overflow-x: hidden; }
-    body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; min-height: 100vh; padding: 0 0 60px; overflow-x: hidden; width: 100%; }
+    /* overflow-x: clip (not hidden) so it works alongside position:sticky on iOS Safari */
+    html { overflow-x: clip; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; color: #222; min-height: 100vh; padding: 0 0 60px; }
 
     /* NAV */
     .topnav {
@@ -42,6 +43,8 @@
     .btn-csv:hover { background: #dcedc8; }
 
     .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+    /* min-width:0 prevents grid items from overflowing their column */
+    .left-col, .right-col { min-width: 0; }
     @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 
     .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 20px 22px; margin-bottom: 18px; }
