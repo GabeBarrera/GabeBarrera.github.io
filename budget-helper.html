@@ -122,6 +122,8 @@ body::before {
 .btn-xs.pk:hover { background: rgba(255,45,120,0.08); box-shadow: 0 0 12px rgba(255,45,120,0.3); }
 .btn-xs.gn { border-color: var(--green); color: var(--green); }
 .btn-xs.gn:hover { background: rgba(57,255,122,0.08); box-shadow: 0 0 12px rgba(57,255,122,0.3); }
+.btn-xs.pu { border-color: var(--purple); color: var(--purple); }
+.btn-xs.pu:hover { background: rgba(180,77,255,0.08); box-shadow: 0 0 12px rgba(180,77,255,0.3); }
 
 /* === LAYOUT === */
 .layout { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
@@ -383,6 +385,9 @@ body::before {
     <span class="toolbar-label">DATA</span>
     <button class="btn-xs pk" onclick="exportPDF()">&#9113; PDF</button>
     <button class="btn-xs gn" onclick="exportCSV()">&#11015; CSV</button>
+    <button class="btn-xs cx" onclick="exportJSON()">&#11015; JSON</button>
+    <button class="btn-xs pu" onclick="importJSON()">&#11014; IMPORT</button>
+    <input type="file" id="json-import-input" accept=".json" style="display:none" onchange="handleJSONImport(event)" />
   </div>
 
   <div id="no-budget" class="no-budget-msg" style="display:none">
@@ -814,6 +819,52 @@ body::before {
     a.click();
     URL.revokeObjectURL(a.href);
     showToast('// CSV EXPORTED', 'success');
+  }
+
+  // ---- Export JSON ----
+  function exportJSON() {
+    if (transactions.length === 0) { showToast('// NO DATA TO EXPORT', 'error'); return; }
+    const payload = {
+      exportDate: new Date().toISOString(),
+      transactions: transactions
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = 'transaction_data.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('// JSON EXPORTED', 'success');
+  }
+
+  // ---- Import JSON ----
+  function importJSON() {
+    document.getElementById('json-import-input').click();
+  }
+
+  function handleJSONImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        const incoming = Array.isArray(data) ? data
+                       : Array.isArray(data.transactions) ? data.transactions
+                       : null;
+        if (!incoming) { showToast('// INVALID FILE FORMAT', 'error'); return; }
+        const existingIds = new Set(transactions.map(t => t.id));
+        const added = incoming.filter(t => !existingIds.has(t.id));
+        transactions = [...transactions, ...added].sort((a,b) => b.date.localeCompare(a.date));
+        saveTransactions();
+        render();
+        showToast(`// ${added.length} TRANSACTION(S) IMPORTED`, 'success');
+      } catch {
+        showToast('// FAILED TO PARSE JSON', 'error');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
   }
 
   // ---- Toast ----
