@@ -41,6 +41,10 @@
     .btn-pdf:hover { background: #ffcdd2; }
     .btn-csv { background: #f1f8e9; border-color: #c5e1a5; color: #33691e; }
     .btn-csv:hover { background: #dcedc8; }
+    .btn-json { background: #e8eaf6; border-color: #9fa8da; color: #283593; }
+    .btn-json:hover { background: #c5cae9; }
+    .btn-import { background: #fff8e1; border-color: #ffe082; color: #e65100; }
+    .btn-import:hover { background: #ffecb3; }
 
     .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
     /* min-width:0 prevents grid items from overflowing their column */
@@ -197,6 +201,10 @@
     body.dark .export-btn.btn-pdf:hover { background: #3a1c1c; }
     body.dark .export-btn.btn-csv { background: #162816; border-color: #2a5a2a; color: #a5d6a7; }
     body.dark .export-btn.btn-csv:hover { background: #1c3a1c; }
+    body.dark .export-btn.btn-json { background: #181c30; border-color: #3a4080; color: #9fa8da; }
+    body.dark .export-btn.btn-json:hover { background: #1e2440; }
+    body.dark .export-btn.btn-import { background: #2c2010; border-color: #6a4a10; color: #ffcc80; }
+    body.dark .export-btn.btn-import:hover { background: #382810; }
 
     body.dark .form-group label { color: #8888b8; }
     body.dark .form-group input,
@@ -334,6 +342,9 @@
   <div class="export-bar">
     <button class="export-btn btn-pdf" onclick="exportPDF()">🖨 Export PDF</button>
     <button class="export-btn btn-csv" onclick="exportCSV()">📥 Export CSV</button>
+    <button class="export-btn btn-json" onclick="exportJSON()">📤 Export JSON</button>
+    <button class="export-btn btn-import" onclick="importJSON()">📂 Import JSON</button>
+    <input type="file" id="json-import-input" accept=".json" style="display:none" onchange="handleJSONImport(event)" />
   </div>
 
   <div id="no-budget" class="no-budget-msg" style="display:none">
@@ -738,6 +749,52 @@
     a.download = 'expense_tracker_' + new Date().toISOString().slice(0,10) + '.csv';
     a.click();
     URL.revokeObjectURL(a.href);
+  }
+
+  // ---- Export JSON ----
+  function exportJSON() {
+    if (transactions.length === 0) { alert('No transactions to export.'); return; }
+    const payload = {
+      exportDate: new Date().toISOString(),
+      transactions: transactions
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = 'transaction_data.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // ---- Import JSON ----
+  function importJSON() {
+    document.getElementById('json-import-input').click();
+  }
+
+  function handleJSONImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        const incoming = Array.isArray(data) ? data
+                       : Array.isArray(data.transactions) ? data.transactions
+                       : null;
+        if (!incoming) { alert('Invalid transaction_data.json format.'); return; }
+        // Merge: add only entries whose id doesn't already exist
+        const existingIds = new Set(transactions.map(t => t.id));
+        const added = incoming.filter(t => !existingIds.has(t.id));
+        transactions = [...transactions, ...added].sort((a,b) => b.date.localeCompare(a.date));
+        saveTransactions();
+        render();
+        alert(`Import complete. ${added.length} new transaction(s) added.`);
+      } catch {
+        alert('Failed to parse JSON file.');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
   }
 
   // ---- Init ----
