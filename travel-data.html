@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Traveler</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      --cyan: #00fff2;
+      --magenta: #ff00c8;
+      --yellow: #ffe600;
+      --bg: #0a0a0f;
+      --bg2: #0d0d1a;
+      --bg3: #111122;
+      --border: #1a1a3a;
+      --text: #c8d6ff;
+      --dim: #4a5080;
+      --glow-cyan: 0 0 8px #00fff2, 0 0 20px #00fff280;
+      --glow-mag: 0 0 8px #ff00c8, 0 0 20px #ff00c880;
+      --glow-yellow: 0 0 8px #ffe600, 0 0 20px #ffe60080;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      padding: 20px;
+      background-image:
+        linear-gradient(rgba(0,255,242,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,242,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      padding: 30px 20px 20px;
+      position: relative;
+    }
+
+    .japanese {
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      color: var(--magenta);
+      text-shadow: var(--glow-mag);
+      letter-spacing: 0.3em;
+      margin-bottom: 10px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    h1.title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 900;
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .title-underline {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
+      margin: 12px auto;
+      max-width: 600px;
+    }
+
+    .scan-line {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      opacity: 0.4;
+      animation: scan 4s linear infinite;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    @keyframes scan {
+      0%   { top: 0; }
+      100% { top: 100vh; }
+    }
+
+    /* ── CARDS / SECTIONS ── */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    }
+
+    .card-corner {
+      position: absolute;
+      width: 14px; height: 14px;
+      border-color: var(--cyan);
+      border-style: solid;
+    }
+    .card-corner.tl { top: 6px; left: 6px; border-width: 2px 0 0 2px; }
+    .card-corner.tr { top: 6px; right: 6px; border-width: 2px 2px 0 0; }
+    .card-corner.bl { bottom: 6px; left: 6px; border-width: 0 0 2px 2px; }
+    .card-corner.br { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--yellow);
+      text-shadow: var(--glow-yellow);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::before {
+      content: '//';
+      color: var(--magenta);
+      font-size: 0.9rem;
+    }
+
+    /* ── VEHICLE INFO GRID ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field-group label {
+      font-size: 0.7rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      text-shadow: 0 0 6px var(--cyan);
+    }
+
+    .field-group input,
+    .field-group select {
+      background: var(--bg3);
+      border: 1px solid var(--dim);
+      border-radius: 2px;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    .field-group input:focus,
+    .field-group select:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 8px rgba(0,255,242,0.3);
+    }
+
+    .field-group input::placeholder { color: var(--dim); }
+
+    /* ── TABLE SECTIONS ── */
+    .table-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .btn-add {
+      background: transparent;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 8px 18px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.2s, box-shadow 0.2s;
+      border-radius: 2px;
+    }
+
+    .btn-add:hover {
+      background: rgba(0,255,242,0.12);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead th {
+      background: rgba(0,255,242,0.06);
+      color: var(--cyan);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0,255,242,0.3);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    thead th.th-total {
+      color: var(--yellow);
+      border-bottom-color: rgba(255,230,0,0.3);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover { background: rgba(0,255,242,0.04); }
+
+    tbody td {
+      padding: 6px 8px;
+      vertical-align: middle;
+    }
+
+    tbody td input,
+    tbody td select {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.88rem;
+      padding: 5px 8px;
+      width: 100%;
+      min-width: 80px;
+      border-radius: 2px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    tbody td input:focus,
+    tbody td select:focus {
+      outline: none;
+      border-color: var(--cyan);
+      background: rgba(0,255,242,0.06);
+    }
+
+    tbody td input[type="number"] { min-width: 90px; }
+    tbody td input[type="date"]   { min-width: 130px; color: var(--text); }
+
+    /* delete button */
+    .btn-del {
+      background: transparent;
+      border: 1px solid var(--magenta);
+      color: var(--magenta);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 4px 9px;
+      border-radius: 2px;
+      transition: background 0.2s, box-shadow 0.2s;
+      font-family: 'Share Tech Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .btn-del:hover {
+      background: rgba(255,0,200,0.15);
+      box-shadow: var(--glow-mag);
+    }
+
+    /* totals row */
+    tfoot tr {
+      background: rgba(255,230,0,0.04);
+    }
+
+    tfoot td {
+      padding: 9px 12px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--yellow);
+      text-shadow: 0 0 6px rgba(255,230,0,0.5);
+      border-top: 1px solid rgba(255,230,0,0.25);
+      white-space: nowrap;
+    }
+
+    tfoot td.label-cell {
+      color: var(--dim);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+    /* corner glow pulse */
+    .card-corner { animation: cornerPulse 3s ease-in-out infinite; }
+    @keyframes cornerPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* responsive */
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .info-grid { grid-template-columns: 1fr 1fr; }
+      h1.title { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="scan-line"></div>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="japanese">ヘラブルーハチロク</div>
+  <h1 class="title">The Traveler</h1>
+  <div class="title-underline"></div>
+</header>
+
+<!-- ── VEHICLE INFO ── -->
+<div class="card">
+  <div class="card-corner tl"></div>
+  <div class="card-corner tr"></div>
+  <div class="card-corner bl"></div>
+  <div class="card-corner br"></div>
+  <div class="section-title">Vehicle Info</div>
+  <div class="info-grid">
+    <div class="field-group">
+      <label>Make &amp; Model</label>
+      <input type="text" id="makeModel" placeholder="e.g. Toyota AE86" />
+    </div>
+    <div class="field-group">
+      <label>Stock #</label>
+      <input type="text" id="stockNum" placeholder="STK-00000" />
+    </div>
+    <div class="field-group">
+      <label>Cost</label>
+      <input type="text" id="vehicleCost" placeholder="$0.00" />
+    </div>
+    <div class="field-group">
+      <label>VIN</label>
+      <input type="text" id="vin" placeholder="1HGCM82633A000000" />
+    </div>
+    <div class="field-group">
+      <label>License Plate #</label>
+      <input type="text" id="plate" placeholder="ABC-1234" />
+    </div>
+    <div class="field-group">
+      <label>Current Odometer</label>
+      <input type="number" id="odometer" placeholder="0" min="0" />
+    </div>
+    <div class="field-group">
+      <label>Next Service Date</label>
+      <input type="date" id="nextServiceDate" />
+    </div>
+    <div class="field-group">
+      <label>Next Service Mileage</label>
+      <input type="number" id="nextServiceMiles" placeholder="0" min="0" />
+    </div>
+    <div class="field-group">
+      <label>Oil Change Services Remaining</label>
+      <input type="number" id="oilChanges" placeholder="0" min="0" />
+    </div>
+  </div>
+</div>
+
+<!-- ── GAS REFILL ── -->
+<div class="card">
+  <div class="card-corner tl"></div>
+  <div class="card-corner tr"></div>
+  <div class="card-corner bl"></div>
+  <div class="card-corner br"></div>
+  <div class="table-controls">
+    <div class="section-title" style="margin-bottom:0;">Gas Refill</div>
+    <button class="btn-add" onclick="addGasRow()">+ Add Row</button>
+  </div>
+  <div class="table-wrap">
+    <table id="gasTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Day</th>
+          <th class="th-total">Cost ($)</th>
+          <th class="th-total">Gallons</th>
+          <th class="th-total">Miles</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="gasTbody"></tbody>
+      <tfoot>
+        <tr>
+          <td class="label-cell" colspan="2">TOTALS</td>
+          <td id="gasTotal_cost">$0.00</td>
+          <td id="gasTotal_gallons">0.000</td>
+          <td id="gasTotal_miles">0</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- ── TRAVEL DATA ── -->
+<div class="card">
+  <div class="card-corner tl"></div>
+  <div class="card-corner tr"></div>
+  <div class="card-corner bl"></div>
+  <div class="card-corner br"></div>
+  <div class="table-controls">
+    <div class="section-title" style="margin-bottom:0;">Travel Data</div>
+    <button class="btn-add" onclick="addTravelRow()">+ Add Row</button>
+  </div>
+  <div class="table-wrap">
+    <table id="travelTable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Day</th>
+          <th>Category</th>
+          <th>Purpose</th>
+          <th>Location</th>
+          <th class="th-total">Miles</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="travelTbody"></tbody>
+      <tfoot>
+        <tr>
+          <td class="label-cell" colspan="5">TOTALS</td>
+          <td id="travelTotal_miles">0</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<script>
+  // ── DAYS LOOKUP ──
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  function dayFromDate(val) {
+    if (!val) return '';
+    const d = new Date(val + 'T00:00:00');
+    return DAYS[d.getDay()];
+  }
+
+  // ── GAS TABLE ──
+  function addGasRow() {
+    const tbody = document.getElementById('gasTbody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="date" onchange="autoDay(this,'gas')" /></td>
+      <td><input type="text" placeholder="Monday" readonly style="color:var(--magenta);cursor:default;" /></td>
+      <td><input type="number" step="0.01" min="0" placeholder="0.00" oninput="calcGasTotals()" /></td>
+      <td><input type="number" step="0.001" min="0" placeholder="0.000" oninput="calcGasTotals()" /></td>
+      <td><input type="number" step="0.1" min="0" placeholder="0" oninput="calcGasTotals()" /></td>
+      <td><button class="btn-del" onclick="delRow(this,'gas')">DEL</button></td>
+    `;
+    tbody.appendChild(tr);
+    calcGasTotals();
+  }
+
+  function autoDay(input, section) {
+    const row = input.closest('tr');
+    const dayInput = row.querySelectorAll('input')[1];
+    dayInput.value = dayFromDate(input.value);
+    if (section === 'gas') calcGasTotals();
+    else calcTravelTotals();
+  }
+
+  function calcGasTotals() {
+    const rows = document.querySelectorAll('#gasTbody tr');
+    let cost = 0, gal = 0, miles = 0;
+    rows.forEach(r => {
+      const ins = r.querySelectorAll('input');
+      cost  += parseFloat(ins[2].value) || 0;
+      gal   += parseFloat(ins[3].value) || 0;
+      miles += parseFloat(ins[4].value) || 0;
+    });
+    document.getElementById('gasTotal_cost').textContent    = '$' + cost.toFixed(2);
+    document.getElementById('gasTotal_gallons').textContent = gal.toFixed(3);
+    document.getElementById('gasTotal_miles').textContent   = miles.toFixed(1).replace(/\.0$/,'');
+  }
+
+  function delRow(btn, section) {
+    btn.closest('tr').remove();
+    if (section === 'gas') calcGasTotals();
+    else calcTravelTotals();
+  }
+
+  // ── TRAVEL TABLE ──
+  function addTravelRow() {
+    const tbody = document.getElementById('travelTbody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="date" onchange="autoDay(this,'travel')" /></td>
+      <td><input type="text" placeholder="Monday" readonly style="color:var(--magenta);cursor:default;" /></td>
+      <td><input type="text" placeholder="Business" /></td>
+      <td><input type="text" placeholder="Client Visit" /></td>
+      <td><input type="text" placeholder="City, ST" /></td>
+      <td><input type="number" step="0.1" min="0" placeholder="0" oninput="calcTravelTotals()" /></td>
+      <td><button class="btn-del" onclick="delRow(this,'travel')">DEL</button></td>
+    `;
+    tbody.appendChild(tr);
+    calcTravelTotals();
+  }
+
+  function calcTravelTotals() {
+    const rows = document.querySelectorAll('#travelTbody tr');
+    let miles = 0;
+    rows.forEach(r => {
+      const ins = r.querySelectorAll('input');
+      miles += parseFloat(ins[5].value) || 0;
+    });
+    document.getElementById('travelTotal_miles').textContent = miles.toFixed(1).replace(/\.0$/,'');
+  }
+
+  // seed one row each on load
+  addGasRow();
+  addTravelRow();
+</script>
+</body>
+</html>
