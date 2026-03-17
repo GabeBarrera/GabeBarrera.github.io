@@ -594,24 +594,27 @@
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-text">
-          Start the local API server (stdlib Python, no extra installs):<br />
+          Start the local HTTPS server (auto-generates a self-signed cert, no extra pip installs):<br />
           <code>python3 sherlock-server.py</code>
-          &nbsp; — listens on <code>127.0.0.1:7474</code>
         </div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
         <div class="step-text">
-          Open this file in your browser, enter a username, and click <strong>HUNT</strong>.
-          Results stream in real-time from Sherlock's output.
+          <strong>One-time cert trust</strong> — because this page is HTTPS, the browser
+          requires the local server to be HTTPS too. Visit
+          <code><a href="https://127.0.0.1:7474/" target="_blank" rel="noopener" style="color:var(--cyan)">https://127.0.0.1:7474/</a></code>
+          in the same browser, click <strong>Advanced → Proceed</strong> (Chrome) or
+          <strong>Accept the Risk</strong> (Firefox). You should see <code>{"status":"ok"}</code>.
+          Do this once per browser — no need to repeat until the cert expires (1 year).
         </div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-text">
-          The server only accepts usernames matching
-          <code>[a-zA-Z0-9._\-]{1–64}</code> and binds to localhost only — it never
-          exposes Sherlock to the wider network.
+          Return here, enter a username, and click <strong>HUNT</strong>.
+          Results stream in real-time. The server binds to <code>127.0.0.1</code> only —
+          it is never reachable from outside your machine.
         </div>
       </div>
     </div>
@@ -620,7 +623,7 @@
 </main>
 
 <script>
-  const API = 'http://127.0.0.1:7474/api/run';
+  const API = 'https://127.0.0.1:7474/api/run';
 
   let currentController = null;
   let foundCount  = 0;
