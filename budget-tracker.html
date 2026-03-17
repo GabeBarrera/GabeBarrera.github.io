@@ -160,6 +160,18 @@
     .tx-amt  { font-size: 0.92rem; font-weight: 700; color: #333; flex-shrink: 0; }
     .tx-del  { background: none; border: none; color: #ddd; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 4px; transition: color 0.15s; flex-shrink: 0; }
     .tx-del:hover { color: #e53935; }
+    .tx-edit { background: none; border: none; color: #ddd; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 4px; transition: color 0.15s; flex-shrink: 0; }
+    .tx-edit:hover { color: #1976d2; }
+
+    /* Edit mode indicator on the form card */
+    .card.editing-mode { border: 2px solid #5c6bc0; }
+    .card.editing-mode .card-title { color: #3949ab; }
+    .cancel-edit-btn {
+      width: 100%; padding: 8px; background: none; color: #999;
+      border: 1px solid #ddd; border-radius: 9px; font-size: 0.88rem;
+      cursor: pointer; transition: all 0.15s; margin-top: 6px;
+    }
+    .cancel-edit-btn:hover { background: #f5f5f5; color: #555; }
 
     .empty-msg { text-align: center; color: #bbb; font-size: 0.88rem; padding: 28px 0; }
 
@@ -257,6 +269,12 @@
     body.dark .tx-amt { color: #d0d0f0; }
     body.dark .tx-del { color: #38385a; }
     body.dark .tx-del:hover { color: #e53935; }
+    body.dark .tx-edit { color: #38385a; }
+    body.dark .tx-edit:hover { color: #64b5f6; }
+    body.dark .card.editing-mode { border-color: #7986cb; }
+    body.dark .card.editing-mode .card-title { color: #9fa8da; }
+    body.dark .cancel-edit-btn { border-color: #3a3a60; color: #6868a0; }
+    body.dark .cancel-edit-btn:hover { background: #22223a; color: #d0d0f0; }
     body.dark .empty-msg { color: #44446a; }
 
     /* ---- RESPONSIVE: MOBILE ---- */
@@ -354,8 +372,8 @@
   <div class="layout">
     <!-- LEFT: Add expense + transactions -->
     <div class="left-col">
-      <div class="card">
-        <div class="card-title"><span class="icon">➕</span> Add Expense</div>
+      <div class="card" id="expense-form-card">
+        <div class="card-title" id="form-card-title"><span class="icon">➕</span> Add Expense</div>
         <div class="form-group">
           <label>Date</label>
           <input type="date" id="tx-date" />
@@ -383,7 +401,8 @@
           <label>Note (optional)</label>
           <textarea id="tx-note" placeholder="e.g. Trader Joe's run"></textarea>
         </div>
-        <button class="add-btn" onclick="addTransaction()">Add Expense</button>
+        <button class="add-btn" id="form-submit-btn" onclick="addTransaction()">Add Expense</button>
+        <button class="cancel-edit-btn" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">✕ Cancel Edit</button>
       </div>
 
       <div class="card">
@@ -437,6 +456,7 @@
   let weekOffset   = 0;
   let activePeriod = 'daily';
   let activeFilter = 'all';
+  let editingId    = null;
 
   const DAYS        = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const TYPE_COLORS = { needs: '#1976d2', wants: '#e53935', savings: '#8e24aa' };
@@ -487,7 +507,7 @@
   function dailyBudget(type)   { return monthlyBudget(type) / 30; }
   function weeklyBudget(type)  { return monthlyBudget(type) / 4.333; }
 
-  // ---- Add / Delete transaction ----
+  // ---- Add / Edit / Delete transaction ----
   function addTransaction() {
     const date   = document.getElementById('tx-date').value;
     const type   = document.getElementById('tx-type').value;
@@ -495,14 +515,58 @@
     const amount = parseFloat(document.getElementById('tx-amount').value) || 0;
     const note   = document.getElementById('tx-note').value.trim();
     if (!date || amount <= 0) { alert('Please enter a valid date and amount.'); return; }
-    transactions.unshift({ id: Date.now(), date, type, category: cat, amount, note });
+
+    if (editingId !== null) {
+      // Update existing transaction in place
+      transactions = transactions.map(t =>
+        t.id === editingId ? { ...t, date, type, category: cat, amount, note } : t
+      );
+      cancelEdit();
+    } else {
+      transactions.unshift({ id: Date.now(), date, type, category: cat, amount, note });
+      document.getElementById('tx-amount').value = '';
+      document.getElementById('tx-note').value   = '';
+    }
     saveTransactions();
-    document.getElementById('tx-amount').value = '';
-    document.getElementById('tx-note').value   = '';
     render();
   }
 
+  function startEdit(id) {
+    const t = transactions.find(tx => tx.id === id);
+    if (!t) return;
+    editingId = id;
+
+    document.getElementById('tx-date').value   = t.date;
+    document.getElementById('tx-type').value   = t.type;
+    populateCategories();
+    document.getElementById('tx-category').value = t.category;
+    document.getElementById('tx-amount').value   = t.amount;
+    document.getElementById('tx-note').value     = t.note || '';
+
+    document.getElementById('form-card-title').innerHTML = '<span class="icon">✎</span> Edit Expense';
+    document.getElementById('form-submit-btn').textContent = 'Save Changes';
+    document.getElementById('cancel-edit-btn').style.display = 'block';
+    document.getElementById('expense-form-card').classList.add('editing-mode');
+
+    // Scroll form into view on mobile
+    document.getElementById('expense-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function cancelEdit() {
+    editingId = null;
+    document.getElementById('tx-date').value   = todayStr();
+    document.getElementById('tx-amount').value = '';
+    document.getElementById('tx-note').value   = '';
+    populateCategories();
+
+    document.getElementById('form-card-title').innerHTML = '<span class="icon">➕</span> Add Expense';
+    document.getElementById('form-submit-btn').textContent = 'Add Expense';
+    document.getElementById('cancel-edit-btn').style.display = 'none';
+    document.getElementById('expense-form-card').classList.remove('editing-mode');
+  }
+
   function deleteTransaction(id) {
+    if (editingId === id) cancelEdit();
     transactions = transactions.filter(t => t.id !== id);
     saveTransactions();
     render();
@@ -665,6 +729,7 @@
             ${t.note ? `<div class="tx-note">${t.note}</div>` : ''}
           </div>
           <span class="tx-amt">${fmt2(t.amount)}</span>
+          <button class="tx-edit" onclick="startEdit(${t.id})" title="Edit">✎</button>
           <button class="tx-del" onclick="deleteTransaction(${t.id})" title="Delete">✕</button>
         </div>`;
       });
