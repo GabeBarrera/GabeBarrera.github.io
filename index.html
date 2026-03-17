@@ -350,11 +350,67 @@ body::before {
   border-color: rgba(245,230,66,0.2);
 }
 .btn-reload::before, .btn-reload::after { border-color: var(--yellow); }
-.btn-reload:hover {
+.btn-reload:hover,
+.nav-form:focus-within {
   border-color: var(--yellow);
   color: var(--yellow);
   box-shadow: 0 0 24px rgba(245,230,66,0.2), inset 0 0 20px rgba(245,230,66,0.05);
   background: rgba(245,230,66,0.04);
+}
+
+/* ── NAV INPUT ── */
+.nav-form {
+  cursor: text;
+}
+.nav-cursor {
+  color: var(--yellow);
+  text-shadow: 0 0 8px rgba(245,230,66,0.8);
+  font-family: var(--mono);
+  font-size: 15px;
+  flex-shrink: 0;
+  animation: cursorBlink 1s step-end infinite;
+  user-select: none;
+}
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.nav-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--yellow);
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.8vw, 13px);
+  letter-spacing: 0.15em;
+  caret-color: var(--yellow);
+  min-width: 0;
+}
+.nav-input::placeholder {
+  color: var(--dim);
+  opacity: 0.7;
+}
+.nav-submit {
+  background: transparent;
+  border: none;
+  border-left: 1px solid rgba(245,230,66,0.2);
+  color: var(--dim);
+  font-family: var(--orb);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  padding: 0 0 0 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: color 0.2s, text-shadow 0.2s;
+  flex-shrink: 0;
+}
+.nav-form:hover .nav-submit,
+.nav-form:focus-within .nav-submit,
+.nav-submit:hover {
+  color: var(--yellow);
+  text-shadow: 0 0 8px rgba(245,230,66,0.6);
 }
 
 .btn-camera {
@@ -510,12 +566,13 @@ body::before {
       <span class="arrow">▶</span>
     </a>
 
-    <button onclick="location.reload()" class="menu-btn btn-reload">
+    <form class="menu-btn btn-reload nav-form" onsubmit="navToPage(event)">
       <span class="shine"></span>
-      <span class="icon">↺</span>
-      <span class="label">Reload System</span>
-      <span class="arrow">▶</span>
-    </button>
+      <span class="nav-cursor">█</span>
+      <input type="text" class="nav-input" id="navInput"
+             placeholder="navigate to..." autocomplete="off" spellcheck="false" />
+      <button type="submit" class="nav-submit">GO ▶</button>
+    </form>
 
   </nav>
 </div>
@@ -523,6 +580,15 @@ body::before {
 <div class="footer">PWNY<span>X</span>PRESS &nbsp;·&nbsp; ALL SYSTEMS NOMINAL &nbsp;·&nbsp; v1.0.0</div>
 
 <script>
+// ── PAGE NAVIGATOR ──
+function navToPage(e) {
+  e.preventDefault();
+  let val = document.getElementById('navInput').value.trim();
+  if (!val) return;
+  if (!val.toLowerCase().endsWith('.html')) val += '.html';
+  window.location.href = val;
+}
+
 // ── CLOCK ──
 function tick() {
   const n = new Date();
