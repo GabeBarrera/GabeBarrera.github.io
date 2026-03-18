@@ -1,0 +1,10 @@
+{
+  "name": "PWNYXPRESS",
+  "short_name": "PWNYXPRESS",
+  "description": "A R3TYP3 Project",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#04060f",
+  "theme_color": "#00f5ff",
+  "icons": []
+}
