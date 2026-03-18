@@ -155,6 +155,27 @@
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.78rem; color: #555; }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 
+    /* Vacation Time section */
+    .vac-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-bottom: 14px;
+    }
+    .vac-field label { display: block; font-size: 0.78rem; color: #666; margin-bottom: 4px; font-weight: 600; }
+    .vac-field input {
+      width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 7px;
+      font-size: 0.88rem; outline: none; transition: border-color 0.2s;
+      -moz-appearance: textfield; appearance: textfield;
+    }
+    .vac-field input::-webkit-inner-spin-button,
+    .vac-field input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .vac-field input:focus { border-color: #5c6bc0; box-shadow: 0 0 0 3px rgba(92,107,192,0.12); }
+    .vac-total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px;
+      padding: 10px 14px; font-size: 0.88rem; color: #555;
+    }
+    .vac-total-row .vac-cost { font-size: 1.05rem; font-weight: 700; color: #c62828; }
+    .vac-weeks-note { font-size: 0.75rem; color: #aaa; margin-top: 8px; }
+
     /* Dynamic account rows */
     .acct-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .acct-name-input {
@@ -303,6 +324,12 @@
     body.dark .btn-json-imp { background: #2c1624; border-color: #663055; color: #f48fb1; }
     body.dark .btn-json-imp:hover { background: #3a1c2e; }
 
+    body.dark .vac-field label { color: #8888b8; }
+    body.dark .vac-field input { background: #252540; border-color: #3a3a60; color: #e0e0f8; }
+    body.dark .vac-field input:focus { border-color: #7986cb; box-shadow: 0 0 0 3px rgba(121,134,203,0.2); }
+    body.dark .vac-total-row { background: #2c1616; border-color: #7a3030; color: #c8a8a8; }
+    body.dark .vac-total-row .vac-cost { color: #ef9a9a; }
+    body.dark .vac-weeks-note { color: #5858a0; }
     body.dark .acct-name-input { background: #252540; border-color: #3a3a60; color: #e0e0f8; }
     body.dark .acct-name-input:focus { border-color: #7986cb; box-shadow: 0 0 0 3px rgba(121,134,203,0.2); }
     body.dark .acct-remove-btn { border-color: #3a3a60; color: #5050a0; }
@@ -534,6 +561,47 @@
       <div class="field-row"><label class="field-label">Other savings / debt repayment</label><div class="field-input-wrap"><span>$</span><input type="number" class="savings" data-label="Other Savings" min="0" step="0.01" placeholder="0.00" /></div></div>
     </div>
 
+    <!-- VACATION TIME -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#fff3e0">🏖</div>
+        <h2>Vacation Time</h2>
+        <span class="section-total" id="total-vacation" style="color:#c62828">$0</span>
+      </div>
+      <div style="font-size:0.78rem;color:#999;margin-bottom:14px">Enter weeks of leave per season — total is deducted from remaining income.</div>
+      <div class="vac-grid">
+        <div class="vac-field">
+          <label>Winter</label>
+          <input type="number" id="vac-winter" min="0" step="0.1" placeholder="0.0" oninput="recalc()" />
+        </div>
+        <div class="vac-field">
+          <label>Spring</label>
+          <input type="number" id="vac-spring" min="0" step="0.1" placeholder="0.0" oninput="recalc()" />
+        </div>
+        <div class="vac-field">
+          <label>Summer</label>
+          <input type="number" id="vac-summer" min="0" step="0.1" placeholder="0.0" oninput="recalc()" />
+        </div>
+        <div class="vac-field">
+          <label>Fall</label>
+          <input type="number" id="vac-fall" min="0" step="0.1" placeholder="0.0" oninput="recalc()" />
+        </div>
+        <div class="vac-field">
+          <label>Thanksgiving</label>
+          <input type="number" id="vac-thanksgiving" min="0" step="0.1" placeholder="0.0" oninput="recalc()" />
+        </div>
+        <div class="vac-field">
+          <label>Other</label>
+          <input type="number" id="vac-other" min="0" step="0.1" placeholder="0.0" oninput="recalc()" />
+        </div>
+      </div>
+      <div class="vac-total-row">
+        <span>Total vacation cost</span>
+        <span class="vac-cost" id="vac-total-display">$0.00</span>
+      </div>
+      <div class="vac-weeks-note">Total weeks × net monthly salary</div>
+    </div>
+
     <!-- ACCOUNTS (dynamic) -->
     <div class="card">
       <div class="card-header">
@@ -556,6 +624,11 @@
       <div class="income-display">
         <div class="label">Monthly Income</div>
         <div class="value" id="sum-income">$0.00</div>
+      </div>
+
+      <div class="remaining-display remaining-neg" id="vacation-box" style="display:none">
+        <div class="label">Vacation Cost</div>
+        <div class="value" id="sum-vacation" style="color:#c62828">$0.00</div>
       </div>
 
       <div class="remaining-display remaining-zero" id="remaining-box">
@@ -721,6 +794,7 @@
       const el = document.getElementById(id);
       if (el) data[id] = el.value;
     });
+    VAC_IDS.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
     ['needs','wants','savings'].forEach(cls => {
       document.querySelectorAll('.' + cls).forEach((el, i) => {
         data[cls + '_' + i] = el.value;
@@ -759,6 +833,7 @@
       const el = document.getElementById(id);
       if (el && data[id] !== undefined) el.value = data[id];
     });
+    VAC_IDS.forEach(id => { const el = document.getElementById(id); if (el && data[id] !== undefined) el.value = data[id]; });
     ['needs','wants','savings'].forEach(cls => {
       document.querySelectorAll('.' + cls).forEach((el, i) => {
         if (data[cls + '_' + i] !== undefined) el.value = data[cls + '_' + i];
@@ -829,6 +904,14 @@
     svg.innerHTML = paths;
   }
 
+  // ---- Vacation helpers ----
+  const VAC_IDS = ['vac-winter','vac-spring','vac-summer','vac-fall','vac-thanksgiving','vac-other'];
+  function vacationTotal() {
+    const weeks  = VAC_IDS.reduce((s, id) => s + (parseFloat(document.getElementById(id).value) || 0), 0);
+    const salary = val('income-salary');
+    return weeks * salary;
+  }
+
   // ---- Recalculate ----
   function recalc() {
     const income   = val('income-salary') + val('income-other');
@@ -837,19 +920,26 @@
     const savings  = sumCls('savings');
     const accts    = sumCls('account');
     const totalExp = needs + wants + savings;
-    const remaining = income - totalExp;
+    const vacCost  = vacationTotal();
+    const remaining = income - totalExp - vacCost;
 
     document.getElementById('total-income').textContent   = fmtS(income);
     document.getElementById('total-needs').textContent    = fmtS(needs);
     document.getElementById('total-wants').textContent    = fmtS(wants);
     document.getElementById('total-savings').textContent  = fmtS(savings);
     document.getElementById('total-accounts').textContent = fmtS(accts);
+    document.getElementById('total-vacation').textContent = fmtS(vacCost);
+    document.getElementById('vac-total-display').textContent = fmt(vacCost);
     document.getElementById('sum-income').textContent     = fmt(income);
     document.getElementById('sum-needs').textContent      = fmtS(needs);
     document.getElementById('sum-wants').textContent      = fmtS(wants);
     document.getElementById('sum-savings').textContent    = fmtS(savings);
     document.getElementById('sum-total-exp').textContent  = fmtS(totalExp);
+    document.getElementById('sum-vacation').textContent   = fmt(vacCost);
     document.getElementById('sum-remaining').textContent  = fmt(Math.abs(remaining));
+
+    const vacBox = document.getElementById('vacation-box');
+    vacBox.style.display = vacCost > 0 ? '' : 'none';
 
     const rb = document.getElementById('remaining-box');
     rb.className = 'remaining-display ' + (remaining > 0 ? 'remaining-pos' : remaining < 0 ? 'remaining-neg' : 'remaining-zero');
