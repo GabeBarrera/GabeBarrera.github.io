@@ -599,7 +599,7 @@
         <span>Total vacation cost</span>
         <span class="vac-cost" id="vac-total-display">$0.00</span>
       </div>
-      <div class="vac-weeks-note">Total weeks × net monthly salary</div>
+      <div class="vac-weeks-note">Total weeks × net weekly salary</div>
     </div>
 
     <!-- ACCOUNTS (dynamic) -->
@@ -908,8 +908,8 @@
   const VAC_IDS = ['vac-winter','vac-spring','vac-summer','vac-fall','vac-thanksgiving','vac-other'];
   function vacationTotal() {
     const weeks  = VAC_IDS.reduce((s, id) => s + (parseFloat(document.getElementById(id).value) || 0), 0);
-    const salary = val('income-salary');
-    return weeks * salary;
+    const weeklyNet = val('income-salary') * 12 / 52;
+    return weeks * weeklyNet;
   }
 
   // ---- Recalculate ----
