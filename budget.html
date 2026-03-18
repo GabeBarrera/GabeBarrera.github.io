@@ -82,6 +82,12 @@ body::before {
   text-transform: uppercase; transition: all 0.15s; white-space: nowrap;
 }
 .nav-link:hover { color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,245,255,0.2); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.nav-link.update-btn { cursor: pointer; background: none; }
+.nav-link.update-btn[data-state="ok"]       { color: var(--green); border-color: var(--green); }
+.nav-link.update-btn[data-state="found"]    { color: var(--cyan);  border-color: var(--cyan);  }
+.nav-link.update-btn[data-state="err"]      { color: var(--pink);  border-color: var(--pink);  }
+.nav-link.update-btn[data-state="checking"] { animation: spin 0.7s linear infinite; }
 
 /* === PANEL === */
 .panel {
@@ -331,6 +337,7 @@ body::before {
       <div class="nav-links">
         <a href="index.html" class="nav-link">⌂ HOME</a>
         <a href="budget-helper.html" class="nav-link">◈ TRACKER</a>
+        <button class="nav-link update-btn" id="update-btn" data-state="idle" onclick="checkForUpdate()">⟳ <span id="update-label">UPDATE</span></button>
       </div>
       <div class="logo">NEON//<span>LEDGER</span></div>
     </div>
@@ -915,6 +922,47 @@ function resetAll() {
   localStorage.removeItem('mb_budget_structured');
   recalc();
   showToast('ALL DATA CLEARED', 'info');
+}
+
+// ── Service worker + update check ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+}
+
+function setUpd(label, state) {
+  document.getElementById('update-label').textContent = label;
+  document.getElementById('update-btn').dataset.state = state;
+}
+function resetUpd() { setUpd('UPDATE', 'idle'); }
+
+let updateChecking = false;
+async function checkForUpdate() {
+  if (updateChecking) return;
+  if (!('serviceWorker' in navigator)) {
+    setUpd('N/A', 'err'); setTimeout(resetUpd, 3000); return;
+  }
+  updateChecking = true;
+  setUpd('CHECKING', 'checking');
+  try {
+    const reg = await navigator.serviceWorker.getRegistration('/');
+    if (!reg) { setUpd('NO SW', 'err'); setTimeout(resetUpd, 3000); updateChecking = false; return; }
+    if (reg.waiting) { setUpd('RELOADING', 'found'); reg.waiting.postMessage({ type: 'SKIP_WAITING' }); return; }
+    let found = false;
+    reg.addEventListener('updatefound', () => {
+      found = true;
+      const sw = reg.installing;
+      sw.addEventListener('statechange', () => {
+        if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+          setUpd('RELOADING', 'found');
+          sw.postMessage({ type: 'SKIP_WAITING' });
+        }
+      });
+    }, { once: true });
+    await reg.update();
+    if (!found && !reg.waiting) { setUpd('UP TO DATE', 'ok'); setTimeout(resetUpd, 3500); }
+  } catch { setUpd('FAILED', 'err'); setTimeout(resetUpd, 3000); }
+  updateChecking = false;
 }
 
 // ---- Init ----

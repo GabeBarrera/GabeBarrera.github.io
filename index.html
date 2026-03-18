@@ -352,27 +352,7 @@ body::before {
   border-color: rgba(245,230,66,0.2);
 }
 .btn-reload::before, .btn-reload::after { border-color: var(--yellow); }
-
-/* ── UPDATE BUTTON ── */
-.btn-update {
-  --c: var(--green);
-  border-color: rgba(57,255,122,0.2);
-}
-.btn-update::before, .btn-update::after { border-color: var(--green); }
-.btn-update:hover {
-  border-color: var(--green);
-  color: var(--green);
-  box-shadow: 0 0 24px rgba(57,255,122,0.2), inset 0 0 20px rgba(57,255,122,0.05);
-  background: rgba(57,255,122,0.04);
-}
-.btn-update[data-state="ok"] .icon    { color: var(--green); }
-.btn-update[data-state="found"] .icon { color: var(--cyan);  }
-.btn-update[data-state="err"] .icon   { color: var(--pink);  }
 @keyframes spin { to { transform: rotate(360deg); } }
-.btn-update[data-state="checking"] .icon {
-  display: inline-block;
-  animation: spin 0.7s linear infinite;
-}
 .btn-reload:hover,
 .nav-form:focus-within {
   border-color: var(--yellow);
@@ -597,13 +577,6 @@ body::before {
       <button type="submit" class="nav-submit">GO ▶</button>
     </form>
 
-    <button class="menu-btn btn-update" id="update-btn" data-state="idle" onclick="checkForUpdate()">
-      <span class="shine"></span>
-      <span class="icon" id="update-icon">⟳</span>
-      <span class="label" id="update-label">Check for Update</span>
-      <span class="arrow">▶</span>
-    </button>
-
   </nav>
 </div>
 
@@ -629,69 +602,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ── UPDATE CHECK ──
-function setUpdateState(icon, label, state) {
-  document.getElementById('update-icon').textContent  = icon;
-  document.getElementById('update-label').textContent = label;
-  document.getElementById('update-btn').dataset.state = state;
-}
-
-let updateChecking = false;
-async function checkForUpdate() {
-  if (updateChecking) return;
-
-  if (!('serviceWorker' in navigator)) {
-    setUpdateState('✗', 'Not supported', 'err');
-    setTimeout(() => setUpdateState('⟳', 'Check for Update', 'idle'), 3000);
-    return;
-  }
-
-  updateChecking = true;
-  setUpdateState('⟳', 'Checking...', 'checking');
-
-  try {
-    const reg = await navigator.serviceWorker.getRegistration('/');
-    if (!reg) {
-      setUpdateState('✗', 'SW not registered', 'err');
-      setTimeout(() => setUpdateState('⟳', 'Check for Update', 'idle'), 3000);
-      updateChecking = false;
-      return;
-    }
-
-    // A SW is already waiting from a previous check — activate it now
-    if (reg.waiting) {
-      setUpdateState('↓', 'Update ready! Reloading...', 'found');
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      return; // controllerchange listener above will reload
-    }
-
-    let found = false;
-    reg.addEventListener('updatefound', () => {
-      found = true;
-      const newSW = reg.installing;
-      newSW.addEventListener('statechange', () => {
-        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-          setUpdateState('↓', 'Update ready! Reloading...', 'found');
-          newSW.postMessage({ type: 'SKIP_WAITING' });
-          // controllerchange listener above handles the reload
-        }
-      });
-    }, { once: true });
-
-    await reg.update();
-
-    // update() resolves after the fetch; if updatefound hasn't fired by now, none is coming
-    if (!found && !reg.waiting) {
-      setUpdateState('✓', 'Already up to date', 'ok');
-      setTimeout(() => setUpdateState('⟳', 'Check for Update', 'idle'), 3500);
-    }
-  } catch {
-    setUpdateState('✗', 'Check failed', 'err');
-    setTimeout(() => setUpdateState('⟳', 'Check for Update', 'idle'), 3000);
-  }
-
-  updateChecking = false;
-}
 
 // ── CLOCK ──
 function tick() {
