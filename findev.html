@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinDev - Expense Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 24px;
+      color: #f8fafc;
+    }
+
+    h1 span { color: #60a5fa; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      max-width: 1200px;
+    }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .panel h2 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+
+    label:first-of-type { margin-top: 0; }
+
+    input {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus { border-color: #60a5fa; }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    button:hover { opacity: 0.85; }
+
+    .btn-add {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .btn-target {
+      background: #334155;
+      color: #e2e8f0;
+      margin-top: 8px;
+    }
+
+    .target-display {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .target-display strong { color: #e2e8f0; }
+
+    .total-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f1117;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border: 1px solid #2d3148;
+    }
+
+    .total-bar .label { font-size: 0.8rem; color: #94a3b8; }
+
+    .total-bar .amount {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .under { color: #4ade80; }
+    .over  { color: #f87171; }
+
+    .expense-list {
+      list-style: none;
+      max-height: 260px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #2d3148 transparent;
+    }
+
+    .expense-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      gap: 8px;
+    }
+
+    .expense-list li:hover { background: #252840; }
+
+    .expense-list .desc {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #cbd5e1;
+    }
+
+    .expense-list .date-lbl { color: #64748b; font-size: 0.78rem; }
+
+    .expense-list .amt { color: #f87171; font-weight: 600; white-space: nowrap; }
+
+    .expense-list .del-btn {
+      background: none;
+      border: none;
+      color: #475569;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0 4px;
+      margin: 0;
+      width: auto;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    .expense-list .del-btn:hover { color: #f87171; opacity: 1; }
+
+    .chart-wrapper {
+      position: relative;
+      height: 340px;
+    }
+
+    .empty-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #475569;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Fin<span>Dev</span></h1>
+
+<div class="layout">
+
+  <!-- Left Panel: Controls + List -->
+  <div style="display:flex; flex-direction:column; gap:20px;">
+
+    <!-- Add Expense -->
+    <div class="panel">
+      <h2>Add Expense</h2>
+
+      <label for="desc">Description</label>
+      <input id="desc" type="text" placeholder="e.g. Groceries" />
+
+      <label for="amount">Amount ($)</label>
+      <input id="amount" type="number" min="0" step="0.01" placeholder="0.00" />
+
+      <label for="date">Date</label>
+      <input id="date" type="date" />
+
+      <button class="btn-add" onclick="addExpense()">+ Add Expense</button>
+    </div>
+
+    <!-- Target -->
+    <div class="panel">
+      <h2>Spending Target</h2>
+
+      <label for="target">Monthly Target ($)</label>
+      <input id="target" type="number" min="0" step="1" placeholder="e.g. 1000" />
+      <button class="btn-target" onclick="setTarget()">Set Target</button>
+
+      <div class="target-display" id="targetDisplay">No target set.</div>
+    </div>
+
+    <!-- Expense List -->
+    <div class="panel" style="flex:1;">
+      <h2>Expenses</h2>
+      <div class="total-bar">
+        <span class="label">Total Spent</span>
+        <span class="amount under" id="totalDisplay">$0.00</span>
+      </div>
+      <ul class="expense-list" id="expenseList">
+        <li style="color:#475569; font-size:0.85rem;">No expenses yet.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Right Panel: Chart -->
+  <div class="panel">
+    <h2>Spending Over Time</h2>
+    <div class="chart-wrapper">
+      <canvas id="spendingChart"></canvas>
+      <div class="empty-state" id="emptyState">Add expenses to see the graph.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────────────────────────────
+  let expenses = JSON.parse(localStorage.getItem('findev_expenses') || '[]');
+  let target   = parseFloat(localStorage.getItem('findev_target') || '0');
+
+  // ── Chart setup ───────────────────────────────────────────────────────────
+  const ctx = document.getElementById('spendingChart').getContext('2d');
+
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Cumulative Spending ($)',
+        data: [],
+        borderColor: '#4ade80',
+        backgroundColor: 'rgba(74, 222, 128, 0.08)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#4ade80',
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        fill: true,
+        tension: 0.35,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' $' + ctx.parsed.y.toFixed(2)
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#64748b', maxRotation: 45 },
+          grid:  { color: '#1e2a3a' }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: '#64748b',
+            callback: v => '$' + v.toLocaleString()
+          },
+          grid: { color: '#1e2a3a' }
+        }
+      }
+    }
+  });
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function save() {
+    localStorage.setItem('findev_expenses', JSON.stringify(expenses));
+    localStorage.setItem('findev_target',   String(target));
+  }
+
+  function fmtDate(iso) {
+    // "2024-03-15" → "Mar 15"
+    const [, m, d] = iso.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[parseInt(m, 10) - 1] + ' ' + parseInt(d, 10);
+  }
+
+  function totalSpent() {
+    return expenses.reduce((s, e) => s + e.amount, 0);
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  function render() {
+    const total     = totalSpent();
+    const isOver    = target > 0 && total > target;
+    const color     = isOver ? '#f87171' : '#4ade80';
+    const colorFill = isOver ? 'rgba(248,113,113,0.08)' : 'rgba(74,222,128,0.08)';
+
+    // Total display
+    const totalEl = document.getElementById('totalDisplay');
+    totalEl.textContent = '$' + total.toFixed(2);
+    totalEl.className = 'amount ' + (isOver ? 'over' : 'under');
+
+    // Expense list
+    const list = document.getElementById('expenseList');
+    list.innerHTML = '';
+    if (expenses.length === 0) {
+      list.innerHTML = '<li style="color:#475569;font-size:0.85rem;">No expenses yet.</li>';
+    } else {
+      // sort by date ascending for display
+      const sorted = [...expenses].sort((a, b) => a.date.localeCompare(b.date));
+      sorted.forEach(exp => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span class="date-lbl">${fmtDate(exp.date)}</span>
+          <span class="desc">${escHtml(exp.desc)}</span>
+          <span class="amt">-$${exp.amount.toFixed(2)}</span>
+          <button class="del-btn" onclick="deleteExpense('${exp.id}')" title="Remove">✕</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    // Chart
+    const emptyState = document.getElementById('emptyState');
+    if (expenses.length === 0) {
+      chart.data.labels = [];
+      chart.data.datasets[0].data = [];
+      emptyState.style.display = 'flex';
+      chart.update();
+      return;
+    }
+
+    emptyState.style.display = 'none';
+
+    // Build cumulative data sorted by date
+    const sorted = [...expenses].sort((a, b) => a.date.localeCompare(b.date));
+
+    // Group by date: sum amounts per day
+    const byDate = {};
+    sorted.forEach(e => {
+      byDate[e.date] = (byDate[e.date] || 0) + e.amount;
+    });
+
+    const dates = Object.keys(byDate).sort();
+    let running = 0;
+    const cumulative = dates.map(d => { running += byDate[d]; return running; });
+
+    chart.data.labels = dates.map(fmtDate);
+    chart.data.datasets[0].data = cumulative;
+    chart.data.datasets[0].borderColor = color;
+    chart.data.datasets[0].backgroundColor = colorFill;
+    chart.data.datasets[0].pointBackgroundColor = color;
+
+    // Add target line annotation via a fake dataset
+    if (chart.data.datasets.length > 1) chart.data.datasets.splice(1);
+    if (target > 0) {
+      chart.data.datasets.push({
+        label: 'Target',
+        data: dates.map(() => target),
+        borderColor: '#fbbf24',
+        borderWidth: 1.5,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        fill: false,
+        tension: 0,
+      });
+    }
+
+    chart.update();
+  }
+
+  function escHtml(str) {
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+  function addExpense() {
+    const desc   = document.getElementById('desc').value.trim();
+    const amount = parseFloat(document.getElementById('amount').value);
+    const date   = document.getElementById('date').value;
+
+    if (!desc)         return alert('Please enter a description.');
+    if (!amount || amount <= 0) return alert('Please enter a valid amount.');
+    if (!date)         return alert('Please select a date.');
+
+    expenses.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2), desc, amount, date });
+    save();
+    render();
+
+    document.getElementById('desc').value   = '';
+    document.getElementById('amount').value = '';
+    // keep date for convenience
+  }
+
+  function deleteExpense(id) {
+    expenses = expenses.filter(e => e.id !== id);
+    save();
+    render();
+  }
+
+  function setTarget() {
+    const val = parseFloat(document.getElementById('target').value);
+    if (!val || val <= 0) { target = 0; } else { target = val; }
+    save();
+    updateTargetDisplay();
+    render();
+  }
+
+  function updateTargetDisplay() {
+    const el = document.getElementById('targetDisplay');
+    if (target > 0) {
+      el.innerHTML = 'Target: <strong>$' + target.toFixed(2) + '</strong>';
+    } else {
+      el.textContent = 'No target set.';
+    }
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  // Set today's date as default
+  document.getElementById('date').value = new Date().toISOString().split('T')[0];
+
+  if (target > 0) {
+    document.getElementById('target').value = target;
+    updateTargetDisplay();
+  }
+
+  render();
+</script>
+</body>
+</html>
