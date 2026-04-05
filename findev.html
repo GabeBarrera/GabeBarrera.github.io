@@ -20,21 +20,17 @@
       font-size: 1.8rem;
       font-weight: 700;
       letter-spacing: -0.5px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       color: #f8fafc;
     }
 
     h1 span { color: #60a5fa; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 320px 1fr;
+    .wrapper {
+      display: flex;
+      flex-direction: column;
       gap: 20px;
       max-width: 1200px;
-    }
-
-    @media (max-width: 768px) {
-      .layout { grid-template-columns: 1fr; }
     }
 
     .panel {
@@ -44,71 +40,99 @@
       padding: 20px;
     }
 
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
     .panel h2 {
       font-size: 0.85rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: #94a3b8;
-      margin-bottom: 16px;
     }
 
-    label {
-      display: block;
-      font-size: 0.8rem;
-      color: #94a3b8;
-      margin-bottom: 4px;
-      margin-top: 12px;
+    /* ── Filter bar ── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    label:first-of-type { margin-top: 0; }
-
-    input {
-      width: 100%;
+    .filter-bar input[type="date"] {
       background: #0f1117;
       border: 1px solid #2d3148;
       border-radius: 8px;
       color: #e2e8f0;
-      font-size: 0.95rem;
-      padding: 9px 12px;
+      font-size: 0.85rem;
+      padding: 6px 10px;
       outline: none;
       transition: border-color 0.15s;
+      width: auto;
     }
 
-    input:focus { border-color: #60a5fa; }
+    .filter-bar input[type="date"]:focus { border-color: #60a5fa; }
 
-    button {
-      width: 100%;
-      margin-top: 16px;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
+    .filter-divider {
+      width: 1px;
+      height: 20px;
+      background: #2d3148;
+    }
+
+    .filter-btn {
+      background: #252840;
+      border: 1px solid #2d3148;
+      border-radius: 6px;
+      color: #94a3b8;
+      font-size: 0.8rem;
       font-weight: 600;
+      padding: 5px 12px;
       cursor: pointer;
-      transition: opacity 0.15s;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+      width: auto;
+      margin: 0;
     }
 
-    button:hover { opacity: 0.85; }
+    .filter-btn:hover { background: #2d3148; color: #e2e8f0; opacity: 1; }
 
-    .btn-add {
-      background: #3b82f6;
+    .filter-btn.active {
+      background: #3b4fd4;
+      border-color: #3b4fd4;
       color: #fff;
     }
 
-    .btn-target {
-      background: #334155;
-      color: #e2e8f0;
-      margin-top: 8px;
+    /* ── Chart ── */
+    .chart-wrapper {
+      position: relative;
+      height: 360px;
     }
 
-    .target-display {
-      margin-top: 12px;
-      font-size: 0.85rem;
-      color: #94a3b8;
+    .empty-state {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #475569;
+      font-size: 0.9rem;
+      pointer-events: none;
     }
 
-    .target-display strong { color: #e2e8f0; }
+    /* ── Expense list panel ── */
+    .expense-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
 
     .total-bar {
       display: flex;
@@ -116,15 +140,16 @@
       align-items: center;
       background: #0f1117;
       border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
+      padding: 10px 16px;
       border: 1px solid #2d3148;
+      flex: 1;
+      min-width: 140px;
     }
 
-    .total-bar .label { font-size: 0.8rem; color: #94a3b8; }
+    .total-bar .lbl { font-size: 0.78rem; color: #94a3b8; }
 
     .total-bar .amount {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 700;
     }
 
@@ -133,7 +158,7 @@
 
     .expense-list {
       list-style: none;
-      max-height: 260px;
+      max-height: 220px;
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: #2d3148 transparent;
@@ -151,6 +176,7 @@
 
     .expense-list li:hover { background: #252840; }
 
+    .expense-list .date-lbl { color: #64748b; font-size: 0.78rem; white-space: nowrap; }
     .expense-list .desc {
       flex: 1;
       white-space: nowrap;
@@ -158,8 +184,6 @@
       text-overflow: ellipsis;
       color: #cbd5e1;
     }
-
-    .expense-list .date-lbl { color: #64748b; font-size: 0.78rem; }
 
     .expense-list .amt { color: #f87171; font-weight: 600; white-space: nowrap; }
 
@@ -178,33 +202,133 @@
 
     .expense-list .del-btn:hover { color: #f87171; opacity: 1; }
 
-    .chart-wrapper {
-      position: relative;
-      height: 340px;
+    /* ── Bottom row ── */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
-    .empty-state {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: #475569;
-      font-size: 0.9rem;
+    @media (max-width: 640px) {
+      .bottom-row { grid-template-columns: 1fr; }
+      .filter-bar { gap: 6px; }
     }
+
+    /* ── Form elements in bottom panels ── */
+    .bottom-row label {
+      display: block;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      margin-top: 12px;
+    }
+
+    .bottom-row label:first-of-type { margin-top: 0; }
+
+    .bottom-row input {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .bottom-row input:focus { border-color: #60a5fa; }
+
+    .btn-add {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #3b82f6;
+      color: #fff;
+      transition: opacity 0.15s;
+    }
+
+    .btn-add:hover { opacity: 0.85; }
+
+    .btn-target {
+      display: block;
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #334155;
+      color: #e2e8f0;
+      transition: opacity 0.15s;
+    }
+
+    .btn-target:hover { opacity: 0.85; }
+
+    .target-display {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .target-display strong { color: #e2e8f0; }
   </style>
 </head>
 <body>
 
 <h1>Fin<span>Dev</span></h1>
 
-<div class="layout">
+<div class="wrapper">
 
-  <!-- Left Panel: Controls + List -->
-  <div style="display:flex; flex-direction:column; gap:20px;">
+  <!-- 1. Graph panel (full width, top) -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Spending Over Time</h2>
+      <div class="filter-bar">
+        <input type="date" id="filterStart" onchange="onStartDateChange()" />
+        <div class="filter-divider"></div>
+        <button class="filter-btn" id="btn-week"  onclick="applyFilter('week')">Week</button>
+        <button class="filter-btn" id="btn-month" onclick="applyFilter('month')">Month</button>
+        <button class="filter-btn" id="btn-year"  onclick="applyFilter('year')">Year</button>
+        <button class="filter-btn" id="btn-ytd"   onclick="applyFilter('ytd')">YTD</button>
+        <button class="filter-btn active" id="btn-all" onclick="applyFilter('all')">All</button>
+      </div>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="spendingChart"></canvas>
+      <div class="empty-state" id="emptyState">Add expenses to see the graph.</div>
+    </div>
+  </div>
 
-    <!-- Add Expense -->
+  <!-- 2. Expenses panel (full width, below graph) -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Expenses</h2>
+    </div>
+    <div class="expense-controls">
+      <div class="total-bar">
+        <span class="lbl">Shown Total</span>
+        <span class="amount under" id="totalDisplay">$0.00</span>
+      </div>
+    </div>
+    <ul class="expense-list" id="expenseList">
+      <li style="color:#475569; font-size:0.85rem;">No expenses yet.</li>
+    </ul>
+  </div>
+
+  <!-- 3. Bottom row: Add Expense + Target -->
+  <div class="bottom-row">
+
     <div class="panel">
-      <h2>Add Expense</h2>
+      <h2 style="font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:16px;">Add Expense</h2>
 
       <label for="desc">Description</label>
       <input id="desc" type="text" placeholder="e.g. Groceries" />
@@ -212,56 +336,35 @@
       <label for="amount">Amount ($)</label>
       <input id="amount" type="number" min="0" step="0.01" placeholder="0.00" />
 
-      <label for="date">Date</label>
-      <input id="date" type="date" />
+      <label for="expDate">Date</label>
+      <input id="expDate" type="date" />
 
       <button class="btn-add" onclick="addExpense()">+ Add Expense</button>
     </div>
 
-    <!-- Target -->
     <div class="panel">
-      <h2>Spending Target</h2>
+      <h2 style="font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:16px;">Spending Target</h2>
 
-      <label for="target">Monthly Target ($)</label>
-      <input id="target" type="number" min="0" step="1" placeholder="e.g. 1000" />
+      <label for="targetInput">Target Amount ($)</label>
+      <input id="targetInput" type="number" min="0" step="1" placeholder="e.g. 1000" />
       <button class="btn-target" onclick="setTarget()">Set Target</button>
 
       <div class="target-display" id="targetDisplay">No target set.</div>
     </div>
 
-    <!-- Expense List -->
-    <div class="panel" style="flex:1;">
-      <h2>Expenses</h2>
-      <div class="total-bar">
-        <span class="label">Total Spent</span>
-        <span class="amount under" id="totalDisplay">$0.00</span>
-      </div>
-      <ul class="expense-list" id="expenseList">
-        <li style="color:#475569; font-size:0.85rem;">No expenses yet.</li>
-      </ul>
-    </div>
-
   </div>
 
-  <!-- Right Panel: Chart -->
-  <div class="panel">
-    <h2>Spending Over Time</h2>
-    <div class="chart-wrapper">
-      <canvas id="spendingChart"></canvas>
-      <div class="empty-state" id="emptyState">Add expenses to see the graph.</div>
-    </div>
-  </div>
-
-</div>
+</div><!-- /.wrapper -->
 
 <script>
   // ── State ──────────────────────────────────────────────────────────────────
-  let expenses = JSON.parse(localStorage.getItem('findev_expenses') || '[]');
-  let target   = parseFloat(localStorage.getItem('findev_target') || '0');
+  let expenses  = JSON.parse(localStorage.getItem('findev_expenses') || '[]');
+  let target    = parseFloat(localStorage.getItem('findev_target') || '0');
+  let activeFilter = 'all';   // 'week' | 'month' | 'year' | 'ytd' | 'all'
+  let filterStartISO = '';    // ISO date string used as the window start
 
   // ── Chart setup ───────────────────────────────────────────────────────────
   const ctx = document.getElementById('spendingChart').getContext('2d');
-
   const chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -270,7 +373,7 @@
         label: 'Cumulative Spending ($)',
         data: [],
         borderColor: '#4ade80',
-        backgroundColor: 'rgba(74, 222, 128, 0.08)',
+        backgroundColor: 'rgba(74,222,128,0.08)',
         borderWidth: 2.5,
         pointBackgroundColor: '#4ade80',
         pointRadius: 5,
@@ -286,7 +389,7 @@
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: ctx => ' $' + ctx.parsed.y.toFixed(2)
+            label: c => ' $' + c.parsed.y.toFixed(2)
           }
         }
       },
@@ -313,53 +416,102 @@
     localStorage.setItem('findev_target',   String(target));
   }
 
+  function todayISO() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function addDays(iso, n) {
+    const d = new Date(iso + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return d.toISOString().split('T')[0];
+  }
+
   function fmtDate(iso) {
-    // "2024-03-15" → "Mar 15"
     const [, m, d] = iso.split('-');
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return months[parseInt(m, 10) - 1] + ' ' + parseInt(d, 10);
   }
 
-  function totalSpent() {
-    return expenses.reduce((s, e) => s + e.amount, 0);
+  function escHtml(str) {
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ── Filter logic ───────────────────────────────────────────────────────────
+  // Returns { start: ISO, end: ISO } for the current filter + start date.
+  function getWindow() {
+    const today  = todayISO();
+    const anchor = filterStartISO || today;  // anchor is the user-chosen start date
+
+    if (activeFilter === 'all') {
+      return { start: null, end: null };
+    }
+    if (activeFilter === 'week') {
+      return { start: anchor, end: addDays(anchor, 6) };
+    }
+    if (activeFilter === 'month') {
+      const d = new Date(anchor + 'T00:00:00');
+      const end = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      return { start: anchor, end: end.toISOString().split('T')[0] };
+    }
+    if (activeFilter === 'year') {
+      const d = new Date(anchor + 'T00:00:00');
+      return { start: anchor, end: `${d.getFullYear()}-12-31` };
+    }
+    if (activeFilter === 'ytd') {
+      const d = new Date(anchor + 'T00:00:00');
+      return { start: `${d.getFullYear()}-01-01`, end: today };
+    }
+    return { start: null, end: null };
+  }
+
+  function filterExpenses() {
+    const { start, end } = getWindow();
+    if (!start && !end) return expenses;
+    return expenses.filter(e => {
+      if (start && e.date < start) return false;
+      if (end   && e.date > end)   return false;
+      return true;
+    });
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
   function render() {
-    const total     = totalSpent();
-    const isOver    = target > 0 && total > target;
+    const visible = filterExpenses();
+    const total   = visible.reduce((s, e) => s + e.amount, 0);
+    const isOver  = target > 0 && total > target;
     const color     = isOver ? '#f87171' : '#4ade80';
     const colorFill = isOver ? 'rgba(248,113,113,0.08)' : 'rgba(74,222,128,0.08)';
 
-    // Total display
+    // Total
     const totalEl = document.getElementById('totalDisplay');
     totalEl.textContent = '$' + total.toFixed(2);
-    totalEl.className = 'amount ' + (isOver ? 'over' : 'under');
+    totalEl.className   = 'amount ' + (isOver ? 'over' : 'under');
 
     // Expense list
     const list = document.getElementById('expenseList');
     list.innerHTML = '';
-    if (expenses.length === 0) {
-      list.innerHTML = '<li style="color:#475569;font-size:0.85rem;">No expenses yet.</li>';
+    if (visible.length === 0) {
+      list.innerHTML = '<li style="color:#475569;font-size:0.85rem;">No expenses in this range.</li>';
     } else {
-      // sort by date ascending for display
-      const sorted = [...expenses].sort((a, b) => a.date.localeCompare(b.date));
-      sorted.forEach(exp => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <span class="date-lbl">${fmtDate(exp.date)}</span>
-          <span class="desc">${escHtml(exp.desc)}</span>
-          <span class="amt">-$${exp.amount.toFixed(2)}</span>
-          <button class="del-btn" onclick="deleteExpense('${exp.id}')" title="Remove">✕</button>`;
-        list.appendChild(li);
-      });
+      [...visible]
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .forEach(exp => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <span class="date-lbl">${fmtDate(exp.date)}</span>
+            <span class="desc">${escHtml(exp.desc)}</span>
+            <span class="amt">-$${exp.amount.toFixed(2)}</span>
+            <button class="del-btn" onclick="deleteExpense('${exp.id}')" title="Remove">✕</button>`;
+          list.appendChild(li);
+        });
     }
 
     // Chart
     const emptyState = document.getElementById('emptyState');
-    if (expenses.length === 0) {
+    if (visible.length === 0) {
       chart.data.labels = [];
       chart.data.datasets[0].data = [];
+      if (chart.data.datasets.length > 1) chart.data.datasets.splice(1);
       emptyState.style.display = 'flex';
       chart.update();
       return;
@@ -367,16 +519,11 @@
 
     emptyState.style.display = 'none';
 
-    // Build cumulative data sorted by date
-    const sorted = [...expenses].sort((a, b) => a.date.localeCompare(b.date));
-
-    // Group by date: sum amounts per day
+    // Group by date
     const byDate = {};
-    sorted.forEach(e => {
-      byDate[e.date] = (byDate[e.date] || 0) + e.amount;
-    });
-
+    visible.forEach(e => { byDate[e.date] = (byDate[e.date] || 0) + e.amount; });
     const dates = Object.keys(byDate).sort();
+
     let running = 0;
     const cumulative = dates.map(d => { running += byDate[d]; return running; });
 
@@ -386,7 +533,7 @@
     chart.data.datasets[0].backgroundColor = colorFill;
     chart.data.datasets[0].pointBackgroundColor = color;
 
-    // Add target line annotation via a fake dataset
+    // Target line
     if (chart.data.datasets.length > 1) chart.data.datasets.splice(1);
     if (target > 0) {
       chart.data.datasets.push({
@@ -404,27 +551,68 @@
     chart.update();
   }
 
-  function escHtml(str) {
-    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // ── Filter actions ─────────────────────────────────────────────────────────
+  function applyFilter(mode) {
+    activeFilter = mode;
+
+    // For preset filters, auto-compute the start date
+    const today = todayISO();
+    if (mode === 'week') {
+      filterStartISO = addDays(today, -6);
+    } else if (mode === 'month') {
+      const d = new Date();
+      filterStartISO = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-01`;
+    } else if (mode === 'year') {
+      filterStartISO = `${new Date().getFullYear()}-01-01`;
+    } else if (mode === 'ytd') {
+      filterStartISO = `${new Date().getFullYear()}-01-01`;
+    } else {
+      filterStartISO = '';
+    }
+
+    // Sync date picker to computed start
+    document.getElementById('filterStart').value = filterStartISO;
+
+    // Update button highlights
+    ['all','week','month','year','ytd'].forEach(k => {
+      document.getElementById('btn-' + k).classList.toggle('active', k === mode);
+    });
+
+    render();
+  }
+
+  function onStartDateChange() {
+    const val = document.getElementById('filterStart').value;
+    filterStartISO = val || '';
+    // If user manually picks a date while a preset is active, keep the preset
+    // mode but use the new start date. If 'all' was active, switch to a neutral
+    // custom state (treat like 'year' window from that date).
+    if (activeFilter === 'all' && filterStartISO) {
+      // don't auto-switch; just filter from start date with no end.
+      // We'll treat 'all' + start date as "from start date to infinity".
+    }
+    render();
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
   function addExpense() {
     const desc   = document.getElementById('desc').value.trim();
     const amount = parseFloat(document.getElementById('amount').value);
-    const date   = document.getElementById('date').value;
+    const date   = document.getElementById('expDate').value;
 
-    if (!desc)         return alert('Please enter a description.');
+    if (!desc)                return alert('Please enter a description.');
     if (!amount || amount <= 0) return alert('Please enter a valid amount.');
-    if (!date)         return alert('Please select a date.');
+    if (!date)                return alert('Please select a date.');
 
-    expenses.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2), desc, amount, date });
+    expenses.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+      desc, amount, date
+    });
     save();
     render();
 
     document.getElementById('desc').value   = '';
     document.getElementById('amount').value = '';
-    // keep date for convenience
   }
 
   function deleteExpense(id) {
@@ -434,29 +622,23 @@
   }
 
   function setTarget() {
-    const val = parseFloat(document.getElementById('target').value);
-    if (!val || val <= 0) { target = 0; } else { target = val; }
+    const val = parseFloat(document.getElementById('targetInput').value);
+    target = (!val || val <= 0) ? 0 : val;
     save();
-    updateTargetDisplay();
+    const el = document.getElementById('targetDisplay');
+    el.innerHTML = target > 0
+      ? 'Target: <strong>$' + target.toFixed(2) + '</strong>'
+      : 'No target set.';
     render();
   }
 
-  function updateTargetDisplay() {
-    const el = document.getElementById('targetDisplay');
-    if (target > 0) {
-      el.innerHTML = 'Target: <strong>$' + target.toFixed(2) + '</strong>';
-    } else {
-      el.textContent = 'No target set.';
-    }
-  }
-
   // ── Init ───────────────────────────────────────────────────────────────────
-  // Set today's date as default
-  document.getElementById('date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('expDate').value = todayISO();
 
   if (target > 0) {
-    document.getElementById('target').value = target;
-    updateTargetDisplay();
+    document.getElementById('targetInput').value = target;
+    document.getElementById('targetDisplay').innerHTML =
+      'Target: <strong>$' + target.toFixed(2) + '</strong>';
   }
 
   render();
