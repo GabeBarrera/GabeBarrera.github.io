@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reich Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #1a1a1a;
+      --doc:         #2e2e2e;
+      --doc-light:   #383838;
+      --doc-dark:    #242424;
+      --steel:       #4a4a4a;
+      --iron:        #606060;
+      --chrome:      #8a8a8a;
+      --ash:         #b0b0b0;
+      --ink:         #e8e4dc;
+      --red-bright:  #cc2222;
+      --blue-bright: #2244aa;
+      --gold:        #b8922a;
+      --gold-dim:    #7a6018;
+      --border-dim:  #3a3a3a;
+      --yes-green:   #2a5a2a;
+      --no-red:      #5a1a1a;
+      --fascist-br:  #cc2222;
+      --liberal-br:  #3366cc;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #1a1a1a;
+      background-image:
+        repeating-linear-gradient(0deg,transparent,transparent 48px,rgba(255,255,255,.02) 48px,rgba(255,255,255,.02) 49px),
+        repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(255,255,255,.015) 48px,rgba(255,255,255,.015) 49px);
+      min-height:100vh; display:flex; justify-content:center; align-items:flex-start;
+      padding:40px 20px; font-family:'Courier Prime',monospace;
+    }
+    .document {
+      width:100%; max-width:780px; background-color:#2e2e2e;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E"),
+        linear-gradient(160deg,#383838 0%,#2e2e2e 45%,#242424 100%);
+      border:1px solid #4a4a4a; border-top:3px solid #606060;
+      box-shadow:0 0 0 1px #111,0 0 0 4px #0a0a0a,0 0 0 5px #222,10px 16px 60px rgba(0,0,0,.85),inset 0 0 120px rgba(0,0,0,.2);
+      padding:50px 64px 56px; position:relative; color:var(--ink);
+    }
+    .document::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at top left,rgba(0,0,0,.35) 0%,transparent 45%),radial-gradient(ellipse at bottom right,rgba(0,0,0,.4) 0%,transparent 45%); pointer-events:none; z-index:0; }
+    .document::after  { content:''; position:absolute; inset:0; background:linear-gradient(transparent calc(33% - .5px),rgba(255,255,255,.03) 33%,rgba(255,255,255,.03) calc(33% + 1px),transparent calc(33% + 1px)),linear-gradient(transparent calc(66% - .5px),rgba(255,255,255,.03) 66%,rgba(255,255,255,.03) calc(66% + 1px),transparent calc(66% + 1px)); pointer-events:none; z-index:0; }
+    .content { position:relative; z-index:1; }
+    .watermark { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-32deg); font-family:'Special Elite',cursive; font-size:88px; color:rgba(255,255,255,.025); letter-spacing:6px; pointer-events:none; white-space:nowrap; z-index:0; user-select:none; }
+
+    /* ── Header ── */
+    .header { text-align:center; border-top:1px solid #606060; border-bottom:1px solid #606060; padding:16px 0 14px; margin-bottom:8px; position:relative; }
+    .header::before,.header::after { content:''; position:absolute; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#4a4a4a 20%,#4a4a4a 80%,transparent); }
+    .header::before { top:3px; } .header::after { bottom:3px; }
+    .top-banner { font-family:'Special Elite',cursive; font-size:10px; letter-spacing:7px; color:var(--chrome,#8a8a8a); text-transform:uppercase; margin-bottom:10px; }
+    h1 { font-family:'Special Elite',cursive; font-size:30px; letter-spacing:4px; line-height:1.15; color:var(--ink); text-shadow:0 0 20px rgba(255,255,255,.06),2px 2px 0 rgba(0,0,0,.5); margin-bottom:5px; }
+    .subtitle { font-size:10px; letter-spacing:5px; color:#8a8a8a; text-transform:uppercase; }
+    .meta-row { display:flex; justify-content:space-between; font-size:10px; letter-spacing:2px; color:#606060; margin-bottom:26px; border-bottom:1px solid var(--border-dim); padding-bottom:12px; }
+    .section-label { font-family:'Special Elite',cursive; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#8a8a8a; margin-bottom:12px; border-bottom:1px solid var(--border-dim); padding-bottom:5px; }
+
+    /* ── Input ── */
+    .input-section { margin-bottom:28px; }
+    .input-row { display:flex; gap:10px; margin-bottom:9px; align-items:center; }
+    .slot-number { font-family:'Special Elite',cursive; font-size:11px; color:#606060; width:26px; text-align:right; flex-shrink:0; }
+    input[type="text"] { flex:1; background:transparent; border:none; border-bottom:1px solid #4a4a4a; font-family:'Special Elite',cursive; font-size:15px; color:var(--ink); padding:4px 2px; outline:none; caret-color:var(--ash,#b0b0b0); transition:border-color .2s; letter-spacing:1px; }
+    input[type="text"]::placeholder { color:#4a4a4a; font-size:11px; letter-spacing:2px; }
+    input[type="text"]:focus { border-bottom:1px solid #8a8a8a; background:rgba(255,255,255,.02); }
+    .type-toggle { flex-shrink:0; display:flex; align-items:center; border:1px solid #4a4a4a; overflow:hidden; height:24px; }
+    .type-toggle input[type="radio"] { display:none; }
+    .type-toggle label { font-family:'Special Elite',cursive; font-size:9px; letter-spacing:1.5px; padding:0 7px; height:100%; display:flex; align-items:center; cursor:pointer; color:#606060; background:transparent; transition:background .15s,color .15s; user-select:none; }
+    .type-toggle label:first-of-type { border-right:1px solid #4a4a4a; }
+    .type-toggle input[value="human"]:checked+label { background:#606060; color:var(--ink); }
+    .type-toggle input[value="cpu"]:checked+label   { background:#333; color:#8a8a8a; }
+
+    /* ── Buttons ── */
+    .btn { display:block; width:100%; padding:13px; font-family:'Special Elite',cursive; text-transform:uppercase; cursor:pointer; transition:background .15s,transform .08s,box-shadow .08s; letter-spacing:4px; border:1px solid; }
+    .btn:active { transform:translate(1px,1px); }
+    .btn-primary { background:#111; color:#b0b0b0; border-color:#4a4a4a; font-size:15px; box-shadow:3px 3px 0 #0a0a0a; margin-top:18px; }
+    .btn-primary:hover { background:#1c1c1c; }
+    .btn-primary:active { box-shadow:1px 1px 0 #0a0a0a; }
+    .btn-gold { background:#1a1500; color:var(--gold); border-color:var(--gold-dim); font-size:15px; box-shadow:3px 3px 0 #0a0900; margin-top:12px; }
+    .btn-gold:hover { background:#221c00; }
+    .btn-gold:active { box-shadow:1px 1px 0 #0a0900; }
+    .btn-secondary { background:transparent; color:#606060; border-color:var(--border-dim); border-style:dashed; font-size:11px; margin-top:10px; }
+    .btn-secondary:hover { background:rgba(255,255,255,.03); color:#b0b0b0; }
+    .btn-debug { display:inline-block; width:auto; padding:5px 14px; font-family:'Special Elite',cursive; font-size:10px; letter-spacing:3px; text-transform:uppercase; cursor:pointer; background:#0a0a0a; color:#666; border:1px dashed #444; transition:all .15s; margin-top:14px; }
+    .btn-debug:hover { color:#ffdd44; border-color:#665500; background:#111100; }
+    .btn-debug.active { color:#ffdd44; border-color:#886600; background:#111100; }
+    .error-msg { display:none; font-size:11px; letter-spacing:2px; color:#cc4444; text-align:center; padding:8px; border:1px solid #662222; margin-top:10px; font-family:'Special Elite',cursive; }
+
+    /* ── Results ── */
+    #results { display:none; }
+    .op-title { font-family:'Special Elite',cursive; font-size:18px; letter-spacing:4px; color:var(--ink); text-align:center; margin-bottom:4px; }
+    .teams-hidden-notice { text-align:center; padding:22px 0; border:1px dashed var(--border-dim); margin-top:16px; margin-bottom:4px; }
+    .teams-hidden-notice .lock-icon { font-size:26px; color:#4a4a4a; display:block; margin-bottom:6px; }
+    .teams-hidden-notice p { font-size:10px; letter-spacing:4px; color:#606060; text-transform:uppercase; }
+    .debug-panel { display:none; margin-top:14px; border:1px solid #443300; background:#0d0d00; padding:16px; }
+    .debug-panel.visible { display:block; }
+    .debug-panel-label { font-family:'Special Elite',cursive; font-size:9px; letter-spacing:5px; color:#665500; text-transform:uppercase; margin-bottom:12px; text-align:center; }
+    .teams-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .team-stamp { font-family:'Special Elite',cursive; font-size:15px; letter-spacing:3px; text-transform:uppercase; text-align:center; padding:9px; border:2px solid; margin-bottom:10px; }
+    .team-stamp.red  { color:var(--red-bright); border-color:#8b1a1a; background:rgba(139,26,26,.12); box-shadow:2px 2px 0 rgba(139,26,26,.3); transform:rotate(-.8deg); }
+    .team-stamp.blue { color:var(--blue-bright); border-color:#1a2e5a; background:rgba(26,46,90,.12); box-shadow:2px 2px 0 rgba(26,46,90,.3); transform:rotate(.8deg); }
+    .team-badge { font-size:9px; letter-spacing:2px; opacity:.65; display:block; margin-top:2px; }
+    .soldier-list { list-style:none; padding:0; }
+    .soldier-list li { font-family:'Special Elite',cursive; font-size:13px; padding:5px 0 5px 14px; border-bottom:1px solid var(--border-dim); color:#b0b0b0; position:relative; letter-spacing:1px; animation:fadeIn .3s ease both; }
+    .soldier-list li::before { content:'»'; position:absolute; left:0; font-size:10px; top:6px; color:#606060; }
+    @keyframes fadeIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
+    .empty-team { font-size:11px; color:#4a4a4a; letter-spacing:2px; font-style:italic; text-align:center; padding:10px 0; }
+    .cpu-tag { font-size:8px; letter-spacing:1px; vertical-align:middle; background:#333; color:#8a8a8a; padding:1px 4px; margin-left:5px; font-family:'Courier Prime',monospace; }
+    .hitler-tag { font-size:8px; letter-spacing:1px; vertical-align:middle; background:#3a0000; color:#ff6666; border:1px solid #661111; padding:1px 5px; margin-left:5px; font-family:'Courier Prime',monospace; }
+
+    /* ── Game ── */
+    #game-section { display:none; }
+    .turn-bar { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:20px; }
+    .turn-counter { font-family:'Courier Prime',monospace; font-size:10px; letter-spacing:3px; color:#606060; }
+    .rotation-note { font-size:10px; letter-spacing:2px; color:#4a4a4a; }
+
+    /* ── Scoreboard ── */
+    .policy-scoreboard { display:flex; gap:16px; margin-bottom:24px; align-items:stretch; }
+    .score-track { flex:1; border:1px solid var(--border-dim); padding:12px 14px; background:rgba(0,0,0,.2); }
+    .score-track-label { font-family:'Special Elite',cursive; font-size:9px; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .score-track.fascist-track .score-track-label { color:var(--fascist-br); }
+    .score-track.liberal-track .score-track-label { color:var(--liberal-br); }
+    .score-pips { display:flex; gap:5px; align-items:center; flex-wrap:wrap; }
+    .score-pip { width:22px; height:30px; border-radius:3px; border:1px solid; display:flex; align-items:center; justify-content:center; font-size:11px; transition:background .3s,box-shadow .3s; }
+    .score-track.fascist-track .score-pip { border-color:#441111; background:#1a0505; color:#441111; }
+    .score-track.fascist-track .score-pip.filled { background:linear-gradient(160deg,#3a0808,#1a0303); border-color:var(--fascist-br); color:#ffaaaa; box-shadow:0 0 8px rgba(204,34,34,.4); }
+    .score-track.liberal-track .score-pip { border-color:#111444; background:#050510; color:#111444; }
+    .score-track.liberal-track .score-pip.filled { background:linear-gradient(160deg,#0a1a3a,#050d20); border-color:var(--liberal-br); color:#aaccff; box-shadow:0 0 8px rgba(51,102,204,.4); }
+    .score-win-label { font-size:8px; letter-spacing:2px; text-transform:uppercase; margin-top:6px; }
+    .score-track.fascist-track .score-win-label { color:#662222; }
+    .score-track.liberal-track .score-win-label { color:#224466; }
+
+    /* ── President box ── */
+    .president-box { border:1px solid #4a4a4a; border-top:2px solid #8a8a8a; padding:22px 20px 18px; text-align:center; margin:0 auto 24px; background:rgba(0,0,0,.25); box-shadow:0 4px 20px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04); }
+    .president-eyebrow { font-family:'Special Elite',cursive; font-size:9px; letter-spacing:6px; text-transform:uppercase; color:#606060; margin-bottom:8px; display:block; }
+    .president-star { font-size:18px; display:block; margin-bottom:6px; color:var(--gold); animation:starPulse 2.4s ease-in-out infinite; }
+    @keyframes starPulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .president-name { font-family:'Special Elite',cursive; font-size:34px; letter-spacing:4px; color:var(--ink); line-height:1.1; word-break:break-word; }
+    @keyframes flashIn { 0%{opacity:0;transform:scale(.88) translateY(8px)} 65%{opacity:1;transform:scale(1.03)} 100%{transform:scale(1)} }
+    .president-name.flash { animation:flashIn .4s ease both; }
+    .president-meta { margin-top:10px; display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+    .p-badge { font-family:'Special Elite',cursive; font-size:9px; letter-spacing:2px; padding:2px 8px; border:1px solid; }
+    .p-badge.red     { color:var(--red-bright);  border-color:#8b1a1a; }
+    .p-badge.blue    { color:var(--blue-bright); border-color:#1a2e5a; }
+    .p-badge.neutral { color:#606060; border-color:var(--border-dim); }
+    .p-badge.hitler  { color:#ff6666; border-color:#661111; background:rgba(60,0,0,.4); }
+
+    /* ── Chancellor nomination ── */
+    .chancellor-section { border:1px solid var(--border-dim); padding:18px 20px; margin-bottom:24px; background:rgba(0,0,0,.15); }
+    .chancellor-label { font-family:'Special Elite',cursive; font-size:10px; letter-spacing:4px; text-transform:uppercase; color:#8a8a8a; margin-bottom:14px; text-align:center; display:block; }
+    .chancellor-display { display:none; text-align:center; padding:10px 0 6px; }
+    .chancellor-display-name { font-family:'Special Elite',cursive; font-size:22px; letter-spacing:3px; color:var(--gold); animation:flashIn .4s ease both; }
+    .chancellor-display-sub { font-size:9px; letter-spacing:4px; color:#606060; margin-top:4px; text-transform:uppercase; }
+    .nominee-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }
+    .btn-nominee { padding:9px 10px; background:#1a1a1a; color:#b0b0b0; font-family:'Special Elite',cursive; font-size:12px; letter-spacing:1.5px; border:1px solid #4a4a4a; cursor:pointer; text-align:left; transition:background .12s,border-color .12s,color .12s; }
+    .btn-nominee:hover { background:#252525; border-color:#8a8a8a; color:var(--ink); }
+    .btn-nominee.selected { background:#0a1a0a; border-color:var(--yes-green); color:#88cc88; }
+    .btn-nominee.ineligible { opacity:.35; cursor:not-allowed; border-style:dashed; }
+    .btn-nominee.ineligible:hover { background:#1a1a1a; border-color:#4a4a4a; color:#b0b0b0; }
+    .nominee-team-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+    .nominee-team-dot.red  { background:var(--red-bright); }
+    .nominee-team-dot.blue { background:var(--blue-bright); }
+    .ineligible-hint { font-size:8px; letter-spacing:2px; color:#4a4a4a; float:right; font-family:'Courier Prime',monospace; }
+
+    /* ── Voting ── */
+    #voting-section { display:none; margin-bottom:24px; }
+    .vote-header { font-family:'Special Elite',cursive; font-size:11px; letter-spacing:4px; color:#8a8a8a; text-align:center; margin-bottom:16px; text-transform:uppercase; }
+    .vote-spotlight { border:1px solid #4a4a4a; border-top:2px solid #8a8a8a; background:rgba(0,0,0,.3); padding:20px; text-align:center; margin-bottom:14px; }
+    .spotlight-eyebrow { font-size:9px; letter-spacing:5px; color:#606060; text-transform:uppercase; margin-bottom:8px; }
+    .spotlight-name { font-family:'Special Elite',cursive; font-size:24px; letter-spacing:3px; color:var(--ink); margin-bottom:16px; }
+    .spotlight-name.flash { animation:flashIn .35s ease both; }
+    .spotlight-buttons { display:flex; gap:12px; justify-content:center; }
+    .vote-progress { font-size:9px; letter-spacing:3px; color:#4a4a4a; text-align:center; margin-bottom:14px; text-transform:uppercase; }
+    .btn-vote-yes,.btn-vote-no { font-family:'Special Elite',cursive; font-size:18px; letter-spacing:4px; padding:12px 32px; border:2px solid; cursor:pointer; transition:background .12s,color .12s,transform .08s; min-width:110px; }
+    .btn-vote-yes:active,.btn-vote-no:active { transform:translate(1px,1px); }
+    .btn-vote-yes { background:rgba(42,90,42,.15); color:#88cc88; border-color:var(--yes-green); }
+    .btn-vote-yes:hover { background:var(--yes-green); color:#ccffcc; }
+    .btn-vote-no  { background:rgba(90,26,26,.15);  color:#cc8888; border-color:var(--no-red); }
+    .btn-vote-no:hover  { background:var(--no-red); color:#ffcccc; }
+    .vote-log { display:none; }
+    .vote-log-row { display:flex; align-items:center; justify-content:space-between; padding:6px 8px; border-bottom:1px solid var(--border-dim); }
+    .vote-log-name { font-family:'Special Elite',cursive; font-size:13px; letter-spacing:1px; color:#b0b0b0; }
+    .vote-result-tag { font-family:'Special Elite',cursive; font-size:10px; letter-spacing:2px; padding:3px 8px; border:1px solid; }
+    .vote-result-tag.yes { color:#88cc88; border-color:var(--yes-green); background:rgba(42,90,42,.3); }
+    .vote-result-tag.no  { color:#cc8888; border-color:var(--no-red);    background:rgba(90,26,26,.3); }
+    .vote-tally { display:none; margin-top:16px; padding:14px; border:1px solid var(--border-dim); text-align:center; background:rgba(0,0,0,.2); }
+    .tally-result { font-family:'Special Elite',cursive; font-size:20px; letter-spacing:4px; margin-bottom:6px; }
+    .tally-result.approved { color:#88cc88; }
+    .tally-result.rejected { color:#cc8888; }
+    .tally-sub { font-size:10px; letter-spacing:3px; color:#606060; text-transform:uppercase; }
+
+    /* ── Policy tiles ── */
+    #policy-section { display:none; margin-bottom:24px; }
+    .policy-phase-header { text-align:center; margin-bottom:20px; }
+    .policy-phase-eyebrow { font-size:9px; letter-spacing:6px; color:#606060; text-transform:uppercase; margin-bottom:6px; }
+    .policy-phase-actor { font-family:'Special Elite',cursive; font-size:20px; letter-spacing:3px; color:var(--gold); margin-bottom:4px; }
+    .policy-phase-instruction { font-size:10px; letter-spacing:3px; color:#8a8a8a; text-transform:uppercase; }
+    .tile-row { display:flex; gap:18px; justify-content:center; margin:24px 0 8px; flex-wrap:wrap; }
+    .policy-tile { width:120px; height:170px; border-radius:6px; border:2px solid; cursor:pointer; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; transition:transform .18s,box-shadow .18s,opacity .2s; user-select:none; overflow:hidden; }
+    .policy-tile::before { content:''; position:absolute; inset:0; background:linear-gradient(160deg,rgba(255,255,255,.06) 0%,transparent 60%); pointer-events:none; }
+    .policy-tile:hover:not(.discarded):not(.selected) { transform:translateY(-6px) scale(1.03); box-shadow:0 12px 30px rgba(0,0,0,.6); }
+    .policy-tile:active:not(.discarded):not(.selected) { transform:translateY(-2px) scale(1.01); }
+    .policy-tile.fascist { background:linear-gradient(160deg,#3a0808,#1a0303); border-color:var(--fascist-br); box-shadow:0 4px 16px rgba(139,26,26,.4),inset 0 0 30px rgba(204,34,34,.08); }
+    .policy-tile.liberal { background:linear-gradient(160deg,#0a1a38,#050d1f); border-color:var(--liberal-br); box-shadow:0 4px 16px rgba(26,58,106,.4),inset 0 0 30px rgba(51,102,204,.08); }
+    .policy-tile.discarded { opacity:.2; cursor:default; transform:scale(.95); pointer-events:none; }
+    .policy-tile.selected  { transform:translateY(-4px); box-shadow:0 0 0 3px #fff2,0 14px 32px rgba(0,0,0,.7); }
+    .tile-icon  { font-size:32px; line-height:1; }
+    .tile-label { font-family:'Special Elite',cursive; font-size:11px; letter-spacing:2px; text-align:center; line-height:1.3; padding:0 8px; }
+    .policy-tile.fascist .tile-label { color:#ffaaaa; }
+    .policy-tile.liberal .tile-label { color:#aaccff; }
+    .tile-type-badge { position:absolute; bottom:10px; font-size:8px; letter-spacing:2px; text-transform:uppercase; opacity:.65; }
+    .policy-tile.fascist .tile-type-badge { color:var(--fascist-br); }
+    .policy-tile.liberal .tile-type-badge { color:var(--liberal-br); }
+    .discard-hint { font-size:9px; letter-spacing:3px; color:#4a4a4a; text-align:center; margin-top:6px; text-transform:uppercase; }
+    .enacted-policy { display:none; text-align:center; padding:28px 20px; border:2px solid; margin-top:20px; position:relative; overflow:hidden; }
+    .enacted-policy.fascist { border-color:var(--fascist-br); background:linear-gradient(160deg,#2a0505,#100202); box-shadow:0 0 40px rgba(204,34,34,.25),inset 0 0 60px rgba(204,34,34,.06); }
+    .enacted-policy.liberal { border-color:var(--liberal-br); background:linear-gradient(160deg,#050f25,#020810); box-shadow:0 0 40px rgba(51,102,204,.25),inset 0 0 60px rgba(51,102,204,.06); }
+    .enacted-eyebrow { font-size:9px; letter-spacing:6px; text-transform:uppercase; margin-bottom:10px; }
+    .enacted-policy.fascist .enacted-eyebrow { color:#aa4444; }
+    .enacted-policy.liberal .enacted-eyebrow { color:#4466aa; }
+    .enacted-icon  { font-size:48px; display:block; margin-bottom:10px; }
+    .enacted-title { font-family:'Special Elite',cursive; font-size:28px; letter-spacing:5px; text-transform:uppercase; margin-bottom:6px; }
+    .enacted-policy.fascist .enacted-title { color:#ffcccc; text-shadow:0 0 20px rgba(204,34,34,.5); }
+    .enacted-policy.liberal .enacted-title { color:#cce0ff; text-shadow:0 0 20px rgba(51,102,204,.5); }
+    .enacted-sub { font-size:10px; letter-spacing:4px; text-transform:uppercase; }
+    .enacted-policy.fascist .enacted-sub { color:#884444; }
+    .enacted-policy.liberal .enacted-sub { color:#446688; }
+    @keyframes revealPolicy { 0%{opacity:0;transform:scale(.8) rotateX(20deg)} 60%{opacity:1;transform:scale(1.04) rotateX(-3deg)} 100%{transform:scale(1) rotateX(0)} }
+    .enacted-policy.reveal { animation:revealPolicy .55s ease both; }
+
+    /* ── Roster table ── */
+    .roster-table { width:100%; border-collapse:collapse; font-family:'Special Elite',cursive; font-size:12px; margin-bottom:22px; }
+    .roster-table th { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:#606060; border-bottom:1px solid var(--border-dim); padding:4px 8px; text-align:left; }
+    .roster-table td { padding:5px 8px; border-bottom:1px solid var(--border-dim); color:#b0b0b0; letter-spacing:1px; transition:background .2s; }
+    .team-col { display:none; }
+    .team-col.debug-visible { display:table-cell; }
+    .team-col-header { display:none; }
+    .team-col-header.debug-visible { display:table-cell; }
+    .roster-table tr.row-president  td { background:rgba(255,255,255,.05); }
+    .roster-table tr.row-chancellor td { background:rgba(184,146,42,.08); }
+    .roster-table tr.row-president .name-cell::before  { content:'\2605  '; font-size:9px; color:var(--gold); }
+    .roster-table tr.row-chancellor .name-cell::before { content:'\2666  '; font-size:9px; color:var(--gold); }
+    .order-num { color:#4a4a4a; font-size:10px; }
+    .team-pip { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+    .team-pip.red  { background:var(--red-bright); }
+    .team-pip.blue { background:var(--blue-bright); }
+
+    /* Clickable name cells */
+    .name-cell-clickable { cursor:pointer; }
+    .name-cell-clickable:hover { color:var(--ink) !important; text-decoration:underline; text-decoration-color:#4a4a4a; text-underline-offset:3px; }
+
+    /* ── Player identity modal ── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.85);
+      z-index:1000; align-items:center; justify-content:center;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal-card {
+      background:#222; border:1px solid #4a4a4a; border-top:3px solid #8a8a8a;
+      padding:36px 40px; max-width:360px; width:90%; text-align:center;
+      box-shadow:0 0 60px rgba(0,0,0,.9),inset 0 0 40px rgba(0,0,0,.3);
+      animation:flashIn .3s ease both;
+      position:relative;
+    }
+    .modal-eyebrow { font-size:9px; letter-spacing:6px; color:#606060; text-transform:uppercase; margin-bottom:12px; }
+    .modal-name { font-family:'Special Elite',cursive; font-size:30px; letter-spacing:4px; color:var(--ink); margin-bottom:14px; word-break:break-word; }
+    .modal-badges { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+    .modal-badge { font-family:'Special Elite',cursive; font-size:10px; letter-spacing:2px; padding:4px 12px; border:1px solid; }
+    .modal-badge.red     { color:var(--red-bright);  border-color:#8b1a1a; background:rgba(139,26,26,.15); }
+    .modal-badge.blue    { color:var(--blue-bright); border-color:#1a2e5a; background:rgba(26,46,90,.15); }
+    .modal-badge.hitler  { color:#ff6666; border-color:#661111; background:rgba(80,0,0,.4); }
+    .modal-badge.neutral { color:#8a8a8a; border-color:var(--border-dim); }
+    .modal-close { font-family:'Special Elite',cursive; font-size:10px; letter-spacing:4px; text-transform:uppercase; background:transparent; color:#606060; border:1px dashed var(--border-dim); padding:8px 20px; cursor:pointer; transition:all .15s; }
+    .modal-close:hover { color:#b0b0b0; border-color:#8a8a8a; }
+
+    /* ── Game Over ── */
+    #game-over { display:none; margin-bottom:28px; }
+    .game-over-banner { border:3px solid; padding:32px 24px; text-align:center; position:relative; overflow:hidden; }
+    .game-over-banner.red-wins  { border-color:var(--fascist-br); background:linear-gradient(160deg,#200303,#0d0101); box-shadow:0 0 60px rgba(204,34,34,.3),inset 0 0 80px rgba(204,34,34,.06); }
+    .game-over-banner.blue-wins { border-color:var(--liberal-br); background:linear-gradient(160deg,#030a20,#010408); box-shadow:0 0 60px rgba(51,102,204,.3),inset 0 0 80px rgba(51,102,204,.06); }
+    .game-over-banner::before { content:''; position:absolute; inset:4px; border:1px solid; pointer-events:none; }
+    .game-over-banner.red-wins::before  { border-color:rgba(204,34,34,.3); }
+    .game-over-banner.blue-wins::before { border-color:rgba(51,102,204,.3); }
+    @keyframes bannerReveal { 0%{opacity:0;transform:scale(.85)} 60%{opacity:1;transform:scale(1.02)} 100%{transform:scale(1)} }
+    .game-over-banner.show { animation:bannerReveal .65s ease both; }
+    .game-over-eyebrow { font-size:9px; letter-spacing:8px; text-transform:uppercase; margin-bottom:14px; }
+    .game-over-banner.red-wins  .game-over-eyebrow { color:#883333; }
+    .game-over-banner.blue-wins .game-over-eyebrow { color:#334488; }
+    .game-over-icon { font-size:52px; display:block; margin-bottom:12px; }
+    .game-over-winner { font-family:'Special Elite',cursive; font-size:38px; letter-spacing:6px; text-transform:uppercase; line-height:1.1; margin-bottom:10px; }
+    .game-over-banner.red-wins  .game-over-winner { color:#ffcccc; text-shadow:0 0 30px rgba(204,34,34,.6); }
+    .game-over-banner.blue-wins .game-over-winner { color:#ccdcff; text-shadow:0 0 30px rgba(51,102,204,.6); }
+    .game-over-reason { font-size:11px; letter-spacing:3px; text-transform:uppercase; margin-bottom:20px; line-height:1.6; }
+    .game-over-banner.red-wins  .game-over-reason { color:#aa5555; }
+    .game-over-banner.blue-wins .game-over-reason { color:#5577aa; }
+    .game-over-reveal { font-size:10px; letter-spacing:3px; text-transform:uppercase; padding:10px 14px; border:1px solid; display:inline-block; margin-bottom:20px; }
+    .game-over-banner.red-wins  .game-over-reveal { color:#ff8888; border-color:#662222; background:rgba(102,0,0,.3); }
+    .game-over-banner.blue-wins .game-over-reveal { color:#88aaff; border-color:#224488; background:rgba(0,0,102,.3); }
+
+    /* ── Footer ── */
+    .footer { margin-top:32px; padding-top:12px; border-top:1px solid var(--border-dim); display:flex; justify-content:space-between; font-size:9px; letter-spacing:2px; color:#4a4a4a; }
+  </style>
+</head>
+<body>
+
+<!-- Player identity modal -->
+<div class="modal-overlay" id="player-modal" onclick="closeModal(event)">
+  <div class="modal-card" id="modal-card">
+    <div class="modal-eyebrow">Personnel Dossier &mdash; Classified</div>
+    <div class="modal-name" id="modal-name">&mdash;</div>
+    <div class="modal-badges" id="modal-badges"></div>
+    <button class="modal-close" onclick="closeModalDirect()">&#10005; Close Dossier</button>
+  </div>
+</div>
+
+<div class="document">
+  <div class="watermark">SECRET</div>
+  <div class="content">
+
+    <div class="header">
+      <div class="top-banner">&#10010; Third Reich &mdash; Strictly Classified &#10010;</div>
+      <h1>CLASSIFIED<br>PERSONNEL ASSIGNMENT</h1>
+      <div class="subtitle">Division of Strategic Operations Planning</div>
+    </div>
+
+    <div class="meta-row">
+      <span>FORM: RK-7741-B</span>
+      <span id="doc-date">DATE: __ . __ . 1944</span>
+      <span>STATUS: ACTIVE</span>
+    </div>
+
+    <!-- I. INPUT -->
+    <div id="input-section">
+      <div class="section-label">&sect; I. Personnel List (Max. 10)</div>
+      <div class="input-section" id="input-fields"></div>
+      <div class="error-msg" id="error-msg">&#9888; AT LEAST TWO PERSONNEL REQUIRED</div>
+      <button class="btn btn-primary" onclick="assignTeams()">&#9658; EXECUTE ASSIGNMENT &#9668;</button>
+      <button class="btn btn-secondary" onclick="resetForm()">&#10005; CLEAR ALL FIELDS</button>
+    </div>
+
+    <!-- II. RESULTS -->
+    <div id="results">
+      <div style="text-align:center;margin-bottom:18px">
+        <div class="section-label" style="text-align:center">&sect; II. Operational Orders &mdash; Sealed</div>
+        <div class="op-title">ASSIGNMENT CONFIRMED</div>
+      </div>
+      <div class="teams-hidden-notice">
+        <span class="lock-icon">&#128274;</span>
+        <p>Team assignments are classified</p>
+      </div>
+      <div class="debug-panel" id="debug-panel">
+        <div class="debug-panel-label">&#9888; DEBUG MODE &mdash; CLASSIFIED DATA EXPOSED &#9888;</div>
+        <div class="teams-grid">
+          <div>
+            <div class="team-stamp red">&#9733; RED UNIT<span class="team-badge">BRAVO GROUP</span></div>
+            <ul class="soldier-list" id="red-list"></ul>
+          </div>
+          <div>
+            <div class="team-stamp blue">&#9733; BLUE UNIT<span class="team-badge">ALPHA GROUP</span></div>
+            <ul class="soldier-list" id="blue-list"></ul>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn-debug" id="debug-btn" onclick="toggleDebug()">&#9873; DEBUG</button>
+      </div>
+      <button class="btn btn-gold" onclick="startGame()">&#9873; START GAME &#9873;</button>
+      <button class="btn btn-secondary" onclick="backToForm()">&#8617; NEW ASSIGNMENT</button>
+    </div>
+
+    <!-- III. GAME -->
+    <div id="game-section">
+
+      <!-- Game Over Banner -->
+      <div id="game-over">
+        <div class="game-over-banner" id="game-over-banner">
+          <div class="game-over-eyebrow" id="game-over-eyebrow">Game Over</div>
+          <span class="game-over-icon" id="game-over-icon"></span>
+          <div class="game-over-winner" id="game-over-winner"></div>
+          <div class="game-over-reason" id="game-over-reason"></div>
+          <div class="game-over-reveal" id="game-over-reveal"></div>
+        </div>
+        <button class="btn btn-secondary" style="margin-top:16px" onclick="backToForm()">&#9658; PLAY AGAIN</button>
+      </div>
+
+      <div id="game-active">
+        <div class="turn-bar">
+          <span class="turn-counter">ROUND <span id="turn-num">1</span></span>
+          <span class="rotation-note">ORDER: 1 &#8594; <span id="total-players">?</span> &#8594; REPEAT</span>
+        </div>
+
+        <!-- Scoreboard -->
+        <div class="policy-scoreboard">
+          <div class="score-track fascist-track">
+            <div class="score-track-label">&#9763; Fascist Policies</div>
+            <div class="score-pips" id="fascist-pips"></div>
+            <div class="score-win-label">6 to win &mdash; or Hitler as Chancellor after 3</div>
+          </div>
+          <div class="score-track liberal-track">
+            <div class="score-track-label">&#9746; Liberal Policies</div>
+            <div class="score-pips" id="liberal-pips"></div>
+            <div class="score-win-label">5 to win</div>
+          </div>
+        </div>
+
+        <!-- President -->
+        <div class="president-box">
+          <span class="president-eyebrow">&mdash; Current President &mdash;</span>
+          <span class="president-star">&#9733;</span>
+          <div class="president-name" id="president-name">&mdash;</div>
+          <div class="president-meta" id="president-meta"></div>
+        </div>
+
+        <!-- Chancellor nomination -->
+        <div class="chancellor-section" id="chancellor-section">
+          <span class="chancellor-label" id="chancellor-label">Nominate a Chancellor</span>
+          <div id="nominee-picker">
+            <div class="nominee-grid" id="nominee-grid"></div>
+          </div>
+          <div class="chancellor-display" id="chancellor-display">
+            <div class="chancellor-display-name" id="chancellor-display-name">&mdash;</div>
+            <div class="chancellor-display-sub">Nominated Chancellor</div>
+          </div>
+        </div>
+
+        <!-- Voting -->
+        <div id="voting-section">
+          <div class="section-label">Vote &mdash; Chancellor Election</div>
+          <div class="vote-header" id="vote-header">Cast your votes</div>
+          <div class="vote-spotlight" id="vote-spotlight">
+            <div class="spotlight-eyebrow">Step forward to vote</div>
+            <div class="spotlight-name" id="spotlight-name">&mdash;</div>
+            <div class="vote-progress" id="vote-progress"></div>
+            <div class="spotlight-buttons">
+              <button class="btn-vote-yes" id="btn-yes" onclick="castVote('yes')">JA</button>
+              <button class="btn-vote-no"  id="btn-no"  onclick="castVote('no')">NEIN</button>
+            </div>
+          </div>
+          <div class="vote-log" id="vote-log"></div>
+          <div class="vote-tally" id="vote-tally">
+            <div class="tally-result" id="tally-result-text"></div>
+            <div class="tally-sub" id="tally-result-sub"></div>
+          </div>
+          <button class="btn btn-primary" id="btn-renominate" style="display:none" onclick="renominateChancellor()">&#9658; NOMINATE AGAIN &#9668;</button>
+        </div>
+
+        <!-- Policy Selection -->
+        <div id="policy-section">
+          <div class="section-label">Legislative Session &mdash; Policy Enactment</div>
+          <div class="policy-phase-header">
+            <div class="policy-phase-eyebrow" id="policy-phase-eyebrow">&mdash;</div>
+            <div class="policy-phase-actor" id="policy-phase-actor">&mdash;</div>
+            <div class="policy-phase-instruction" id="policy-phase-instruction">&mdash;</div>
+          </div>
+          <div class="tile-row" id="tile-row"></div>
+          <div class="discard-hint" id="discard-hint"></div>
+          <div class="enacted-policy" id="enacted-policy">
+            <div class="enacted-eyebrow" id="enacted-eyebrow">Policy Enacted</div>
+            <span class="enacted-icon" id="enacted-icon"></span>
+            <div class="enacted-title" id="enacted-title"></div>
+            <div class="enacted-sub" id="enacted-sub"></div>
+          </div>
+        </div>
+
+        <!-- Roster -->
+        <div class="section-label" style="margin-bottom:4px">Personnel Roster
+          <span style="font-size:8px;letter-spacing:2px;color:#4a4a4a;float:right;font-family:'Courier Prime',monospace;margin-top:2px">CLICK NAME FOR DOSSIER</span>
+        </div>
+        <div style="text-align:right;margin-bottom:8px">
+          <button class="btn-debug" id="game-debug-btn" onclick="toggleGameDebug()">&#9873; DEBUG</button>
+        </div>
+        <table class="roster-table">
+          <thead>
+            <tr>
+              <th style="width:30px">NO.</th>
+              <th>NAME</th>
+              <th class="team-col-header" id="roster-team-header">TEAM</th>
+              <th>TYPE</th>
+            </tr>
+          </thead>
+          <tbody id="roster-body"></tbody>
+        </table>
+
+        <button class="btn btn-primary" id="btn-next-turn" style="display:none" onclick="nextTurn()">&#9658; NEXT ROUND &#9668;</button>
+        <button class="btn btn-secondary" onclick="backToResults()">&#8617; BACK TO ASSIGNMENT</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>CLASSIFIED &mdash; DO NOT DISTRIBUTE</span>
+      <span>CLASSIFIED &mdash; PERSONNEL OFFICE</span>
+      <span>FILE FOR RECORDS</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Date ─────────────────────────────────────────────────
+  var months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var now=new Date();
+  document.getElementById('doc-date').textContent=
+    'DATE: '+String(now.getDate()).padStart(2,'0')+'. '+months[now.getMonth()]+'. 1944';
+
+  // ── Input rows ────────────────────────────────────────────
+  var inputFields=document.getElementById('input-fields');
+  for(var i=1;i<=10;i++){
+    var row=document.createElement('div'); row.className='input-row';
+    var ph=i<=3?'ENTER NAME':'— OPTIONAL —';
+    row.innerHTML=
+      '<span class="slot-number">'+String(i).padStart(2,'0')+'.</span>'+
+      '<input type="text" id="name-'+i+'" maxlength="30" placeholder="'+ph+'" onkeydown="handleKey(event,'+i+')" autocomplete="off" spellcheck="false">'+
+      '<div class="type-toggle">'+
+        '<input type="radio" name="type-'+i+'" id="type-'+i+'-human" value="human" checked>'+
+        '<label for="type-'+i+'-human">HMN</label>'+
+        '<input type="radio" name="type-'+i+'" id="type-'+i+'-cpu" value="cpu">'+
+        '<label for="type-'+i+'-cpu">CPU</label>'+
+      '</div>';
+    inputFields.appendChild(row);
+  }
+
+  function handleKey(e,i){ if(e.key==='Enter'&&i<10) document.getElementById('name-'+(i+1)).focus(); }
+
+  // ── Debug ─────────────────────────────────────────────────
+  var resultsDebugOn=false, gameDebugOn=false;
+
+  function toggleDebug(){
+    resultsDebugOn=!resultsDebugOn;
+    document.getElementById('debug-panel').classList.toggle('visible',resultsDebugOn);
+    var btn=document.getElementById('debug-btn');
+    btn.classList.toggle('active',resultsDebugOn);
+    btn.textContent=resultsDebugOn?'\u26A0 HIDE DEBUG':'\u2673 DEBUG';
+  }
+
+  function toggleGameDebug(){
+    gameDebugOn=!gameDebugOn;
+    var btn=document.getElementById('game-debug-btn');
+    btn.classList.toggle('active',gameDebugOn);
+    btn.textContent=gameDebugOn?'\u26A0 HIDE DEBUG':'\u2673 DEBUG';
+    document.getElementById('roster-team-header').classList.toggle('debug-visible',gameDebugOn);
+    document.querySelectorAll('.team-col').forEach(function(el){ el.classList.toggle('debug-visible',gameDebugOn); });
+    buildRosterTable(); // rebuild to refresh Hitler tags & team col
+    renderPresident(false);
+  }
+
+  // ── Game state ────────────────────────────────────────────
+  var allPlayers=[], hitlerIdx=-1, presidentIdx=0, chancellorIdx=-1;
+  var prevChancellorIdx=-1; // tracks who was chancellor last successful turn
+  var nominatedIdx=-1, turnNumber=1;
+  var votes={}, voterQueue=[], currentVoterPos=0, currentNomineeIdx=-1;
+  var fascistCount=0, liberalCount=0, gameOver=false;
+  var presidentTiles=[], chancellorTiles=[];
+  // Per-player count of fascist policies enacted as chancellor (index = player index)
+  var fascistPoliciesEnacted=[];
+
+  // ── Team count caps by player count ──────────────────────
+  function getRedCap(total){
+    if(total<=4)  return Math.floor(total/2); // no restriction for <5 (even split)
+    if(total<=6)  return 2;
+    if(total<=8)  return 3;
+    return 4; // 9-10
+  }
+
+  // ── Assign teams ─────────────────────────────────────────
+  function assignTeams(){
+    var raw=[];
+    for(var i=1;i<=10;i++){
+      var val=document.getElementById('name-'+i).value.trim().toUpperCase();
+      if(val) raw.push({name:val,cpu:document.getElementById('type-'+i+'-cpu').checked});
+    }
+    var errEl=document.getElementById('error-msg');
+    if(raw.length<2){ errEl.style.display='block'; setTimeout(function(){ errEl.style.display='none'; },3000); return; }
+    errEl.style.display='none';
+
+    var total=raw.length;
+    var redCap=getRedCap(total);
+    // We'll assign teams carefully: shuffle, then cap red
+    var indices=raw.map(function(_,i){ return i; });
+    // Shuffle indices
+    for(var i=indices.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var tmp=indices[i]; indices[i]=indices[j]; indices[j]=tmp;
+    }
+    var redCount=0;
+    allPlayers=raw.map(function(entry){ return {name:entry.name,cpu:entry.cpu,team:'blue',isHitler:false}; });
+    indices.forEach(function(idx){
+      if(redCount<redCap){ allPlayers[idx].team='red'; redCount++; }
+      // else remains blue
+    });
+
+    // Assign Hitler to a random red player
+    var redIdxs=allPlayers.map(function(p,i){ return i; }).filter(function(i){ return allPlayers[i].team==='red'; });
+    hitlerIdx=redIdxs[Math.floor(Math.random()*redIdxs.length)];
+    allPlayers[hitlerIdx].isHitler=true;
+
+    var red =allPlayers.filter(function(p){ return p.team==='red'; });
+    var blue=allPlayers.filter(function(p){ return p.team==='blue'; });
+    fillList('red-list', red,  true);
+    fillList('blue-list',blue, false);
+
+    resultsDebugOn=false;
+    document.getElementById('debug-panel').classList.remove('visible');
+    document.getElementById('debug-btn').classList.remove('active');
+    document.getElementById('debug-btn').textContent='\u2673 DEBUG';
+
+    document.getElementById('input-section').style.display='none';
+    var res=document.getElementById('results');
+    res.style.display='block';
+    res.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function fillList(id,entries,showHitler){
+    var ul=document.getElementById(id); ul.innerHTML='';
+    if(!entries.length){ ul.innerHTML='<li class="empty-team">&mdash; NO PERSONNEL &mdash;</li>'; return; }
+    entries.forEach(function(e,i){
+      var li=document.createElement('li'); li.style.animationDelay=(i*.07)+'s';
+      li.innerHTML=e.name+(e.cpu?' <span class="cpu-tag">CPU</span>':'')+
+        (showHitler&&e.isHitler?' <span class="hitler-tag">HITLER</span>':'');
+      ul.appendChild(li);
+    });
+  }
+
+  // ── Start game ───────────────────────────────────────────
+  function startGame(){
+    presidentIdx=Math.floor(Math.random()*allPlayers.length);
+    chancellorIdx=-1; prevChancellorIdx=-1; nominatedIdx=-1;
+    turnNumber=1; fascistCount=0; liberalCount=0; gameOver=false; gameDebugOn=false;
+    fascistPoliciesEnacted=allPlayers.map(function(){ return 0; });
+
+    document.getElementById('total-players').textContent=allPlayers.length;
+    document.getElementById('game-debug-btn').classList.remove('active');
+    document.getElementById('game-debug-btn').textContent='\u2673 DEBUG';
+    document.querySelectorAll('.team-col').forEach(function(el){ el.classList.remove('debug-visible'); });
+    document.getElementById('roster-team-header').classList.remove('debug-visible');
+    document.getElementById('game-over').style.display='none';
+    document.getElementById('game-active').style.display='block';
+
+    buildScoreboard(); buildRosterTable(); renderPresident(true); renderChancellorSection();
+    document.getElementById('voting-section').style.display='none';
+    document.getElementById('policy-section').style.display='none';
+    document.getElementById('btn-next-turn').style.display='none';
+
+    document.getElementById('results').style.display='none';
+    var gs=document.getElementById('game-section');
+    gs.style.display='block';
+    gs.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  // ── Scoreboard ───────────────────────────────────────────
+  function buildScoreboard(){
+    renderPips('fascist-pips',fascistCount,6,'fascist');
+    renderPips('liberal-pips',liberalCount,5,'liberal');
+  }
+
+  function renderPips(cid,filled,total,type){
+    var el=document.getElementById(cid); el.innerHTML='';
+    for(var i=0;i<total;i++){
+      var pip=document.createElement('div');
+      pip.className='score-pip'+(i<filled?' filled':'');
+      pip.textContent=i<filled?(type==='fascist'?'\u2763':'\u2746'):'';
+      el.appendChild(pip);
+    }
+  }
+
+  // ── Render president ─────────────────────────────────────
+  function renderPresident(animate){
+    var p=allPlayers[presidentIdx];
+    document.getElementById('turn-num').textContent=turnNumber;
+    var nameEl=document.getElementById('president-name');
+    nameEl.classList.remove('flash'); void nameEl.offsetWidth;
+    nameEl.textContent=p.name;
+    if(animate) nameEl.classList.add('flash');
+    var meta=
+      (gameDebugOn?'<span class="p-badge '+p.team+'">'+p.team.toUpperCase()+' UNIT</span>':'')+
+      (p.cpu?'<span class="p-badge neutral">CPU</span>':'')+
+      '<span class="p-badge neutral">SLOT '+String(presidentIdx+1).padStart(2,'0')+'</span>'+
+      (gameDebugOn&&p.isHitler?'<span class="p-badge hitler">HITLER</span>':'');
+    document.getElementById('president-meta').innerHTML=meta;
+    updateRosterHighlights();
+  }
+
+  function updateRosterHighlights(){
+    document.querySelectorAll('#roster-body tr').forEach(function(r){ r.classList.remove('row-president','row-chancellor'); });
+    var pr=document.getElementById('roster-row-'+presidentIdx);
+    if(pr) pr.classList.add('row-president');
+    if(chancellorIdx>=0){
+      var cr=document.getElementById('roster-row-'+chancellorIdx);
+      if(cr) cr.classList.add('row-chancellor');
+    }
+  }
+
+  // ── Chancellor section ───────────────────────────────────
+  function renderChancellorSection(){
+    chancellorIdx=-1; nominatedIdx=-1; votes={}; voterQueue=[]; currentVoterPos=0; currentNomineeIdx=-1;
+    document.getElementById('voting-section').style.display='none';
+    document.getElementById('vote-tally').style.display='none';
+    document.getElementById('vote-log').style.display='none';
+    document.getElementById('policy-section').style.display='none';
+    document.getElementById('btn-next-turn').style.display='none';
+    document.getElementById('btn-renominate').style.display='none';
+    document.getElementById('chancellor-display').style.display='none';
+    document.getElementById('nominee-picker').style.display='block';
+    document.getElementById('chancellor-label').textContent='Nominate a Chancellor';
+
+    var pres=allPlayers[presidentIdx];
+
+    if(pres.cpu){
+      document.getElementById('chancellor-label').textContent='President is nominating...';
+      setTimeout(function(){
+        // CPU president: pick eligible candidate at random
+        var eligible=allPlayers.map(function(p,i){ return i; }).filter(function(i){
+          return i!==presidentIdx && i!==prevChancellorIdx;
+        });
+        // Fallback: if everyone is blocked (2 players edge case), allow all except self
+        if(!eligible.length) eligible=allPlayers.map(function(p,i){ return i; }).filter(function(i){ return i!==presidentIdx; });
+        nominateChancellor(eligible[Math.floor(Math.random()*eligible.length)]);
+      },900);
+      return;
+    }
+
+    var grid=document.getElementById('nominee-grid'); grid.innerHTML='';
+    allPlayers.forEach(function(p,i){
+      if(i===presidentIdx) return;
+      var isBlocked=(i===prevChancellorIdx);
+      var btn=document.createElement('button');
+      btn.className='btn-nominee'+(isBlocked?' ineligible':'');
+      btn.id='nominee-btn-'+i;
+      btn.innerHTML=
+        (gameDebugOn?'<span class="nominee-team-dot '+p.team+'"></span>':'')+
+        p.name+(p.cpu?' <span class="cpu-tag">CPU</span>':'')+
+        (gameDebugOn&&p.isHitler?' <span class="hitler-tag">HITLER</span>':'')+
+        (isBlocked?' <span class="ineligible-hint">TERM LIMIT</span>':'');
+      if(!isBlocked) btn.onclick=(function(idx){ return function(){ nominateChancellor(idx); }; })(i);
+      grid.appendChild(btn);
+    });
+  }
+
+  function nominateChancellor(idx){
+    nominatedIdx=idx; var nominee=allPlayers[idx];
+    document.querySelectorAll('.btn-nominee').forEach(function(b){ b.classList.remove('selected'); });
+    var nb=document.getElementById('nominee-btn-'+idx); if(nb) nb.classList.add('selected');
+    document.getElementById('nominee-picker').style.display='none';
+    document.getElementById('chancellor-display').style.display='block';
+    document.getElementById('chancellor-display-name').textContent=nominee.name;
+    document.getElementById('chancellor-label').textContent='Nominated Chancellor';
+    setTimeout(function(){ startVote(idx); },500);
+  }
+
+  // ── Voting ────────────────────────────────────────────────
+  function startVote(nomineeIdx){
+    currentNomineeIdx=nomineeIdx; votes={}; voterQueue=[]; currentVoterPos=0;
+    allPlayers.forEach(function(p,i){ if(i!==presidentIdx&&i!==nomineeIdx) voterQueue.push(i); });
+    var nominee=allPlayers[nomineeIdx];
+    document.getElementById('vote-header').textContent='Vote on '+nominee.name+' for Chancellor';
+    document.getElementById('vote-log').innerHTML='';
+    document.getElementById('vote-log').style.display='none';
+    document.getElementById('vote-tally').style.display='none';
+    document.getElementById('voting-section').style.display='block';
+    if(!voterQueue.length){ revealVoteResults(); return; }
+    advanceVoter();
+  }
+
+  function advanceVoter(){
+    if(currentVoterPos>=voterQueue.length){ revealVoteResults(); return; }
+    var playerIdx=voterQueue[currentVoterPos], p=allPlayers[playerIdx];
+    document.getElementById('vote-progress').textContent='Voter '+(currentVoterPos+1)+' of '+voterQueue.length;
+    var sn=document.getElementById('spotlight-name');
+    sn.classList.remove('flash'); void sn.offsetWidth;
+    sn.textContent=p.name+(p.cpu?' [CPU]':'');
+    sn.classList.add('flash');
+    document.getElementById('vote-spotlight').style.display='block';
+    if(p.cpu){
+      document.getElementById('btn-yes').style.display='none';
+      document.getElementById('btn-no').style.display='none';
+      setTimeout(function(){
+        // CPU vote logic:
+        // Red always votes ja 75% of the time (no reputation modifier)
+        // Blue base ja rate is 100%, reduced by 15% per fascist policy the NOMINEE has enacted
+        var nomineeRepPenalty=(fascistPoliciesEnacted[currentNomineeIdx]||0)*0.15;
+        var blueJaRate=Math.max(0, 1.0 - nomineeRepPenalty);
+        votes[playerIdx]=p.team==='blue'?(Math.random()<blueJaRate?'yes':'no'):(Math.random()<0.75?'yes':'no');
+        currentVoterPos++; advanceVoter();
+      },700+Math.random()*600);
+    } else {
+      document.getElementById('btn-yes').style.display='';
+      document.getElementById('btn-no').style.display='';
+    }
+  }
+
+  function castVote(vote){
+    document.getElementById('btn-yes').disabled=true;
+    document.getElementById('btn-no').disabled=true;
+    votes[voterQueue[currentVoterPos]]=vote;
+    currentVoterPos++;
+    setTimeout(function(){
+      document.getElementById('btn-yes').disabled=false;
+      document.getElementById('btn-no').disabled=false;
+      advanceVoter();
+    },200);
+  }
+
+  function revealVoteResults(){
+    document.getElementById('vote-spotlight').style.display='none';
+    var logEl=document.getElementById('vote-log'); logEl.innerHTML='';
+    voterQueue.forEach(function(pi){
+      var p=allPlayers[pi], v=votes[pi]||'no';
+      var row=document.createElement('div'); row.className='vote-log-row';
+      row.innerHTML='<span class="vote-log-name">'+p.name+(p.cpu?' <span class="cpu-tag">CPU</span>':'')+'</span>'+
+        '<span class="vote-result-tag '+v+'">'+(v==='yes'?'JA':'NEIN')+'</span>';
+      logEl.appendChild(row);
+    });
+    logEl.style.display='block';
+    var yesCount=0,noCount=0;
+    Object.keys(votes).forEach(function(k){ if(votes[k]==='yes') yesCount++; else noCount++; });
+    var approved=yesCount>noCount;
+    document.getElementById('tally-result-text').textContent=approved?'APPROVED':'REJECTED';
+    document.getElementById('tally-result-text').className='tally-result '+(approved?'approved':'rejected');
+    document.getElementById('tally-result-sub').textContent=yesCount+' JA  /  '+noCount+' NEIN';
+    document.getElementById('vote-tally').style.display='block';
+
+    if(approved){
+      chancellorIdx=currentNomineeIdx;
+      var cr=document.getElementById('roster-row-'+chancellorIdx);
+      if(cr) cr.classList.add('row-chancellor');
+      // Win check: Hitler as chancellor after 3+ fascist
+      if(allPlayers[chancellorIdx].isHitler&&fascistCount>=3){
+        setTimeout(function(){ triggerGameOver('red','hitler-chancellor'); },800); return;
+      }
+      setTimeout(function(){ startPolicyPhase(); },800);
+    } else {
+      // Vote failed or tied — same president must nominate again; do NOT advance round
+      document.getElementById('btn-renominate').style.display='block';
+    }
+  }
+
+  // ── Re-nominate after failed vote (same president, same round) ──
+  function renominateChancellor(){
+    document.getElementById('btn-renominate').style.display='none';
+    // Collapse voting section and re-open nomination picker
+    document.getElementById('voting-section').style.display='none';
+    document.getElementById('vote-tally').style.display='none';
+    document.getElementById('vote-log').style.display='none';
+
+    // Reset nomination state (keep prevChancellorIdx — term limit still applies)
+    nominatedIdx=-1; votes={}; voterQueue=[]; currentVoterPos=0; currentNomineeIdx=-1;
+    document.getElementById('chancellor-display').style.display='none';
+    document.getElementById('nominee-picker').style.display='block';
+    document.getElementById('chancellor-label').textContent='Nominate a Chancellor';
+
+    var pres=allPlayers[presidentIdx];
+    if(pres.cpu){
+      document.getElementById('chancellor-label').textContent='President is nominating...';
+      setTimeout(function(){
+        var eligible=allPlayers.map(function(p,i){ return i; }).filter(function(i){
+          return i!==presidentIdx && i!==prevChancellorIdx;
+        });
+        if(!eligible.length) eligible=allPlayers.map(function(p,i){ return i; }).filter(function(i){ return i!==presidentIdx; });
+        nominateChancellor(eligible[Math.floor(Math.random()*eligible.length)]);
+      },900);
+      return;
+    }
+
+    var grid=document.getElementById('nominee-grid'); grid.innerHTML='';
+    allPlayers.forEach(function(p,i){
+      if(i===presidentIdx) return;
+      var isBlocked=(i===prevChancellorIdx);
+      var btn=document.createElement('button');
+      btn.className='btn-nominee'+(isBlocked?' ineligible':'');
+      btn.id='nominee-btn-'+i;
+      btn.innerHTML=
+        (gameDebugOn?'<span class="nominee-team-dot '+p.team+'"></span>':'')+
+        p.name+(p.cpu?' <span class="cpu-tag">CPU</span>':'')+
+        (gameDebugOn&&p.isHitler?' <span class="hitler-tag">HITLER</span>':'')+
+        (isBlocked?' <span class="ineligible-hint">TERM LIMIT</span>':'');
+      if(!isBlocked) btn.onclick=(function(idx){ return function(){ nominateChancellor(idx); }; })(i);
+      grid.appendChild(btn);
+    });
+  }
+
+  // ── Policy Phase ─────────────────────────────────────────
+  function randomTile(){ return Math.random()<0.5?'fascist':'liberal'; }
+  function tileIcon(t) { return t==='fascist'?'&#9763;':'&#9746;'; }
+  function tileLabel(t){ return t==='fascist'?'Fascist Policy':'Liberal Policy'; }
+
+  // CPU tile preference based on team
+  function cpuPickTile(tiles, team){
+    // Blue: always pick liberal if available, else pick any
+    // Red:  pick fascist 75% when available, else pick liberal
+    var liberalIdxs=[], fascistIdxs=[];
+    tiles.forEach(function(t,i){ if(t==='liberal') liberalIdxs.push(i); else fascistIdxs.push(i); });
+    if(team==='blue'){
+      return liberalIdxs.length?liberalIdxs[0]:0;
+    } else {
+      // red: 75% fascist preference
+      if(fascistIdxs.length&&Math.random()<0.75) return fascistIdxs[0];
+      return liberalIdxs.length?liberalIdxs[0]:fascistIdxs[0]||0;
+    }
+  }
+
+  function startPolicyPhase(){
+    presidentTiles=[randomTile(),randomTile(),randomTile()];
+    chancellorTiles=[];
+    var pres=allPlayers[presidentIdx];
+    document.getElementById('policy-section').style.display='block';
+    document.getElementById('enacted-policy').style.display='none';
+    document.getElementById('enacted-policy').className='enacted-policy';
+    document.getElementById('policy-section').scrollIntoView({behavior:'smooth',block:'start'});
+    showPresidentDraw(pres);
+  }
+
+  function showPresidentDraw(pres){
+    document.getElementById('policy-phase-eyebrow').textContent='— President —';
+    document.getElementById('policy-phase-actor').textContent=pres.name;
+    document.getElementById('policy-phase-instruction').textContent='Discard one tile — pass two to the Chancellor';
+    document.getElementById('discard-hint').textContent='Click the tile you wish to discard';
+    renderTiles(presidentTiles,'president-discard',null);
+    if(pres.cpu){
+      document.getElementById('policy-phase-instruction').textContent='Discarding a tile...';
+      document.getElementById('discard-hint').textContent='';
+      setTimeout(function(){
+        // CPU president discards based on team preference (discards the "wrong" one)
+        var discardIdx=cpuPickDiscard(presidentTiles,pres.team);
+        presidentDiscard(discardIdx);
+      },1000);
+    }
+  }
+
+  // For discarding: president keeps preferred tiles, discards least preferred
+  function cpuPickDiscard(tiles, team){
+    // Blue: discard a fascist if possible, else discard index 0
+    // Red:  discard a liberal if possible (75% chance), else discard fascist
+    var liberalIdxs=[], fascistIdxs=[];
+    tiles.forEach(function(t,i){ if(t==='liberal') liberalIdxs.push(i); else fascistIdxs.push(i); });
+    if(team==='blue'){
+      return fascistIdxs.length?fascistIdxs[0]:0;
+    } else {
+      // red: prefer to discard liberal
+      if(liberalIdxs.length&&Math.random()<0.75) return liberalIdxs[0];
+      return fascistIdxs.length>1?fascistIdxs[fascistIdxs.length-1]:(liberalIdxs[0]||0);
+    }
+  }
+
+  function renderTiles(tiles,mode,selectedIndices){
+    var row=document.getElementById('tile-row'); row.innerHTML='';
+    tiles.forEach(function(type,i){
+      var tile=document.createElement('div');
+      tile.className='policy-tile '+type; tile.id='tile-'+i;
+      if(selectedIndices&&selectedIndices.indexOf(i)>=0) tile.classList.add('discarded');
+      tile.innerHTML='<span class="tile-icon">'+tileIcon(type)+'</span>'+
+        '<span class="tile-label">'+tileLabel(type)+'</span>'+
+        '<span class="tile-type-badge">'+type.toUpperCase()+'</span>';
+      if(mode==='president-discard'&&!(selectedIndices&&selectedIndices.indexOf(i)>=0))
+        tile.onclick=(function(idx){ return function(){ presidentDiscard(idx); }; })(i);
+      if(mode==='chancellor-pick'&&!(selectedIndices&&selectedIndices.indexOf(i)>=0))
+        tile.onclick=(function(idx){ return function(){ chancellorPick(idx); }; })(i);
+      row.appendChild(tile);
+    });
+  }
+
+  function presidentDiscard(discardIdx){
+    var dt=document.getElementById('tile-'+discardIdx);
+    if(dt){ dt.classList.add('discarded'); dt.onclick=null; }
+    chancellorTiles=[];
+    presidentTiles.forEach(function(type,i){ if(i!==discardIdx) chancellorTiles.push(type); });
+    var chancellor=allPlayers[chancellorIdx];
+    setTimeout(function(){
+      document.getElementById('policy-phase-eyebrow').textContent='— Chancellor —';
+      document.getElementById('policy-phase-actor').textContent=chancellor.name;
+      document.getElementById('policy-phase-instruction').textContent='Choose one tile to enact as policy';
+      document.getElementById('discard-hint').textContent='The other tile will be discarded';
+      renderTiles(chancellorTiles,'chancellor-pick',null);
+      if(chancellor.cpu){
+        document.getElementById('policy-phase-instruction').textContent='Selecting a policy...';
+        document.getElementById('discard-hint').textContent='';
+        setTimeout(function(){ chancellorPick(cpuPickTile(chancellorTiles,chancellor.team)); },1000);
+      }
+    },400);
+  }
+
+  function chancellorPick(pickIdx){
+    var enactedType=chancellorTiles[pickIdx];
+    var otherIdx=pickIdx===0?1:0;
+    var ot=document.getElementById('tile-'+otherIdx); if(ot){ ot.classList.add('discarded'); ot.onclick=null; }
+    var st=document.getElementById('tile-'+pickIdx);  if(st){ st.classList.add('selected');  st.onclick=null; }
+    document.getElementById('discard-hint').textContent='';
+    setTimeout(function(){ enactPolicy(enactedType); },600);
+  }
+
+  function enactPolicy(type){
+    if(type==='fascist') fascistCount++; else liberalCount++;
+    buildScoreboard();
+    var el=document.getElementById('enacted-policy');
+    el.className='enacted-policy '+type; el.style.display='block';
+    document.getElementById('enacted-eyebrow').textContent='Policy Enacted';
+    document.getElementById('enacted-icon').innerHTML=tileIcon(type);
+    document.getElementById('enacted-title').textContent=tileLabel(type);
+    document.getElementById('enacted-sub').textContent=type==='fascist'?'The Reich grows stronger':'Liberty endures';
+    void el.offsetWidth; el.classList.add('reveal');
+    document.getElementById('policy-phase-instruction').textContent='';
+    document.getElementById('discard-hint').textContent='';
+
+    // Update prevChancellorIdx now that a policy was enacted (successful turn)
+    prevChancellorIdx=chancellorIdx;
+    // Track fascist policy count for the chancellor who enacted it
+    if(type==='fascist' && chancellorIdx>=0){
+      fascistPoliciesEnacted[chancellorIdx]=(fascistPoliciesEnacted[chancellorIdx]||0)+1;
+    }
+
+    if(liberalCount>=5){ setTimeout(function(){ triggerGameOver('blue','liberal-policies'); },1200); return; }
+    if(fascistCount>=6){ setTimeout(function(){ triggerGameOver('red','fascist-policies'); },1200); return; }
+    setTimeout(function(){ document.getElementById('btn-next-turn').style.display='block'; },800);
+  }
+
+  // ── Game Over ─────────────────────────────────────────────
+  function triggerGameOver(winner,reason){
+    gameOver=true;
+    var banner=document.getElementById('game-over-banner');
+    var hp=allPlayers[hitlerIdx];
+    banner.className='game-over-banner '+(winner==='red'?'red-wins':'blue-wins');
+    if(winner==='red'){
+      document.getElementById('game-over-eyebrow').textContent='— The Reich Prevails —';
+      document.getElementById('game-over-icon').innerHTML='&#9763;';
+      document.getElementById('game-over-winner').textContent='Red Team Wins';
+      if(reason==='hitler-chancellor'){
+        document.getElementById('game-over-reason').innerHTML='Hitler has been appointed Chancellor<br>after '+fascistCount+' Fascist policies were already enacted.';
+      } else {
+        document.getElementById('game-over-reason').innerHTML='Six Fascist policies have been enacted.<br>The Reich\'s agenda is complete.';
+      }
+    } else {
+      document.getElementById('game-over-eyebrow').textContent='— Liberty Triumphant —';
+      document.getElementById('game-over-icon').innerHTML='&#9746;';
+      document.getElementById('game-over-winner').textContent='Blue Team Wins';
+      document.getElementById('game-over-reason').innerHTML='Five Liberal policies have been enacted.<br>Freedom has been secured.';
+    }
+    document.getElementById('game-over-reveal').innerHTML='Hitler was: <strong>'+hp.name+'</strong>';
+    void banner.offsetWidth; banner.classList.add('show');
+    document.getElementById('game-active').style.display='none';
+    document.getElementById('game-over').style.display='block';
+    document.getElementById('game-over').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  // ── Roster table ─────────────────────────────────────────
+  function buildRosterTable(){
+    var tbody=document.getElementById('roster-body'); tbody.innerHTML='';
+    allPlayers.forEach(function(p,i){
+      var tr=document.createElement('tr'); tr.id='roster-row-'+i;
+      var nameCell=
+        '<td class="name-cell name-cell-clickable" onclick="openPlayerModal('+i+')" title="View dossier">'+
+          p.name+(p.cpu?' <span class="cpu-tag">CPU</span>':'')+
+          (p.isHitler&&gameDebugOn?' <span class="hitler-tag">HITLER</span>':'')+
+        '</td>';
+      tr.innerHTML=
+        '<td class="order-num">'+String(i+1).padStart(2,'0')+'</td>'+
+        nameCell+
+        '<td class="team-col'+(gameDebugOn?' debug-visible':'')+'">'+
+          '<span class="team-pip '+p.team+'"></span>'+p.team.toUpperCase()+
+        '</td>'+
+        '<td>'+(p.cpu?'CPU':'HMN')+'</td>';
+      tbody.appendChild(tr);
+    });
+    updateRosterHighlights();
+  }
+
+  // ── Player identity modal ─────────────────────────────────
+  function openPlayerModal(idx){
+    var p=allPlayers[idx];
+    document.getElementById('modal-name').textContent=p.name;
+    var badges='';
+    // Team badge
+    badges+='<span class="modal-badge '+p.team+'">'+p.team.toUpperCase()+' UNIT</span>';
+    // Hitler badge (always shown in modal — it's their private dossier)
+    if(p.isHitler) badges+='<span class="modal-badge hitler">&#9888; HITLER</span>';
+    // CPU badge
+    if(p.cpu) badges+='<span class="modal-badge neutral">CPU CONTROLLED</span>';
+    // Role indicators
+    if(idx===presidentIdx) badges+='<span class="modal-badge neutral">&#9733; PRESIDENT</span>';
+    if(idx===chancellorIdx&&chancellorIdx>=0) badges+='<span class="modal-badge neutral">&#9830; CHANCELLOR</span>';
+    document.getElementById('modal-badges').innerHTML=badges;
+    document.getElementById('player-modal').classList.add('open');
+  }
+
+  function closeModal(e){
+    // Close if clicking the overlay background (not the card)
+    if(e.target===document.getElementById('player-modal')) closeModalDirect();
+  }
+
+  function closeModalDirect(){
+    document.getElementById('player-modal').classList.remove('open');
+  }
+
+  // ── Next turn ────────────────────────────────────────────
+  function nextTurn(){
+    if(gameOver) return;
+    // If vote failed (no enacted policy this turn), prevChancellorIdx stays as-is
+    presidentIdx=(presidentIdx+1)%allPlayers.length;
+    chancellorIdx=-1; turnNumber++;
+    renderPresident(true); renderChancellorSection();
+    document.getElementById('policy-section').style.display='none';
+    document.getElementById('btn-next-turn').style.display='none';
+  }
+
+  // ── Navigation ────────────────────────────────────────────
+  function resetForm(){
+    for(var i=1;i<=10;i++){
+      document.getElementById('name-'+i).value='';
+      document.getElementById('type-'+i+'-human').checked=true;
+    }
+    document.getElementById('error-msg').style.display='none';
+    document.getElementById('game-section').style.display='none';
+    document.getElementById('results').style.display='none';
+    document.getElementById('input-section').style.display='block';
+    document.getElementById('name-1').focus();
+  }
+
+  function backToForm(){
+    document.getElementById('results').style.display='none';
+    document.getElementById('game-section').style.display='none';
+    document.getElementById('input-section').style.display='block';
+  }
+
+  function backToResults(){
+    document.getElementById('game-section').style.display='none';
+    document.getElementById('results').style.display='block';
+  }
+
+  window.addEventListener('load',function(){ document.getElementById('name-1').focus(); });
+  // Close modal on Escape key
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeModalDirect(); });
+</script>
+</body>
+</html>
