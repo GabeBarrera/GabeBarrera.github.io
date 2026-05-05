@@ -1,816 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#00f5ff">
-<link rel="manifest" href="/manifest.json">
-<title>PWNYXPRESS</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg:     #04060f;
-  --panel:  #080c1a;
-  --border: #0f2040;
-  --cyan:   #00f5ff;
-  --pink:   #ff2d78;
-  --yellow: #f5e642;
-  --green:  #39ff7a;
-  --purple: #b44dff;
-  --muted:  #2a3a55;
-  --text:   #c8d8f0;
-  --dim:    #4a6080;
-  --mono:   'Share Tech Mono', monospace;
-  --orb:    'Orbitron', monospace;
-  --raj:    'Rajdhani', sans-serif;
-}
-
-html, body {
-  min-height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--raj);
-  overflow-x: hidden;
-  cursor: crosshair;
-}
-
-/* ── SCANLINES ── */
-body::after {
-  content: '';
-  position: fixed; inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent, transparent 2px,
-    rgba(0,0,0,0.09) 2px, rgba(0,0,0,0.09) 4px
-  );
-  pointer-events: none;
-  z-index: 999;
-}
-
-/* ── GRID ── */
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
-  background-size: 44px 44px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ── PERSPECTIVE GRID FLOOR ── */
-.grid-floor {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 45vh;
-  background:
-    linear-gradient(transparent 0%, rgba(0,245,255,0.04) 100%),
-    repeating-linear-gradient(
-      90deg,
-      rgba(0,245,255,0.07) 0px, rgba(0,245,255,0.07) 1px,
-      transparent 1px, transparent 60px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(0,245,255,0.07) 0px, rgba(0,245,255,0.07) 1px,
-      transparent 1px, transparent 40px
-    );
-  transform: perspective(400px) rotateX(60deg);
-  transform-origin: bottom center;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ── GLOW ORBS ── */
-.orb {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-  animation: orbDrift 12s ease-in-out infinite alternate;
-}
-.orb1 { width: 340px; height: 340px; background: rgba(0,245,255,0.07); top: -60px; left: -80px; }
-.orb2 { width: 280px; height: 280px; background: rgba(255,45,120,0.07); bottom: 40px; right: -60px; animation-delay: -6s; }
-.orb3 { width: 200px; height: 200px; background: rgba(180,77,255,0.06); top: 40%; left: 60%; animation-delay: -3s; }
-
-@keyframes orbDrift {
-  from { transform: translate(0,0) scale(1); }
-  to   { transform: translate(20px, 30px) scale(1.08); }
-}
-
-/* ── MAIN LAYOUT ── */
-.stage {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding: 24px 20px 40px;
-}
-
-/* ── ASCII HORSE ── */
-.horse-wrap {
-  font-family: var(--mono);
-  font-size: clamp(9px, 1.4vw, 13px);
-  line-height: 1.35;
-  white-space: pre;
-  letter-spacing: 0.05em;
-  margin-bottom: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.8s ease both;
-  user-select: none;
-  position: relative;
-}
-
-.horse-glitch-wrap {
-  position: relative;
-  display: inline-block;
-}
-
-/* Base layer */
-.horse-base {
-  color: var(--cyan);
-  text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4);
-  position: relative;
-  display: block;
-  white-space: pre;
-}
-
-/* Shared ghost layer styles */
-.horse-r, .horse-b, .horse-w {
-  position: absolute;
-  top: 0; left: 0;
-  white-space: pre;
-  pointer-events: none;
-  display: block;
-  opacity: 0;
-}
-
-.horse-r { color: var(--pink);  text-shadow: 0 0 5px rgba(255,45,120,1); }
-.horse-b { color: #00ccff;      text-shadow: 0 0 5px rgba(0,200,255,1); }
-.horse-w { color: #ffffff;      text-shadow: 0 0 4px rgba(255,255,255,0.9); }
-
-/* Static noise canvas sits over the horse */
-.horse-noise {
-  position: absolute;
-  inset: -4px;
-  pointer-events: none;
-  opacity: 0.18;
-  mix-blend-mode: screen;
-}
-
-/* Horizontal tear bars — JS will reposition these */
-.tear {
-  position: absolute;
-  left: -8px; right: -8px;
-  height: 2px;
-  background: var(--cyan);
-  opacity: 0;
-  pointer-events: none;
-  mix-blend-mode: screen;
-}
-.tear-w {
-  position: absolute;
-  left: -8px; right: -8px;
-  height: 1px;
-  background: #fff;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Glow flicker on base */
-@keyframes baseFlicker {
-  0%   { opacity: 1;    text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4); }
-  92%  { opacity: 1;    text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4); }
-  92.5%{ opacity: 0.4;  text-shadow: none; }
-  93%  { opacity: 1;    text-shadow: 0 0 20px rgba(0,245,255,1), 0 0 40px rgba(0,245,255,0.7); }
-  93.4%{ opacity: 0.7;  }
-  93.8%{ opacity: 1;    }
-  97%  { opacity: 1;    text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4); }
-  97.3%{ opacity: 0.2;  text-shadow: none; }
-  97.6%{ opacity: 1;    text-shadow: 0 0 30px rgba(0,245,255,1); }
-  98%  { opacity: 1;    text-shadow: 0 0 6px rgba(0,245,255,0.9), 0 0 18px rgba(0,245,255,0.4); }
-  100% { opacity: 1;    }
-}
-.horse-base { animation: baseFlicker 3.7s infinite; }
-
-/* ── TITLE BLOCK ── */
-.title-block {
-  text-align: center;
-  margin-bottom: 36px;
-  animation: fadeIn 0.6s 0.15s ease both;
-}
-
-.site-tag {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.35em;
-  color: var(--pink);
-  text-shadow: 0 0 12px rgba(255,45,120,0.6);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.site-title {
-  font-family: var(--orb);
-  font-size: clamp(2.4rem, 7vw, 5rem);
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  line-height: 1;
-  color: var(--cyan);
-  text-shadow:
-    0 0 20px rgba(0,245,255,0.8),
-    0 0 50px rgba(0,245,255,0.4),
-    0 0 100px rgba(0,245,255,0.15);
-  animation: titlePulse 4s ease-in-out infinite;
-}
-
-.site-title .x { color: var(--pink); text-shadow: 0 0 20px rgba(255,45,120,0.9), 0 0 50px rgba(255,45,120,0.4); }
-
-.site-sub {
-  font-family: var(--mono);
-  font-size: clamp(9px, 1.5vw, 12px);
-  letter-spacing: 0.28em;
-  color: var(--dim);
-  margin-top: 10px;
-  text-transform: uppercase;
-}
-
-@keyframes titlePulse {
-  0%, 100% { text-shadow: 0 0 20px rgba(0,245,255,0.8), 0 0 50px rgba(0,245,255,0.4), 0 0 100px rgba(0,245,255,0.15); }
-  50%       { text-shadow: 0 0 30px rgba(0,245,255,1),   0 0 70px rgba(0,245,255,0.6), 0 0 120px rgba(0,245,255,0.25); }
-}
-
-/* ── MENU ── */
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 100%;
-  max-width: 400px;
-  animation: fadeIn 0.6s 0.3s ease both;
-}
-
-.menu-btn {
-  position: relative;
-  font-family: var(--orb);
-  font-size: clamp(11px, 1.8vw, 14px);
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--text);
-  background: var(--panel);
-  border: 1px solid var(--muted);
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
-  overflow: hidden;
-  outline: none;
-  width: 100%;
-  text-align: left;
-}
-
-/* Corner accents */
-.menu-btn::before,
-.menu-btn::after {
-  content: '';
-  position: absolute;
-  width: 8px; height: 8px;
-  transition: all 0.2s;
-}
-.menu-btn::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
-.menu-btn::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
-
-/* Sweep shine */
-.menu-btn .shine {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
-  transform: translateX(-100%);
-  transition: transform 0.4s ease;
-}
-.menu-btn:hover .shine { transform: translateX(100%); }
-
-.menu-btn .icon {
-  font-size: 18px;
-  flex-shrink: 0;
-  transition: transform 0.2s;
-}
-.menu-btn:hover .icon { transform: scale(1.2); }
-
-.menu-btn .label { flex: 1; }
-
-.menu-btn .arrow {
-  font-family: var(--mono);
-  font-size: 14px;
-  opacity: 0;
-  transform: translateX(-6px);
-  transition: all 0.2s;
-}
-.menu-btn:hover .arrow { opacity: 1; transform: translateX(0); }
-
-/* Per-button colors */
-.btn-budget {
-  --c: var(--cyan);
-  border-color: rgba(0,245,255,0.25);
-}
-.btn-budget::before, .btn-budget::after { border-color: var(--cyan); }
-.btn-budget:hover {
-  border-color: var(--cyan);
-  color: var(--cyan);
-  box-shadow: 0 0 24px rgba(0,245,255,0.2), inset 0 0 20px rgba(0,245,255,0.05);
-  background: rgba(0,245,255,0.04);
-}
-
-.btn-tracker {
-  --c: var(--pink);
-  border-color: rgba(255,45,120,0.25);
-}
-.btn-tracker::before, .btn-tracker::after { border-color: var(--pink); }
-.btn-tracker:hover {
-  border-color: var(--pink);
-  color: var(--pink);
-  box-shadow: 0 0 24px rgba(255,45,120,0.2), inset 0 0 20px rgba(255,45,120,0.05);
-  background: rgba(255,45,120,0.04);
-}
-
-.btn-reload {
-  --c: var(--yellow);
-  border-color: rgba(245,230,66,0.2);
-}
-.btn-reload::before, .btn-reload::after { border-color: var(--yellow); }
-@keyframes spin { to { transform: rotate(360deg); } }
-.btn-reload:hover,
-.nav-form:focus-within {
-  border-color: var(--yellow);
-  color: var(--yellow);
-  box-shadow: 0 0 24px rgba(245,230,66,0.2), inset 0 0 20px rgba(245,230,66,0.05);
-  background: rgba(245,230,66,0.04);
-}
-
-/* ── NAV INPUT ── */
-.nav-form {
-  cursor: text;
-}
-.nav-cursor {
-  color: var(--yellow);
-  text-shadow: 0 0 8px rgba(245,230,66,0.8);
-  font-family: var(--mono);
-  font-size: 15px;
-  flex-shrink: 0;
-  animation: cursorBlink 1s step-end infinite;
-  user-select: none;
-}
-@keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-.nav-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--yellow);
-  font-family: var(--mono);
-  font-size: clamp(11px, 1.8vw, 13px);
-  letter-spacing: 0.15em;
-  caret-color: var(--yellow);
-  min-width: 0;
-}
-.nav-input::placeholder {
-  color: var(--dim);
-  opacity: 0.7;
-}
-.nav-submit {
-  background: transparent;
-  border: none;
-  border-left: 1px solid rgba(245,230,66,0.2);
-  color: var(--dim);
-  font-family: var(--orb);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  padding: 0 0 0 14px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: color 0.2s, text-shadow 0.2s;
-  flex-shrink: 0;
-}
-.nav-form:hover .nav-submit,
-.nav-form:focus-within .nav-submit,
-.nav-submit:hover {
-  color: var(--yellow);
-  text-shadow: 0 0 8px rgba(245,230,66,0.6);
-}
-
-.btn-camera {
-  --c: var(--purple);
-  border-color: rgba(180,77,255,0.25);
-}
-.btn-camera::before, .btn-camera::after { border-color: var(--purple); }
-.btn-camera:hover {
-  border-color: var(--purple);
-  color: var(--purple);
-  box-shadow: 0 0 24px rgba(180,77,255,0.2), inset 0 0 20px rgba(180,77,255,0.05);
-  background: rgba(180,77,255,0.04);
-}
-
-/* ── FOOTER ── */
-.footer {
-  position: fixed;
-  bottom: 14px;
-  left: 0; right: 0;
-  text-align: center;
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  z-index: 2;
-  text-transform: uppercase;
-}
-
-.footer span { color: var(--pink); }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-height: 700px) {
-  .horse-wrap { margin-bottom: 14px; font-size: clamp(7px, 1.2vw, 11px); }
-  .title-block { margin-bottom: 20px; }
-  .site-title  { font-size: clamp(1.8rem, 7vw, 5rem); }
-  .menu        { gap: 10px; }
-  .menu-btn    { padding: 12px 20px; }
-}
-
-/* ── CLOCK ── */
-.clock {
-  position: fixed;
-  top: 14px; right: 18px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--dim);
-  letter-spacing: 0.12em;
-  z-index: 2;
-}
-.clock span { color: var(--cyan); }
-
-/* ── CORNER LOGO TAG ── */
-.corner-tag {
-  position: fixed;
-  top: 14px; left: 18px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: var(--dim);
-  z-index: 2;
-  text-transform: uppercase;
-}
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--muted); }
-</style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gabriel Barrera // root@gabriel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+<div id="root"></div>
 
-<!-- Background layers -->
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-<div class="orb orb3"></div>
-<div class="grid-floor"></div>
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 
-<!-- Corner UI chrome -->
-<div class="corner-tag">// SYS:MAIN</div>
-<div class="clock"><span id="clk">00:00:00</span> — ONLINE</div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
 
-<div class="stage">
-
-  <!-- ASCII HORSE — static glitch logo -->
-  <div class="horse-wrap" aria-label="ASCII horse logo">
-    <div class="horse-glitch-wrap" id="horseWrap">
-      <canvas class="horse-noise" id="horseNoise"></canvas>
-      <div class="tear" id="tear1"></div>
-      <div class="tear" id="tear2"></div>
-      <div class="tear" id="tear3"></div>
-      <div class="tear-w" id="tearW1"></div>
-      <div class="tear-w" id="tearW2"></div>
-      <span class="horse-r" id="horseR">           ,--,
-     _ ___/ /\|
- ,;'( )__,  )  ~
-//  //    '--;
-'    \     | ^
-      ^    ^  </span>
-      <span class="horse-b" id="horseB">           ,--,
-     _ ___/ /\|
- ,;'( )__,  )  ~
-//  //    '--;
-'    \     | ^
-      ^    ^  </span>
-      <span class="horse-w" id="horseW">           ,--,
-     _ ___/ /\|
- ,;'( )__,  )  ~
-//  //    '--;
-'    \     | ^
-      ^    ^  </span>
-      <span class="horse-base" id="horseBase">           ,--,
-     _ ___/ /\|
- ,;'( )__,  )  ~
-//  //    '--;
-'    \     | ^
-      ^    ^  </span>
-    </div>
-  </div>
-
-  <!-- TITLE -->
-  <div class="title-block">
-    <div class="site-tag">▸ welcome to</div>
-    <div class="site-title">PWNY<span class="x">X</span>PRESS</div>
-    <div class="site-sub">// A R3TYP3 Project //</div>
-  </div>
-
-  <!-- MENU -->
-  <nav class="menu" role="navigation" aria-label="Main menu">
-
-    <a href="budget.html" class="menu-btn btn-budget">
-      <span class="shine"></span>
-      <span class="icon">◈</span>
-      <span class="label">Neon//Ledger</span>
-      <span class="arrow">▶</span>
-    </a>
-
-    <a href="tracker.html" class="menu-btn btn-tracker">
-      <span class="shine"></span>
-      <span class="icon">◉</span>
-      <span class="label">HUNTRE55</span>
-      <span class="arrow">▶</span>
-    </a>
-
-    <a href="camera.html" class="menu-btn btn-camera">
-      <span class="shine"></span>
-      <span class="icon">◎</span>
-      <span class="label">SAUR0N</span>
-      <span class="arrow">▶</span>
-    </a>
-
-    <form class="menu-btn btn-reload nav-form" onsubmit="navToPage(event)">
-      <span class="shine"></span>
-      <span class="nav-cursor">█</span>
-      <input type="text" class="nav-input" id="navInput"
-             placeholder="navigate to..." autocomplete="off" spellcheck="false" />
-      <button type="submit" class="nav-submit">GO ▶</button>
-    </form>
-
-  </nav>
-</div>
-
-<div class="footer">PWNY<span>X</span>PRESS &nbsp;·&nbsp; ALL SYSTEMS NOMINAL &nbsp;·&nbsp; v1.0.0</div>
-
-<script>
-// ── PAGE NAVIGATOR ──
-function navToPage(e) {
-  e.preventDefault();
-  let val = document.getElementById('navInput').value.trim();
-  if (!val) return;
-  if (!val.toLowerCase().endsWith('.html')) val += '.html';
-  window.location.href = val;
+// ─── Matrix rain ───────────────────────────────────────────────
+function MatrixRain({ enabled, hue }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!enabled) return;
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let raf, cols, drops, fontSize;
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      fontSize = 14;
+      cols = Math.floor(canvas.offsetWidth / fontSize);
+      drops = Array(cols).fill(0).map(() => Math.random() * -100);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    const glyphs = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロヲゴゾドボポ0123456789ABCDEF{}<>[]/$#@!?*';
+    const draw = () => {
+      ctx.fillStyle = 'rgba(6, 4, 12, 0.08)';
+      ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
+      for (let i = 0; i < cols; i++) {
+        const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        ctx.fillStyle = `oklch(0.92 0.18 ${hue})`;
+        ctx.fillText(ch, x, y);
+        ctx.fillStyle = `oklch(0.6 0.2 ${hue} / 0.6)`;
+        ctx.fillText(ch, x, y - fontSize);
+        if (y > canvas.offsetHeight && Math.random() > 0.975) drops[i] = 0;
+        drops[i] += 0.4;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
+  }, [enabled, hue]);
+  if (!enabled) return null;
+  return <canvas ref={ref} className="matrix-rain" />;
 }
 
-// ── SERVICE WORKER REGISTRATION ──
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
-
-  // When a new SW takes control, reload to use the fresh cache
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
-  });
+// ─── Glitch text ───────────────────────────────────────────────
+function GlitchText({ text, className = '' }) {
+  return (
+    <span className={`glitch-text ${className}`} data-text={text}>{text}</span>
+  );
 }
 
-
-// ── CLOCK ──
-function tick() {
-  const n = new Date();
-  document.getElementById('clk').textContent =
-    String(n.getHours()).padStart(2,'0') + ':' +
-    String(n.getMinutes()).padStart(2,'0') + ':' +
-    String(n.getSeconds()).padStart(2,'0');
-}
-setInterval(tick, 1000); tick();
-
-// ══════════════════════════════════════
-//  HORSE GLITCH ENGINE
-// ══════════════════════════════════════
-
-const wrap  = document.getElementById('horseWrap');
-const base  = document.getElementById('horseBase');
-const rLayer= document.getElementById('horseR');
-const bLayer= document.getElementById('horseB');
-const wLayer= document.getElementById('horseW');
-const tears = [
-  document.getElementById('tear1'),
-  document.getElementById('tear2'),
-  document.getElementById('tear3'),
-];
-const tearWs = [
-  document.getElementById('tearW1'),
-  document.getElementById('tearW2'),
-];
-const noiseCanvas = document.getElementById('horseNoise');
-const ctx = noiseCanvas.getContext('2d');
-
-// ── SIZE canvas to horse ──
-function sizeNoise() {
-  const r = wrap.getBoundingClientRect();
-  noiseCanvas.width  = r.width  + 8;
-  noiseCanvas.height = r.height + 8;
-}
-window.addEventListener('resize', sizeNoise);
-setTimeout(sizeNoise, 100);
-
-// ── STATIC NOISE — runs every frame ──
-function drawNoise() {
-  const w = noiseCanvas.width, h = noiseCanvas.height;
-  if (!w || !h) { requestAnimationFrame(drawNoise); return; }
-  const img = ctx.createImageData(w, h);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const v = Math.random() > 0.55 ? Math.floor(Math.random() * 255) : 0;
-    d[i]   = 0;
-    d[i+1] = v;       // green channel → cyan tint
-    d[i+2] = v;
-    d[i+3] = v > 0 ? Math.floor(v * 0.6) : 0;
-  }
-  ctx.putImageData(img, 0, 0);
-  requestAnimationFrame(drawNoise);
-}
-drawNoise();
-
-// ── UTILS ──
-const rand = (a, b) => Math.random() * (b - a) + a;
-const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-
-function getH() {
-  return (wrap.getBoundingClientRect().height || 100);
-}
-
-function hideTears() {
-  tears.forEach(t => { t.style.opacity = 0; });
-  tearWs.forEach(t => { t.style.opacity = 0; });
-}
-
-function hideGhosts() {
-  rLayer.style.opacity = 0;
-  bLayer.style.opacity = 0;
-  wLayer.style.opacity = 0;
-  rLayer.style.clipPath = 'inset(0 0 100% 0)';
-  bLayer.style.clipPath = 'inset(0 0 100% 0)';
-  wLayer.style.clipPath = 'inset(0 0 100% 0)';
-  rLayer.style.transform = 'translate(0,0)';
-  bLayer.style.transform = 'translate(0,0)';
-  wrap.style.transform = '';
-  wrap.style.filter = '';
-}
-
-// ── MICRO TWITCH — very subtle, near-constant ──
-// Fires frequently but stays small so the horse always feels "alive"
-function microTwitch() {
-  const dur = rand(40, 120);
-  rLayer.style.opacity = rand(0.1, 0.35).toString();
-  rLayer.style.clipPath = `inset(${rand(0,80)}% 0 ${rand(0,15)}% 0)`;
-  rLayer.style.transform = `translate(${rand(-2,2)}px, 0)`;
-
-  bLayer.style.opacity = rand(0.1, 0.3).toString();
-  bLayer.style.clipPath = `inset(${rand(0,80)}% 0 ${rand(0,15)}% 0)`;
-  bLayer.style.transform = `translate(${rand(-2,2)}px, 0)`;
-
-  // Occasional white flash slice
-  if (Math.random() > 0.7) {
-    const top = rand(10,80), bot = rand(5, 30 - 5);
-    wLayer.style.opacity = rand(0.15, 0.5).toString();
-    wLayer.style.clipPath = `inset(${top}% 0 ${bot}% 0)`;
-  }
-
-  setTimeout(() => {
-    hideGhosts();
-    // Schedule next micro twitch — frequent, irregular
-    setTimeout(microTwitch, rand(200, 900));
-  }, dur);
-}
-
-// ── TEAR BAR — a single horizontal slice jump ──
-function fireTear() {
-  const h = getH();
-  const t = pick(tears);
-  const top = rand(5, 90);
-  t.style.top = `${top}%`;
-  t.style.opacity = rand(0.5, 1).toString();
-  t.style.height = `${rand(1, 4)}px`;
-  t.style.boxShadow = `0 0 ${rand(4,12)}px rgba(0,245,255,0.8)`;
-  // Slight horizontal shift of content above tear
-  wrap.style.transform = `translate(${rand(-6,6)}px, 0) skewX(${rand(-1,1)}deg)`;
-
-  const dur = rand(30, 100);
-  setTimeout(() => {
-    t.style.opacity = 0;
-    wrap.style.transform = '';
-    if (Math.random() > 0.5) {
-      // chain a white tear
-      const tw = pick(tearWs);
-      tw.style.top = `${rand(0,100)}%`;
-      tw.style.opacity = '0.8';
-      setTimeout(() => { tw.style.opacity = 0; }, rand(20,60));
+// ─── Typewriter ────────────────────────────────────────────────
+function Typewriter({ phrases, speed = 70, pause = 1400 }) {
+  const [i, setI] = useState(0);
+  const [text, setText] = useState('');
+  const [del, setDel] = useState(false);
+  useEffect(() => {
+    const cur = phrases[i];
+    let t;
+    if (!del && text.length < cur.length) {
+      t = setTimeout(() => setText(cur.slice(0, text.length + 1)), speed);
+    } else if (!del && text.length === cur.length) {
+      t = setTimeout(() => setDel(true), pause);
+    } else if (del && text.length > 0) {
+      t = setTimeout(() => setText(cur.slice(0, text.length - 1)), speed / 2);
+    } else if (del && text.length === 0) {
+      setDel(false);
+      setI((i + 1) % phrases.length);
     }
-  }, dur);
+    return () => clearTimeout(t);
+  }, [text, del, i, phrases, speed, pause]);
+  return (
+    <span className="typewriter">
+      <span>{text}</span>
+      <span className="caret">█</span>
+    </span>
+  );
 }
 
-// ── BIG BURST — full distortion event ──
-function glitchBurst() {
-  const h = getH();
-  const steps = Math.floor(rand(4, 9));
-  let delay = 0;
-
-  for (let i = 0; i < steps; i++) {
-    const t = delay;
-    delay += rand(30, 90);
-
-    setTimeout(() => {
-      // RGB split with random clip slices
-      const r1 = rand(0, 70), r2 = rand(0, 25);
-      const b1 = rand(0, 70), b2 = rand(0, 25);
-
-      rLayer.style.opacity = rand(0.5, 0.95).toString();
-      rLayer.style.clipPath = `inset(${r1}% 0 ${r2}% 0)`;
-      rLayer.style.transform = `translate(${rand(-8, -2)}px, ${rand(-1,1)}px)`;
-
-      bLayer.style.opacity = rand(0.4, 0.85).toString();
-      bLayer.style.clipPath = `inset(${b1}% 0 ${b2}% 0)`;
-      bLayer.style.transform = `translate(${rand(2, 9)}px, ${rand(-1,1)}px)`;
-
-      // Whole-body transform
-      wrap.style.transform = `translate(${rand(-4,4)}px, ${rand(-1,1)}px) skewX(${rand(-2,2)}deg)`;
-      wrap.style.filter = `brightness(${rand(0.7, 2.0)}) hue-rotate(${rand(-40,40)}deg)`;
-
-      // Tear bars
-      if (Math.random() > 0.3) fireTear();
-
-      // White flash slice
-      if (Math.random() > 0.5) {
-        const top = rand(5, 75);
-        wLayer.style.opacity = rand(0.3, 0.8).toString();
-        wLayer.style.clipPath = `inset(${top}% 0 ${rand(5,20)}% 0)`;
-      }
-
-    }, t);
-
-    // Reset after each step
-    setTimeout(() => {
-      if (i === steps - 1) {
-        hideGhosts();
-        hideTears();
-        wrap.style.transform = '';
-        wrap.style.filter = '';
-      } else {
-        hideGhosts();
-      }
-    }, delay + 15);
-  }
+// ─── System status ─────────────────────────────────────────────
+function SystemStatus() {
+  const [time, setTime] = useState(new Date());
+  const [ping, setPing] = useState(12);
+  const [load, setLoad] = useState(0.34);
+  useEffect(() => {
+    const t = setInterval(() => {
+      setTime(new Date());
+      setPing(Math.floor(8 + Math.random() * 18));
+      setLoad(0.2 + Math.random() * 0.5);
+    }, 1500);
+    return () => clearInterval(t);
+  }, []);
+  const uptimeRef = useRef(Date.now());
+  const up = Math.floor((Date.now() - uptimeRef.current) / 1000);
+  const fmt = (n) => String(n).padStart(2, '0');
+  return (
+    <div className="status">
+      <div className="status-row"><span className="status-dot" /><span>SECURE_CHANNEL</span></div>
+      <div className="status-row"><span className="status-k">UTC</span><span>{fmt(time.getUTCHours())}:{fmt(time.getUTCMinutes())}:{fmt(time.getUTCSeconds())}</span></div>
+      <div className="status-row"><span className="status-k">PING</span><span>{ping}ms</span></div>
+      <div className="status-row"><span className="status-k">LOAD</span><span>{(load * 100).toFixed(1)}%</span></div>
+      <div className="status-row"><span className="status-k">UP</span><span>{Math.floor(up / 60)}m {up % 60}s</span></div>
+    </div>
+  );
 }
 
-// ── SCHEDULER ──
-// Low-level constant micro twitches + medium tears + big burst events
-
-// Start micro twitches immediately
-setTimeout(microTwitch, rand(300, 800));
-
-// Regular tear bars every 1.2–2.5s
-function tearLoop() {
-  fireTear();
-  setTimeout(tearLoop, rand(1200, 2500));
+// ─── Hero ──────────────────────────────────────────────────────
+function Hero() {
+  return (
+    <section className="hero">
+      <div className="hero-left">
+        <div className="hero-prefix">
+          <span className="prompt">root@gabriel</span>
+          <span className="dim">:~$ whoami</span>
+        </div>
+        <h1 className="hero-name">
+          <GlitchText text="Gabriel" />
+          <GlitchText text="Barrera" />
+        </h1>
+        <div className="hero-roles">
+          <span className="bracket">[</span>
+          <Typewriter phrases={['hacker', 'poet', 'gamer']} />
+          <span className="bracket">]</span>
+        </div>
+        <div className="hero-tags">
+          <span className="tag">// breaks systems</span>
+          <span className="tag">// writes verse</span>
+          <span className="tag">// runs the gauntlet</span>
+        </div>
+        <div className="hero-meta">
+          <div><span className="status-k">ID</span> 0xGB-2A4F-9E11</div>
+          <div><span className="status-k">LOC</span> [REDACTED]</div>
+          <div><span className="status-k">PGP</span> 4F3C 8A91 E2D7 ...</div>
+        </div>
+      </div>
+      <div className="hero-portrait" style={{ '--glitch-intensity': 0.7 }}>
+        <div className="portrait-frame">
+          <div className="portrait-corners"><span /><span /><span /><span /></div>
+          <div className="portrait-img">
+            <img src="headshot.png" alt="Gabriel Barrera" />
+            <img src="headshot.png" alt="" className="glitch-layer r" aria-hidden="true" />
+            <img src="headshot.png" alt="" className="glitch-layer g" aria-hidden="true" />
+            <img src="headshot.png" alt="" className="glitch-layer b" aria-hidden="true" />
+            <div className="portrait-scanlines" />
+            <div className="portrait-noise" />
+            <div className="portrait-tag">SUBJECT_01.IMG</div>
+            <div className="portrait-tag tr">REC ●</div>
+            <div className="portrait-tag bl">{'>'} TRACE OK</div>
+            <div className="portrait-tag br">FRAME 0427</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
-setTimeout(tearLoop, rand(400, 1000));
 
-// Big burst every 2.5–5s
-function burstLoop() {
-  glitchBurst();
-  setTimeout(burstLoop, rand(2500, 5000));
+// ─── Pillars ───────────────────────────────────────────────────
+const PILLARS = [
+  {
+    id: 'hacker', num: '01', title: 'hacker',
+    sub: '// offensive security & curiosity',
+    body: 'I poke holes in things that pretend to be locked. By day I work in offensive security — fuzzing protocols, chasing memory corruption, writing exploits for hardware nobody else wants to read. By night I read CVEs the way other people read horoscopes.',
+    chips: ['CTF', 'binary exploitation', 'red team', 'reverse engineering', 'rust', 'python'],
+    art: `$ nmap -A target.local
+PORT     STATE  SERVICE
+22/tcp   open   ssh
+80/tcp   open   http
+443/tcp  open   https
+1337/tcp open   ?????
+$ ./exploit.py --shell
+[+] payload landed
+[+] shell acquired
+[+] root obtained`,
+    artClass: 'ascii-art',
+  },
+  {
+    id: 'poet', num: '02', title: 'poet',
+    sub: '// language as buffer overflow',
+    body: 'Hacking and poetry are the same compulsion in different syntaxes — both look at the rules and ask what happens at the edges. I write short verse: clipped, mechanical, sometimes tender. Published in a couple of small zines, mostly read by people I love.',
+    chips: ['short verse', 'zines', 'open mics', 'erasure', 'concrete poetry'],
+    art: `           in the cathedral
+           of the kernel
+           i kneel —
+
+           every syscall
+           a small confession
+           of what i wanted
+
+           the machine
+           forgives nothing
+           and listens
+           anyway`,
+    artClass: 'ascii-art poem',
+  },
+  {
+    id: 'gamer', num: '03', title: 'gamer',
+    sub: '// permadeath enthusiast',
+    body: 'I play slow, deliberate things — soulslikes, immersive sims, roguelikes that punish you for blinking. I keep a spreadsheet of run seeds. I have opinions about input latency. I will absolutely talk your ear off about Tarkov maps.',
+    chips: ['soulslikes', 'roguelikes', 'imm-sims', 'fps', 'speedruns'],
+    art: `+----------------------+
+| RUN_LOG  S+ RANK     |
+|----------------------|
+| seed:  0x4A7F E2D9   |
+| floor: 24            |
+| time:  01:42:33      |
+| death: 0             |
+| chr:   silent.◆      |
+| run:   ████████░░ 81 |
++----------------------+
+> press [SPACE] to dive`,
+    artClass: 'ascii-art',
+  },
+];
+
+function Pillar({ p }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <article className="pillar" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      <div className="pillar-text">
+        <div className="pillar-head">
+          <span className="pillar-num">{p.num}</span>
+          <span className="pillar-bar" />
+          <span className="pillar-id">/dev/{p.id}</span>
+        </div>
+        <h2 className="pillar-title">
+          <GlitchText className={hover ? 'on' : ''} text={p.title} />
+        </h2>
+        <div className="pillar-sub">{p.sub}</div>
+        <p className="pillar-body">{p.body}</p>
+        <div className="pillar-chips">
+          {p.chips.map((c) => <span key={c} className="chip">{c}</span>)}
+        </div>
+      </div>
+      <div className="pillar-art">
+        <pre className={p.artClass}>{p.art}</pre>
+      </div>
+    </article>
+  );
 }
-setTimeout(burstLoop, rand(800, 2000));
+
+// ─── Contact ───────────────────────────────────────────────────
+const SOCIALS = [
+  { k: 'mail',    v: 'gabriel@barrera.dev',           href: 'mailto:gabriel@barrera.dev' },
+  { k: 'github',  v: 'github.com/gbarrera',            href: '#' },
+  { k: 'twitter', v: '@gbarrera_sec',                  href: '#' },
+  { k: 'matrix',  v: '@gbarrera:matrix.org',           href: '#' },
+  { k: 'pgp',     v: '4F3C 8A91 E2D7 7B0A 1C58 ...',   href: '#' },
+  { k: 'signal',  v: 'on request',                     href: '#' },
+];
+
+function Contact() {
+  const [copied, setCopied] = useState(null);
+  const copy = (k, v) => {
+    if (navigator.clipboard) navigator.clipboard.writeText(v);
+    setCopied(k);
+    setTimeout(() => setCopied(null), 1200);
+  };
+  return (
+    <section className="contact">
+      <div className="section-head">
+        <span className="section-num">04</span>
+        <span className="pillar-bar" />
+        <span className="pillar-id">/dev/contact</span>
+      </div>
+      <h2 className="contact-title"><GlitchText text="establish_link()" /></h2>
+      <p className="contact-lede">Open a channel. I read everything; I reply to most of it.</p>
+      <div className="contact-grid">
+        {SOCIALS.map((s) => (
+          <a key={s.k} className="contact-card" href={s.href}
+             onClick={(e) => { if (s.href === '#') e.preventDefault(); copy(s.k, s.v); }}>
+            <div className="contact-k">{s.k}</div>
+            <div className="contact-v">{s.v}</div>
+            <div className="contact-action">{copied === s.k ? '> copied' : '> copy'}</div>
+          </a>
+        ))}
+      </div>
+      <div className="contact-foot">
+        <span>{'>'}_ end of transmission</span>
+        <span className="dim">// signed: 0xGB</span>
+      </div>
+    </section>
+  );
+}
+
+// ─── App ───────────────────────────────────────────────────────
+function App() {
+  const styleVars = { '--hue-a': 320, '--hue-b': 200 };
+  return (
+    <div className="page has-scan has-flicker" style={styleVars}>
+      <MatrixRain enabled={true} hue={320} />
+      <header className="topbar">
+        <div className="topbar-l">
+          <span className="logo-mark">◆</span>
+          <span className="logo-txt">gabriel.barrera<span className="caret">_</span></span>
+        </div>
+        <nav className="topbar-nav">
+          <a href="#hacker">/01.hacker</a>
+          <a href="#poet">/02.poet</a>
+          <a href="#gamer">/03.gamer</a>
+          <a href="#contact">/04.contact</a>
+        </nav>
+      </header>
+      <main>
+        <Hero />
+        <section className="pillars">
+          {PILLARS.map((p) => (
+            <div key={p.id} id={p.id}><Pillar p={p} /></div>
+          ))}
+        </section>
+        <div id="contact"><Contact /></div>
+      </main>
+      <footer className="bottombar">
+        <span>© 2026 — gabriel barrera // all signals reserved</span>
+        <span className="dim">build 0x4A7F.E2D9 — last commit 04:17 UTC</span>
+      </footer>
+      <SystemStatus />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 </script>
 </body>
 </html>
