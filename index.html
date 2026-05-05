@@ -151,11 +151,11 @@ function Hero() {
         <div className="hero-tags">
           <span className="tag">// breaks systems</span>
           <span className="tag">// writes verse</span>
-          <span className="tag">// runs the gauntlet</span>
+          <span className="tag">// overclocks GPUs</span>
         </div>
         <p className="hero-summary">
-          {'>'} Exploit writer by trade, verse maker by compulsion, pixel-chaser by obsession.
-          I find the gaps — in protocols, in language, in the gauntlet — and push until something gives.
+          {'>'} Software dev by trade, verse maker by compulsion, pixel-chaser by obsession.
+          I live at the intersection of code and creativity, where logic meets lyricism. I build things that go brrt and write things that go hmm.
         </p>
         <div className="hero-meta">
           <div><span className="status-k">ID</span> 0xGB-2A4F-9E11</div>
@@ -189,8 +189,8 @@ const PILLARS = [
   {
     id: 'hacker', num: '01', title: 'hacker',
     sub: '// offensive security & curiosity',
-    body: 'I poke holes in things that pretend to be locked. By day I work in offensive security — fuzzing protocols, chasing memory corruption, writing exploits for hardware nobody else wants to read. By night I read CVEs the way other people read horoscopes.',
-    chips: ['CTF', 'binary exploitation', 'red team', 'reverse engineering', 'rust', 'python'],
+    body: 'I build the plumbing that makes security teams faster — PowerShell scripts, Python tooling, and Power Automate flows wired into Microsoft Defender for automated detection, triage, and response.',
+    chips: ['PowerShell', 'Python', 'Blue Team', 'Microsoft Defender', 'Threat Detection', 'SOC Analyst'],
     art: `$ nmap -A target.local
 PORT     STATE  SERVICE
 22/tcp   open   ssh
@@ -206,38 +206,44 @@ $ ./exploit.py --shell
   {
     id: 'poet', num: '02', title: 'poet',
     sub: '// language as buffer overflow',
-    body: 'Hacking and poetry are the same compulsion in different syntaxes — both look at the rules and ask what happens at the edges. I write short verse: clipped, mechanical, sometimes tender. Published in a couple of small zines, mostly read by people I love.',
-    chips: ['short verse', 'zines', 'open mics', 'erasure', 'concrete poetry'],
-    art: `           in the cathedral
-           of the kernel
-           i kneel —
+    body: 'Hacking and poetry are the same compulsion in different syntaxes — both look at the rules and ask what happens at the edges. Published only in my heart and shared with people I love... or whomever happens to be at the open mic.',
+    chips: ['short verse', 'prose', 'open mics', 'iambic pentameter', 'haikus'],
+    art: `           404 NOT FOUND
+           The requested resource
+           Could not be found
 
-           every syscall
-           a small confession
-           of what i wanted
+           But
+           May be available
+           In the future.
 
-           the machine
-           forgives nothing
-           and listens
-           anyway`,
+           Subsequent requests
+           by the client
+           are permissible
+           
+           That is to say:
+           Sometimes what you are looking for
+           Will not be there when you want it
+           But maybe eventually
+
+           Keep Trying`,
     artClass: 'ascii-art poem',
   },
   {
     id: 'gamer', num: '03', title: 'gamer',
     sub: '// permadeath enthusiast',
-    body: 'I play slow, deliberate things — soulslikes, immersive sims, roguelikes that punish you for blinking. I keep a spreadsheet of run seeds. I have opinions about input latency. I will absolutely talk your ear off about Tarkov maps.',
-    chips: ['soulslikes', 'roguelikes', 'imm-sims', 'fps', 'speedruns'],
+    body: 'I am an open world die hard, a city builder and tactical shooter/FPS enthusiast, and a softie for cozy games. Red Dead Redemption 2 is my favorite game of all time, but ARC Raiders currently has my heart. Rainbow Six series was a staple, and I enjoy making a quiet village in Town to City if I only have a short while to play.',
+    chips: ['open world', 'city builder', 'fps', 'cozygames', 'casual'],
     art: `+----------------------+
-| RUN_LOG  S+ RANK     |
+| RUN_LOG  ARC Raiders |
 |----------------------|
 | seed:  0x4A7F E2D9   |
-| floor: 24            |
-| time:  01:42:33      |
-| death: 0             |
-| chr:   silent.◆      |
+| KOs:   23            |
+| time:  143:36:13     |
+| death: >100          |
+| chr:   silent.       |
 | run:   ████████░░ 81 |
 +----------------------+
-> press [SPACE] to dive`,
+> press [SPACE] to see you topside, raider...`,
     artClass: 'ascii-art',
   },
 ];
@@ -292,7 +298,7 @@ function Contact() {
         <span className="pillar-bar" />
         <span className="pillar-id">/dev/contact</span>
       </div>
-      <h2 className="contact-title"><GlitchText text="establish_link()" /></h2>
+      <h2 className="contact-title"><GlitchText text="establish_link( )" /></h2>
       <p className="contact-lede">Open a channel. I read everything; I reply to most of it.</p>
       <div className="contact-grid">
         {SOCIALS.map((s) => (
