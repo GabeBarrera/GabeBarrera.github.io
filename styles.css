@@ -205,6 +205,16 @@ body::before {
   color: var(--dim);
 }
 
+.hero-summary {
+  margin-top: 24px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--fg);
+  opacity: 0.72;
+  font-family: 'IBM Plex Mono', monospace;
+  max-width: 480px;
+}
+
 .hero-meta {
   margin-top: 40px;
   display: grid;
