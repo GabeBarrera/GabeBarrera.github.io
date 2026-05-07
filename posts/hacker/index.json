@@ -1,0 +1,18 @@
+{
+  "posts": [
+    {
+      "slug": "buffer-overflows-for-the-curious",
+      "title": "Buffer Overflows for the Curious",
+      "subtitle": "A walk through stack-based exploitation, or: why I love crashing things on purpose",
+      "date": "2026-04-18",
+      "tags": ["exploitation", "x86", "ctf"]
+    },
+    {
+      "slug": "automating-defender-with-power-automate",
+      "title": "Automating Defender with Power Automate",
+      "subtitle": "Wiring incident response to a low-code flow without losing your soul",
+      "date": "2026-03-02",
+      "tags": ["defender", "power-automate", "blue-team"]
+    }
+  ]
+}

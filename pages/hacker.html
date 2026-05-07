@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>// hacker — gabriel barrera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="blog.css" />
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useMemo } = React;
+
+// ─── Shared bits (matrix rain, status, glitch) ─────────────────
+function MatrixRain({ enabled, hue }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!enabled) return;
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let raf, cols, drops, fontSize;
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      fontSize = 14;
+      cols = Math.floor(canvas.offsetWidth / fontSize);
+      drops = Array(cols).fill(0).map(() => Math.random() * -100);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    const glyphs = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロヲゴゾドボポ0123456789ABCDEF{}<>[]/$#@!?*';
+    const draw = () => {
+      ctx.fillStyle = 'rgba(6, 4, 12, 0.08)';
+      ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
+      for (let i = 0; i < cols; i++) {
+        const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        ctx.fillStyle = `oklch(0.92 0.18 ${hue})`;
+        ctx.fillText(ch, x, y);
+        ctx.fillStyle = `oklch(0.6 0.2 ${hue} / 0.6)`;
+        ctx.fillText(ch, x, y - fontSize);
+        if (y > canvas.offsetHeight && Math.random() > 0.975) drops[i] = 0;
+        drops[i] += 0.4;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
+  }, [enabled, hue]);
+  if (!enabled) return null;
+  return <canvas ref={ref} className="matrix-rain" />;
+}
+
+function GlitchText({ text, className = '' }) {
+  return <span className={`glitch-text ${className}`} data-text={text}>{text}</span>;
+}
+
+function Topbar({ active }) {
+  return (
+    <header className="topbar">
+      <div className="topbar-l">
+        <a href="../index.html" style={{display:'flex',alignItems:'center',gap:10}}>
+          <span className="logo-mark">◆</span>
+          <span className="logo-txt">gabriel.barrera<span className="caret">_</span></span>
+        </a>
+      </div>
+      <nav className="topbar-nav">
+        <a href="../index.html#hacker" className={active==='hacker'?'on':''}>/01.hacker</a>
+        <a href="../index.html#poet">/02.poet</a>
+        <a href="../index.html#gamer">/03.gamer</a>
+        <a href="../index.html#contact">/04.contact</a>
+      </nav>
+    </header>
+  );
+}
+
+function Toast({ msg, kind, onDone }) {
+  useEffect(() => {
+    if (!msg) return;
+    const t = setTimeout(onDone, 2400);
+    return () => clearTimeout(t);
+  }, [msg, onDone]);
+  if (!msg) return null;
+  return <div className={`toast ${kind || ''}`}>{msg}</div>;
+}
+
+// ─── Tiny markdown renderer ────────────────────────────────────
+// Subset: headings, paragraphs, bold, italic, inline code, links,
+// fenced code with lang label, blockquotes, ul/ol, hr, images.
+function renderInline(s) {
+  // code spans
+  s = s.replace(/`([^`]+)`/g, (_, c) => `<code>${esc(c)}</code>`);
+  // images ![alt](src)
+  s = s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, a, u) => `<img src="${esc(u)}" alt="${esc(a)}" />`);
+  // links [text](url)
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, t, u) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`);
+  // bold + italic — done after code/links so we don't break URLs
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  s = s.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+  return s;
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function highlightCode(code, lang) {
+  let s = esc(code);
+  // Order matters
+  s = s.replace(/(\/\/[^\n]*|#[^\n]*|\/\*[\s\S]*?\*\/)/g, '<span class="tk-com">$1</span>');
+  s = s.replace(/("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g, '<span class="tk-str">$1</span>');
+  s = s.replace(/\b(0x[0-9a-fA-F]+|\d+\.?\d*)\b/g, '<span class="tk-num">$1</span>');
+  const kws = '\\b(?:function|const|let|var|return|if|else|for|while|class|new|import|from|export|default|async|await|try|catch|throw|in|of|null|undefined|true|false|def|print|lambda|self|None|True|False|param|param\\$|foreach|do|end|not|and|or|then|elseif|local|nil|public|private|static|void|int|char|float|double|struct|typedef|include|sizeof|switch|case|break|continue|enum|namespace|using)\\b';
+  s = s.replace(new RegExp(kws, 'g'), '<span class="tk-kw">$1</span>');
+  s = s.replace(/\b([a-zA-Z_][\w]*)(?=\s*\()/g, '<span class="tk-fn">$1</span>');
+  return s;
+}
+
+function mdToHtml(md) {
+  if (!md) return '';
+  // Strip frontmatter
+  md = md.replace(/^---\n[\s\S]*?\n---\n?/, '');
+  const lines = md.split('\n');
+  let out = [];
+  let i = 0;
+  let inUl = false, inOl = false;
+  const closeLists = () => {
+    if (inUl) { out.push('</ul>'); inUl = false; }
+    if (inOl) { out.push('</ol>'); inOl = false; }
+  };
+  while (i < lines.length) {
+    const ln = lines[i];
+
+    // fenced code
+    const fence = ln.match(/^```(\w*)/);
+    if (fence) {
+      closeLists();
+      const lang = fence[1] || '';
+      const buf = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i])) { buf.push(lines[i]); i++; }
+      i++; // skip closing
+      out.push(`<pre data-lang="${esc(lang)}"><code>${highlightCode(buf.join('\n'), lang)}</code></pre>`);
+      continue;
+    }
+
+    // headings
+    const h = ln.match(/^(#{1,3})\s+(.*)$/);
+    if (h) {
+      closeLists();
+      out.push(`<h${h[1].length}>${renderInline(esc(h[2]))}</h${h[1].length}>`);
+      i++; continue;
+    }
+
+    // hr
+    if (/^---+\s*$/.test(ln)) { closeLists(); out.push('<hr />'); i++; continue; }
+
+    // blockquote (multi-line)
+    if (/^>\s?/.test(ln)) {
+      closeLists();
+      const buf = [];
+      while (i < lines.length && /^>\s?/.test(lines[i])) {
+        buf.push(lines[i].replace(/^>\s?/, ''));
+        i++;
+      }
+      out.push(`<blockquote><p>${renderInline(esc(buf.join(' ')))}</p></blockquote>`);
+      continue;
+    }
+
+    // unordered list
+    if (/^[-*]\s+/.test(ln)) {
+      if (!inUl) { closeLists(); out.push('<ul>'); inUl = true; }
+      out.push(`<li>${renderInline(esc(ln.replace(/^[-*]\s+/, '')))}</li>`);
+      i++; continue;
+    }
+
+    // ordered list
+    if (/^\d+\.\s+/.test(ln)) {
+      if (!inOl) { closeLists(); out.push('<ol>'); inOl = true; }
+      out.push(`<li>${renderInline(esc(ln.replace(/^\d+\.\s+/, '')))}</li>`);
+      i++; continue;
+    }
+
+    // blank line
+    if (/^\s*$/.test(ln)) { closeLists(); i++; continue; }
+
+    // paragraph (gather contiguous non-special lines)
+    closeLists();
+    const buf = [ln];
+    i++;
+    while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(#|>|\d+\.\s|[-*]\s|```|---+\s*$)/.test(lines[i])) {
+      buf.push(lines[i]); i++;
+    }
+    out.push(`<p>${renderInline(esc(buf.join(' ')))}</p>`);
+  }
+  closeLists();
+  return out.join('\n');
+}
+
+function parseFrontmatter(md) {
+  const m = md.match(/^---\n([\s\S]*?)\n---\n?/);
+  if (!m) return { meta: {}, body: md };
+  const meta = {};
+  m[1].split('\n').forEach(line => {
+    const kv = line.match(/^(\w+):\s*(.*)$/);
+    if (!kv) return;
+    let v = kv[2].trim();
+    if (v.startsWith('[') && v.endsWith(']')) {
+      v = v.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+    } else {
+      v = v.replace(/^["']|["']$/g, '');
+    }
+    meta[kv[1]] = v;
+  });
+  return { meta, body: md.slice(m[0].length) };
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  if (isNaN(dt)) return d;
+  return dt.toISOString().slice(0, 10);
+}
+
+// ─── Data layer: posts come from filesystem manifest + drafts from localStorage ──
+const POSTS_DIR = '../posts/hacker';
+const DRAFTS_KEY = 'gb.hacker.drafts.v1';
+
+async function loadFilePosts() {
+  try {
+    const r = await fetch(`${POSTS_DIR}/index.json`, { cache: 'no-store' });
+    if (!r.ok) return [];
+    const j = await r.json();
+    return (j.posts || []).map(p => ({ ...p, source: 'file' }));
+  } catch { return []; }
+}
+
+async function loadFilePost(slug) {
+  const r = await fetch(`${POSTS_DIR}/${slug}.md`, { cache: 'no-store' });
+  if (!r.ok) throw new Error('not found');
+  return await r.text();
+}
+
+function loadDrafts() {
+  try { return JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]'); } catch { return []; }
+}
+function saveDrafts(arr) { localStorage.setItem(DRAFTS_KEY, JSON.stringify(arr)); }
+
+// ─── List page ─────────────────────────────────────────────────
+function PostList({ posts, drafts, onPick, onEdit, onDelDraft, isEditor }) {
+  const [q, setQ] = useState('');
+  const [activeTag, setActiveTag] = useState(null);
+
+  const all = useMemo(() => {
+    const draftOnes = drafts.map(d => ({
+      slug: d.slug,
+      title: d.title || '(untitled draft)',
+      subtitle: d.subtitle || '',
+      date: d.date || '',
+      tags: d.tags || [],
+      source: 'draft',
+    }));
+    return [...draftOnes, ...posts].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }, [posts, drafts]);
+
+  const tags = useMemo(() => {
+    const s = new Set();
+    all.forEach(p => (p.tags || []).forEach(t => s.add(t)));
+    return [...s].sort();
+  }, [all]);
+
+  const filtered = useMemo(() => {
+    return all.filter(p => {
+      if (activeTag && !(p.tags || []).includes(activeTag)) return false;
+      if (q) {
+        const hay = (p.title + ' ' + (p.subtitle || '') + ' ' + (p.tags || []).join(' ')).toLowerCase();
+        if (!hay.includes(q.toLowerCase())) return false;
+      }
+      return true;
+    });
+  }, [all, q, activeTag]);
+
+  return (
+    <>
+      <section className="blog-hero">
+        <div className="blog-crumbs">
+          <a href="../index.html">~</a>
+          <span className="sep">/</span>
+          <a href="../index.html#hacker">hacker</a>
+          <span className="sep">/</span>
+          <span className="here">posts</span>
+        </div>
+        <h1 className="blog-title"><GlitchText text="hacker.log" /></h1>
+        <p className="blog-subtitle">
+          Field notes from the trenches — exploitation walkthroughs, blue-team automation, half-baked tools, and the occasional rant about input validation.
+        </p>
+        <div className="blog-meta">
+          <span><b>POSTS</b> {posts.length.toString().padStart(2,'0')}</span>
+          {drafts.length > 0 && <span><b>DRAFTS</b> {drafts.length}</span>}
+          <span><b>FEED</b> ./posts/hacker/*.md</span>
+          <span><b>STATUS</b> {isEditor ? 'EDIT MODE' : 'READ ONLY'}</span>
+        </div>
+      </section>
+
+      <section className="blog-tools">
+        <div className="blog-search">
+          <span className="prompt">{'>'}</span>
+          <input
+            type="text"
+            value={q}
+            onChange={e => setQ(e.target.value)}
+            placeholder="grep posts..."
+          />
+        </div>
+        <div className="blog-tag-filter">
+          {tags.map(t => (
+            <span
+              key={t}
+              className={`chip ${activeTag === t ? 'on' : ''}`}
+              onClick={() => setActiveTag(activeTag === t ? null : t)}
+            >#{t}</span>
+          ))}
+        </div>
+        {isEditor && (
+          <a className="btn" href="?edit=1&new=1">+ new post</a>
+        )}
+      </section>
+
+      <section className="post-list">
+        {filtered.length === 0 ? (
+          <div className="empty">
+            <pre>{'> grep -r ' + (q || activeTag || '*') + ' ./posts/\nNo matches found.'}</pre>
+            {q || activeTag ? <button className="btn btn-ghost" onClick={() => { setQ(''); setActiveTag(null); }}>clear filters</button> : null}
+          </div>
+        ) : filtered.map((p, idx) => (
+          <a
+            key={p.slug + p.source}
+            className="post-card"
+            href={`?slug=${encodeURIComponent(p.slug)}${p.source === 'draft' ? '&draft=1' : ''}${isEditor ? '&edit=1' : ''}`}
+            onClick={(e) => { e.preventDefault(); onPick(p); }}
+          >
+            <div className="post-num">
+              {String(filtered.length - idx).padStart(2, '0')}
+              {p.source === 'draft' && <span style={{display:'block',color:'var(--warn)',marginTop:4,fontSize:9}}>● DRAFT</span>}
+              <span className="post-date">{fmtDate(p.date)}</span>
+            </div>
+            <div>
+              <h3 className="post-title"><GlitchText text={p.title} /></h3>
+              {p.subtitle && <p className="post-sub">{p.subtitle}</p>}
+              {p.tags && p.tags.length > 0 && (
+                <div className="post-tags">
+                  {p.tags.map(t => <span key={t} className="chip">#{t}</span>)}
+                </div>
+              )}
+            </div>
+            <div className="post-actions">
+              <span className="post-arrow">→</span>
+              {isEditor && (
+                <>
+                  <button className="btn btn-ghost" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(p); }}>edit</button>
+                  {p.source === 'draft' && (
+                    <button className="btn btn-warn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelDraft(p.slug); }}>del</button>
+                  )}
+                </>
+              )}
+            </div>
+          </a>
+        ))}
+      </section>
+    </>
+  );
+}
+
+// ─── Detail page ───────────────────────────────────────────────
+function PostDetail({ slug, isDraft, isEditor, onBack, onEdit }) {
+  const [md, setMd] = useState('');
+  const [err, setErr] = useState('');
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        if (isDraft) {
+          const d = loadDrafts().find(x => x.slug === slug);
+          if (!d) throw new Error('draft not found');
+          if (alive) setMd(buildMd(d));
+        } else {
+          const t = await loadFilePost(slug);
+          if (alive) setMd(t);
+        }
+      } catch (e) { if (alive) setErr(e.message); }
+    })();
+    return () => { alive = false; };
+  }, [slug, isDraft]);
+
+  if (err) return <div className="empty"><pre>{`> cat ${slug}.md\nERROR: ${err}`}</pre><button className="btn btn-ghost" onClick={onBack}>{'< back'}</button></div>;
+  const { meta, body } = parseFrontmatter(md);
+  const html = mdToHtml(body);
+
+  return (
+    <article className="post-detail">
+      <a href="?" className="post-back" onClick={(e) => { e.preventDefault(); onBack(); }}>{'<'} back to posts</a>
+      <div className="post-head">
+        <h1 className="post-h1">{meta.title || slug}</h1>
+        {meta.subtitle && <p className="post-h-sub">{meta.subtitle}</p>}
+        <div className="post-h-meta">
+          {meta.date && <span><b style={{color:'var(--acc-2)',fontWeight:500,marginRight:6}}>DATE</b>{fmtDate(meta.date)}</span>}
+          {meta.tags && Array.isArray(meta.tags) && meta.tags.length > 0 && (
+            <span><b style={{color:'var(--acc-2)',fontWeight:500,marginRight:6}}>TAGS</b>{meta.tags.map(t => '#'+t).join(' ')}</span>
+          )}
+          <span><b style={{color:'var(--acc-2)',fontWeight:500,marginRight:6}}>SRC</b>{isDraft ? 'localStorage:draft' : `posts/hacker/${slug}.md`}</span>
+          {isEditor && (
+            <button className="btn btn-ghost" style={{marginLeft:'auto'}} onClick={onEdit}>edit this post →</button>
+          )}
+        </div>
+      </div>
+      <div className="md" dangerouslySetInnerHTML={{ __html: html }} />
+    </article>
+  );
+}
+
+// ─── Build markdown from a draft (block array) ─────────────────
+function buildMd(draft) {
+  const fm = [
+    '---',
+    `title: "${(draft.title || '').replace(/"/g, '\\"')}"`,
+    draft.subtitle ? `subtitle: "${draft.subtitle.replace(/"/g, '\\"')}"` : null,
+    draft.date ? `date: ${draft.date}` : null,
+    draft.tags && draft.tags.length ? `tags: [${draft.tags.map(t => t).join(', ')}]` : null,
+    draft.cover ? `cover: "${draft.cover}"` : null,
+    '---',
+    '',
+  ].filter(Boolean).join('\n');
+
+  const body = (draft.blocks || []).map(b => {
+    switch (b.type) {
+      case 'h1': return `# ${b.text || ''}`;
+      case 'h2': return `## ${b.text || ''}`;
+      case 'h3': return `### ${b.text || ''}`;
+      case 'p': return b.text || '';
+      case 'quote': return (b.text || '').split('\n').map(l => '> ' + l).join('\n');
+      case 'code': return '```' + (b.lang || '') + '\n' + (b.text || '') + '\n```';
+      case 'image': {
+        const alt = b.alt || '';
+        const src = b.src || '';
+        const cap = b.caption ? `\n*${b.caption}*` : '';
+        return `![${alt}](${src})${cap}`;
+      }
+      case 'hr': return '---';
+      default: return b.text || '';
+    }
+  }).join('\n\n');
+
+  return fm + body + '\n';
+}
+
+// ─── Slugify ───────────────────────────────────────────────────
+function slugify(s) {
+  return (s || '').toLowerCase().trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+// ─── Editor ────────────────────────────────────────────────────
+const BLOCK_TEMPLATES = {
+  h1:    () => ({ type: 'h1', text: '' }),
+  h2:    () => ({ type: 'h2', text: '' }),
+  h3:    () => ({ type: 'h3', text: '' }),
+  p:     () => ({ type: 'p', text: '' }),
+  quote: () => ({ type: 'quote', text: '' }),
+  code:  () => ({ type: 'code', text: '', lang: '' }),
+  image: () => ({ type: 'image', src: '', alt: '', caption: '' }),
+  hr:    () => ({ type: 'hr' }),
+};
+const BLOCK_LABELS = {
+  h1: 'TITLE (H1)', h2: 'HEADING', h3: 'SUBHEADING', p: 'PARAGRAPH',
+  quote: 'QUOTE', code: 'CODE BLOCK', image: 'IMAGE', hr: 'DIVIDER',
+};
+
+function Editor({ initial, onSave, onCancel, onPublish, onDelete, allDrafts, onPickDraft, toast }) {
+  const [draft, setDraft] = useState(() => initial || makeBlankDraft());
+  const set = (patch) => setDraft(d => ({ ...d, ...patch }));
+  const setBlock = (i, patch) => setDraft(d => {
+    const blocks = d.blocks.slice();
+    blocks[i] = { ...blocks[i], ...patch };
+    return { ...d, blocks };
+  });
+  const addBlock = (type) => setDraft(d => ({ ...d, blocks: [...d.blocks, BLOCK_TEMPLATES[type]()] }));
+  const moveBlock = (i, dir) => setDraft(d => {
+    const blocks = d.blocks.slice();
+    const j = i + dir;
+    if (j < 0 || j >= blocks.length) return d;
+    [blocks[i], blocks[j]] = [blocks[j], blocks[i]];
+    return { ...d, blocks };
+  });
+  const delBlock = (i) => setDraft(d => ({ ...d, blocks: d.blocks.filter((_, k) => k !== i) }));
+
+  // auto slug from title
+  useEffect(() => {
+    if (draft._slugLocked) return;
+    const s = slugify(draft.title);
+    if (s && s !== draft.slug) setDraft(d => ({ ...d, slug: s }));
+  }, [draft.title]);
+
+  const md = useMemo(() => buildMd(draft), [draft]);
+
+  const downloadMd = () => {
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${draft.slug || 'post'}.md`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast('downloaded ' + (draft.slug || 'post') + '.md');
+  };
+
+  const copyMd = async () => {
+    try {
+      await navigator.clipboard.writeText(md);
+      toast('markdown copied to clipboard');
+    } catch { toast('clipboard blocked', 'warn'); }
+  };
+
+  return (
+    <section className="editor">
+      <div className="blog-crumbs">
+        <a href="../index.html">~</a>
+        <span className="sep">/</span>
+        <a href="?" onClick={(e) => { e.preventDefault(); onCancel(); }}>hacker.log</a>
+        <span className="sep">/</span>
+        <span className="here">{initial ? 'edit' : 'new'}</span>
+      </div>
+
+      <div className="editor-head">
+        <h1>{initial ? 'edit_post' : 'new_post( )'}</h1>
+        <div className="editor-actions">
+          <button className="btn btn-ghost" onClick={onCancel}>{'< back'}</button>
+          <button className="btn btn-2" onClick={() => { onSave(draft); }}>save draft</button>
+          <button className="btn" onClick={downloadMd}>↓ export .md</button>
+          <button className="btn btn-2" onClick={copyMd}>copy md</button>
+          {initial && initial.source === 'draft' && (
+            <button className="btn btn-warn" onClick={() => { if (confirm('delete this draft?')) onDelete(draft.slug); }}>delete</button>
+          )}
+        </div>
+      </div>
+
+      <div className="help">
+        <b>HOW THIS WORKS:</b> Drafts auto-save to <code>localStorage</code> as you work. To <b>publish</b> a post so visitors see it: click <code>↓ export .md</code>, drop the file into <code>posts/hacker/</code> in the repo, and add an entry to <code>posts/hacker/index.json</code>. (Or use <code>publish steps</code> below for instructions.)
+      </div>
+
+      <div className="editor-grid">
+        <div className="editor-main">
+          <div className="editor-meta">
+            <label>
+              <span>title</span>
+              <input value={draft.title} onChange={e => set({ title: e.target.value })} placeholder="The Post Title" />
+            </label>
+            <label>
+              <span>subtitle</span>
+              <input value={draft.subtitle} onChange={e => set({ subtitle: e.target.value })} placeholder="optional one-liner" />
+            </label>
+            <div className="row2">
+              <label>
+                <span>date</span>
+                <input type="date" value={draft.date} onChange={e => set({ date: e.target.value })} />
+              </label>
+              <label>
+                <span>slug (filename)</span>
+                <input
+                  value={draft.slug}
+                  onChange={e => set({ slug: slugify(e.target.value), _slugLocked: true })}
+                  placeholder="auto from title"
+                />
+              </label>
+            </div>
+            <label>
+              <span>tags (comma separated)</span>
+              <input
+                value={(draft.tags || []).join(', ')}
+                onChange={e => set({ tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                placeholder="e.g. ctf, x86, exploitation"
+              />
+            </label>
+          </div>
+
+          <div className="blocks">
+            {draft.blocks.length === 0 && (
+              <div className="empty"><pre>{'// no blocks yet — add one below'}</pre></div>
+            )}
+            {draft.blocks.map((b, i) => (
+              <div className={`block b-${b.type}`} key={i}>
+                <div className="block-head">
+                  <span className="b-type">{BLOCK_LABELS[b.type] || b.type}</span>
+                  <span className="block-tools">
+                    <button onClick={() => moveBlock(i, -1)} title="move up">↑</button>
+                    <button onClick={() => moveBlock(i, +1)} title="move down">↓</button>
+                    <button className="del" onClick={() => delBlock(i)} title="delete">×</button>
+                  </span>
+                </div>
+                {(b.type === 'h1' || b.type === 'h2' || b.type === 'h3') && (
+                  <input
+                    className="b-input"
+                    value={b.text || ''}
+                    onChange={e => setBlock(i, { text: e.target.value })}
+                    placeholder={b.type === 'h1' ? 'big title' : b.type === 'h2' ? 'section heading' : 'sub-heading'}
+                  />
+                )}
+                {b.type === 'p' && (
+                  <textarea
+                    value={b.text || ''}
+                    onChange={e => setBlock(i, { text: e.target.value })}
+                    placeholder="Write a paragraph. **bold**, *italic*, `inline code`, [links](url) all work."
+                  />
+                )}
+                {b.type === 'quote' && (
+                  <textarea
+                    value={b.text || ''}
+                    onChange={e => setBlock(i, { text: e.target.value })}
+                    placeholder="A pull quote or callout."
+                  />
+                )}
+                {b.type === 'code' && (
+                  <>
+                    <input
+                      className="b-lang"
+                      value={b.lang || ''}
+                      onChange={e => setBlock(i, { lang: e.target.value })}
+                      placeholder="lang (e.g. python, bash, c)"
+                    />
+                    <textarea
+                      value={b.text || ''}
+                      onChange={e => setBlock(i, { text: e.target.value })}
+                      placeholder="// paste your code"
+                    />
+                  </>
+                )}
+                {b.type === 'image' && (
+                  <div className="b-image-row">
+                    <input
+                      value={b.src || ''}
+                      onChange={e => setBlock(i, { src: e.target.value })}
+                      placeholder="image url or path (e.g. ../assets/screenshot.png)"
+                    />
+                    <input
+                      value={b.alt || ''}
+                      onChange={e => setBlock(i, { alt: e.target.value })}
+                      placeholder="alt text"
+                    />
+                    <input
+                      value={b.caption || ''}
+                      onChange={e => setBlock(i, { caption: e.target.value })}
+                      placeholder="optional caption"
+                    />
+                    <div className={`b-preview ${!b.src ? 'empty' : ''}`}>
+                      {b.src ? <img src={b.src} alt={b.alt} onError={(e) => e.target.style.display='none'} /> : '// no image yet'}
+                    </div>
+                  </div>
+                )}
+                {b.type === 'hr' && (
+                  <div style={{textAlign:'center',color:'var(--dim)',padding:'8px 0',letterSpacing:'1em'}}>· · ·</div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="block-add">
+            <span className="label">+ add block:</span>
+            <button onClick={() => addBlock('h2')}>heading</button>
+            <button onClick={() => addBlock('h3')}>sub-heading</button>
+            <button onClick={() => addBlock('p')}>paragraph</button>
+            <button onClick={() => addBlock('quote')}>quote</button>
+            <button onClick={() => addBlock('code')}>code</button>
+            <button onClick={() => addBlock('image')}>image</button>
+            <button onClick={() => addBlock('hr')}>divider</button>
+          </div>
+        </div>
+
+        <aside className="editor-side">
+          <div className="side-card">
+            <h3>preview</h3>
+            <div className="md" style={{fontSize:13,maxHeight:480,overflow:'auto'}}
+                 dangerouslySetInnerHTML={{ __html: mdToHtml(md) }} />
+          </div>
+
+          <div className="side-card">
+            <h3>publish steps</h3>
+            <ol style={{paddingLeft:18,fontSize:11,color:'var(--dim)',lineHeight:1.7,margin:0}}>
+              <li>click <code style={{color:'var(--acc)'}}>↓ export .md</code></li>
+              <li>drop into <code style={{color:'var(--acc-2)'}}>posts/hacker/</code></li>
+              <li>add to <code style={{color:'var(--acc-2)'}}>index.json</code> manifest</li>
+              <li>commit + push</li>
+            </ol>
+          </div>
+
+          {allDrafts && allDrafts.length > 0 && (
+            <div className="side-card">
+              <h3>local drafts ({allDrafts.length})</h3>
+              <div className="side-list">
+                {allDrafts.map(d => (
+                  <div className="side-list-item" key={d.slug}>
+                    <span className="si-title" title={d.title}>{(d.title || '(untitled)').slice(0,28)}</span>
+                    <button className="btn btn-ghost" onClick={() => onPickDraft(d.slug)}>open</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+function makeBlankDraft() {
+  return {
+    slug: '',
+    title: '',
+    subtitle: '',
+    date: new Date().toISOString().slice(0, 10),
+    tags: [],
+    cover: '',
+    blocks: [
+      { type: 'h2', text: 'the setup' },
+      { type: 'p', text: '' },
+    ],
+    source: 'draft',
+  };
+}
+
+// ─── Auth gate ─────────────────────────────────────────────────
+const PIN_KEY = 'gb.hacker.pin.v1';
+const PIN_HASH_DEFAULT = 'b2cf7a4f4f3a2f2f4b9b2e7a8b1d0c2e6f9a7b1c3d5e7f8a9b0c1d2e3f4a5b6'; // unused; we just check pin === 'gabe'
+// Simple pin: 'gabe' (stored locally as confirmed). Edit in source to change.
+const PIN = 'gabe';
+
+function useAuth() {
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(PIN_KEY) === '1');
+  const unlock = (pin) => {
+    if (pin === PIN) {
+      sessionStorage.setItem(PIN_KEY, '1');
+      setUnlocked(true);
+      return true;
+    }
+    return false;
+  };
+  const lock = () => { sessionStorage.removeItem(PIN_KEY); setUnlocked(false); };
+  return [unlocked, unlock, lock];
+}
+
+function LockOverlay({ onUnlock, onCancel }) {
+  const [v, setV] = useState('');
+  const [msg, setMsg] = useState('');
+  const ref = useRef(null);
+  useEffect(() => { ref.current?.focus(); }, []);
+  const submit = (e) => {
+    e?.preventDefault();
+    if (!onUnlock(v)) {
+      setMsg('// access denied');
+      setV('');
+    }
+  };
+  return (
+    <div className="lock-overlay">
+      <form className="lock-card" onSubmit={submit}>
+        <h2>{'>'} authenticate</h2>
+        <p>edit mode requires a passphrase. set in <code style={{color:'var(--acc-2)'}}>hacker.html</code> ➜ <code style={{color:'var(--acc-2)'}}>const PIN</code>.</p>
+        <div className="lock-msg">{msg || '\u00a0'}</div>
+        <input
+          ref={ref}
+          type="password"
+          value={v}
+          onChange={(e) => setV(e.target.value)}
+          placeholder="passphrase..."
+          autoFocus
+        />
+        <div className="lock-actions">
+          <button type="submit" className="btn">unlock</button>
+          <button type="button" className="btn btn-ghost" onClick={onCancel}>read-only</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ─── App router ────────────────────────────────────────────────
+function getQS() {
+  const p = new URLSearchParams(location.search);
+  return {
+    edit: p.get('edit') === '1',
+    new: p.get('new') === '1',
+    slug: p.get('slug') || '',
+    draft: p.get('draft') === '1',
+  };
+}
+function setQS(obj) {
+  const p = new URLSearchParams();
+  Object.entries(obj).forEach(([k, v]) => { if (v) p.set(k, String(v)); });
+  const s = p.toString();
+  history.pushState({}, '', s ? `?${s}` : location.pathname);
+}
+
+function App() {
+  const styleVars = { '--hue-a': 320, '--hue-b': 200 };
+  const [filePosts, setFilePosts] = useState([]);
+  const [drafts, setDrafts] = useState(() => loadDrafts());
+  const [route, setRoute] = useState(() => getQS());
+  const [unlocked, unlock, lock] = useAuth();
+  const [showLock, setShowLock] = useState(false);
+  const [toastMsg, setToastMsg] = useState({ msg: '', kind: '' });
+
+  const showToast = (msg, kind = '') => setToastMsg({ msg, kind });
+
+  // pop state
+  useEffect(() => {
+    const fn = () => setRoute(getQS());
+    window.addEventListener('popstate', fn);
+    return () => window.removeEventListener('popstate', fn);
+  }, []);
+
+  // load file posts
+  useEffect(() => { loadFilePosts().then(setFilePosts); }, []);
+
+  // editor mode triggers lock
+  useEffect(() => {
+    if (route.edit && !unlocked) setShowLock(true);
+    else setShowLock(false);
+  }, [route.edit, unlocked]);
+
+  const isEditor = route.edit && unlocked;
+
+  const persistDrafts = (next) => { setDrafts(next); saveDrafts(next); };
+
+  const goList = () => setQS({ edit: route.edit ? 1 : 0 }) || setRoute({ ...getQS() });
+  const goRead = (p) => {
+    const qs = { slug: p.slug };
+    if (p.source === 'draft') qs.draft = 1;
+    if (route.edit) qs.edit = 1;
+    setQS(qs);
+    setRoute(getQS());
+  };
+  const goEdit = (p) => {
+    const qs = { edit: 1, slug: p.slug };
+    if (p.source === 'draft') qs.draft = 1;
+    setQS(qs);
+    setRoute(getQS());
+  };
+  const goNew = () => {
+    setQS({ edit: 1, new: 1 });
+    setRoute(getQS());
+  };
+
+  // Resolve which initial draft to show in editor
+  const editorInitial = useMemo(() => {
+    if (!route.edit) return null;
+    if (route.new) return null;
+    if (!route.slug) return null;
+    if (route.draft) {
+      const d = drafts.find(x => x.slug === route.slug);
+      return d ? { ...d, source: 'draft' } : null;
+    }
+    // editing a published file post: hydrate from md
+    return null; // loaded async below in editor wrapper
+  }, [route, drafts]);
+
+  // Async hydrate file post → editable draft
+  const [fileEditDraft, setFileEditDraft] = useState(null);
+  useEffect(() => {
+    if (route.edit && !route.new && route.slug && !route.draft) {
+      loadFilePost(route.slug).then(md => setFileEditDraft(mdToDraft(md, route.slug)));
+    } else {
+      setFileEditDraft(null);
+    }
+  }, [route.edit, route.new, route.slug, route.draft]);
+
+  const handleSave = (d) => {
+    const slug = d.slug || slugify(d.title) || `untitled-${Date.now()}`;
+    const next = drafts.filter(x => x.slug !== slug).concat([{ ...d, slug }]);
+    persistDrafts(next);
+    showToast('draft saved → ' + slug);
+    if (route.new || route.draft !== true) {
+      setQS({ edit: 1, slug, draft: 1 });
+      setRoute(getQS());
+    }
+  };
+  const handleDeleteDraft = (slug) => {
+    const next = drafts.filter(x => x.slug !== slug);
+    persistDrafts(next);
+    showToast('draft deleted', 'warn');
+    if (route.slug === slug) { setQS({ edit: 1 }); setRoute(getQS()); }
+  };
+
+  // Render
+  let body;
+  if (route.edit && (route.new || route.slug)) {
+    if (route.new) {
+      body = <Editor
+        initial={null}
+        onSave={handleSave}
+        onCancel={() => { setQS({ edit: 1 }); setRoute(getQS()); }}
+        onDelete={handleDeleteDraft}
+        allDrafts={drafts}
+        onPickDraft={(slug) => { setQS({ edit: 1, slug, draft: 1 }); setRoute(getQS()); }}
+        toast={showToast}
+      />;
+    } else if (route.draft) {
+      body = <Editor
+        initial={editorInitial}
+        onSave={handleSave}
+        onCancel={() => { setQS({ edit: 1 }); setRoute(getQS()); }}
+        onDelete={handleDeleteDraft}
+        allDrafts={drafts}
+        onPickDraft={(slug) => { setQS({ edit: 1, slug, draft: 1 }); setRoute(getQS()); }}
+        toast={showToast}
+      />;
+    } else {
+      body = fileEditDraft
+        ? <Editor
+            initial={fileEditDraft}
+            onSave={handleSave}
+            onCancel={() => { setQS({ edit: 1 }); setRoute(getQS()); }}
+            onDelete={handleDeleteDraft}
+            allDrafts={drafts}
+            onPickDraft={(slug) => { setQS({ edit: 1, slug, draft: 1 }); setRoute(getQS()); }}
+            toast={showToast}
+          />
+        : <div className="empty"><pre>{'> loading post for editing...'}</pre></div>;
+    }
+  } else if (route.slug) {
+    body = <PostDetail
+      slug={route.slug}
+      isDraft={route.draft}
+      isEditor={isEditor}
+      onBack={() => { setQS({ edit: route.edit ? 1 : 0 }); setRoute(getQS()); }}
+      onEdit={() => goEdit({ slug: route.slug, source: route.draft ? 'draft' : 'file' })}
+    />;
+  } else {
+    body = <PostList
+      posts={filePosts}
+      drafts={drafts}
+      onPick={goRead}
+      onEdit={goEdit}
+      onDelDraft={handleDeleteDraft}
+      isEditor={isEditor}
+    />;
+  }
+
+  return (
+    <div className="page has-scan has-flicker blog-page" style={styleVars}>
+      <MatrixRain enabled={true} hue={320} />
+      <Topbar active="hacker" />
+      <main>{body}</main>
+      <footer className="bottombar">
+        <span>© 2026 — gabriel barrera // hacker.log</span>
+        <span className="dim">
+          {isEditor ? <a href="#" onClick={(e) => { e.preventDefault(); lock(); showToast('locked'); }} style={{color:'var(--warn)'}}>● lock editor</a>
+                    : <a href="?edit=1" style={{color:'var(--dim)'}}>// editor →</a>}
+        </span>
+      </footer>
+      {showLock && (
+        <LockOverlay
+          onUnlock={(v) => { const ok = unlock(v); if (ok) { setShowLock(false); showToast('access granted'); } return ok; }}
+          onCancel={() => { setQS({}); setRoute(getQS()); setShowLock(false); }}
+        />
+      )}
+      <Toast msg={toastMsg.msg} kind={toastMsg.kind} onDone={() => setToastMsg({ msg: '', kind: '' })} />
+    </div>
+  );
+}
+
+// Convert a markdown file (with frontmatter) to a draft for the block editor.
+// We do a "best effort" parse — code fences and headings into typed blocks,
+// everything else into paragraphs. Round-trips well enough for editing.
+function mdToDraft(md, slug) {
+  const { meta, body } = parseFrontmatter(md);
+  const lines = body.split('\n');
+  const blocks = [];
+  let i = 0;
+  while (i < lines.length) {
+    const ln = lines[i];
+    const fence = ln.match(/^```(\w*)/);
+    if (fence) {
+      const lang = fence[1] || '';
+      const buf = [];
+      i++;
+      while (i < lines.length && !/^```/.test(lines[i])) { buf.push(lines[i]); i++; }
+      i++;
+      blocks.push({ type: 'code', lang, text: buf.join('\n') });
+      continue;
+    }
+    const h = ln.match(/^(#{1,3})\s+(.*)$/);
+    if (h) {
+      const t = ['h1', 'h2', 'h3'][h[1].length - 1];
+      blocks.push({ type: t, text: h[2] });
+      i++; continue;
+    }
+    if (/^---+\s*$/.test(ln)) { blocks.push({ type: 'hr' }); i++; continue; }
+    if (/^>\s?/.test(ln)) {
+      const buf = [];
+      while (i < lines.length && /^>\s?/.test(lines[i])) { buf.push(lines[i].replace(/^>\s?/, '')); i++; }
+      blocks.push({ type: 'quote', text: buf.join('\n') });
+      continue;
+    }
+    // image-only paragraph
+    const im = ln.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*$/);
+    if (im) {
+      blocks.push({ type: 'image', alt: im[1], src: im[2], caption: '' });
+      i++; continue;
+    }
+    if (/^\s*$/.test(ln)) { i++; continue; }
+    // gather paragraph
+    const buf = [ln]; i++;
+    while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^(#|>|```|---+\s*$|!\[)/.test(lines[i])) {
+      buf.push(lines[i]); i++;
+    }
+    blocks.push({ type: 'p', text: buf.join(' ') });
+  }
+  return {
+    slug,
+    title: meta.title || '',
+    subtitle: meta.subtitle || '',
+    date: meta.date || '',
+    tags: Array.isArray(meta.tags) ? meta.tags : [],
+    cover: meta.cover || '',
+    blocks,
+    source: 'file',
+    _slugLocked: true,
+  };
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
