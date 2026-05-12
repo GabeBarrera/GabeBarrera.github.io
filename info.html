@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>USB Drive — Schematic</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0f1e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    color: #7ec8e3;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  #hint {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #3a6b7e;
+    text-transform: uppercase;
+  }
+
+  #scene {
+    perspective: 900px;
+    width: 420px;
+    height: 280px;
+    cursor: grab;
+  }
+  #scene:active { cursor: grabbing; }
+
+  #usb-group {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg) rotateX(-12deg);
+    transition: transform 0.05s linear;
+  }
+
+  /* ── faces ── */
+  .face {
+    position: absolute;
+    border: 1.5px solid #1e4d6b;
+    box-shadow: inset 0 0 20px rgba(30,100,160,0.15), 0 0 6px rgba(30,130,200,0.2);
+  }
+
+  /* FRONT */
+  #f-front {
+    width: 340px; height: 120px;
+    left: 40px; top: 80px;
+    background: #060d1c;
+    transform: translateZ(24px);
+    border-color: #2a7faa;
+  }
+
+  /* BACK */
+  #f-back {
+    width: 340px; height: 120px;
+    left: 40px; top: 80px;
+    background: #050b18;
+    transform: translateZ(-24px) rotateY(180deg);
+    border-color: #1a5070;
+  }
+
+  /* TOP */
+  #f-top {
+    width: 340px; height: 48px;
+    left: 40px; top: 56px;
+    background: #070e1f;
+    transform: rotateX(90deg) translateZ(24px);
+    border-color: #1e5878;
+  }
+
+  /* BOTTOM */
+  #f-bottom {
+    width: 340px; height: 48px;
+    left: 40px; top: 176px;
+    background: #070e1f;
+    transform: rotateX(-90deg) translateZ(24px);
+    border-color: #1e5878;
+  }
+
+  /* LEFT (cap end) */
+  #f-left {
+    width: 48px; height: 120px;
+    left: 16px; top: 80px;
+    background: #060d1c;
+    transform: rotateY(-90deg) translateZ(24px);
+    border-color: #2a7faa;
+  }
+
+  /* RIGHT (connector end) */
+  #f-right {
+    width: 48px; height: 120px;
+    left: 356px; top: 80px;
+    background: #060d1c;
+    transform: rotateY(90deg) translateZ(24px);
+    border-color: #2a7faa;
+  }
+
+  /* USB connector block */
+  #connector {
+    position: absolute;
+    width: 56px; height: 70px;
+    left: 380px; top: 105px;
+    background: #07111f;
+    border: 1.5px solid #2a7faa;
+    transform: translateZ(18px);
+    transition: opacity 0.3s;
+  }
+  #connector-inner {
+    position: absolute;
+    width: 40px; height: 56px;
+    left: 8px; top: 7px;
+    border: 1px solid #1a5070;
+    background: #030810;
+  }
+
+  /* ── Front face SVG content ── */
+  #front-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── Internals overlay ── */
+  #internals {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 10, 20, 0.92);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+    z-index: 100;
+  }
+  #internals.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  #internals-svg {
+    width: min(92vw, 760px);
+    height: auto;
+  }
+
+  #close-btn {
+    position: fixed;
+    top: 24px; right: 28px;
+    background: none;
+    border: 1px solid #2a7faa;
+    color: #7ec8e3;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    display: none;
+  }
+  #close-btn:hover { background: rgba(42,127,170,0.2); }
+  #internals.open ~ #close-btn { display: block; }
+
+  .schematic-label {
+    font-size: 9px;
+    fill: #3a7a9c;
+    letter-spacing: 1.5px;
+    font-family: 'Courier New', monospace;
+  }
+  .leader { stroke: #2a5a72; stroke-width: 0.6; }
+  .dim-line { stroke: #1e4560; stroke-width: 0.5; stroke-dasharray: 2 2; }
+  .comp-border { stroke: #2a7faa; stroke-width: 1; fill: #070e1f; }
+  .comp-fill { fill: #060c1a; }
+  .grid-line { stroke: #0d1e2e; stroke-width: 0.5; }
+  .trace { stroke: #1a5070; stroke-width: 1; fill: none; }
+  .trace-hot { stroke: #2a8faa; stroke-width: 1.2; fill: none; }
+  .via { fill: #1a5070; }
+  .via-hot { fill: #2a8faa; }
+  .silk { fill: #4aa8c8; font-family: 'Courier New', monospace; }
+  .silk-line { stroke: #4aa8c8; stroke-width: 0.8; fill: none; }
+</style>
+</head>
+<body>
+
+<div id="hint">DRAG TO ROTATE &nbsp;·&nbsp; DOUBLE-CLICK TO INSPECT</div>
+
+<div id="scene">
+  <div id="usb-group">
+
+    <div class="face" id="f-front">
+      <svg id="front-svg" viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
+        <!-- grid -->
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0 L0 0 0 20" fill="none" stroke="#0d1e2e" stroke-width="0.4"/>
+          </pattern>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="1.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <rect width="340" height="120" fill="url(#grid)"/>
+
+        <!-- housing outline -->
+        <rect x="2" y="2" width="336" height="116" rx="4" fill="none" stroke="#1e4d6b" stroke-width="0.8"/>
+
+        <!-- center line -->
+        <line x1="2" y1="60" x2="338" y2="60" class="dim-line"/>
+
+        <!-- LED indicator -->
+        <circle cx="48" cy="60" r="6" fill="#050c18" stroke="#2a7faa" stroke-width="1"/>
+        <circle cx="48" cy="60" r="3" fill="#1a6090" filter="url(#glow)"/>
+        <text x="48" y="78" text-anchor="middle" class="schematic-label">LED</text>
+
+        <!-- flash chip silkscreen -->
+        <rect x="90" y="30" width="80" height="60" class="comp-border" rx="2"/>
+        <text x="130" y="57" text-anchor="middle" class="silk" font-size="7" letter-spacing="1">NAND</text>
+        <text x="130" y="68" text-anchor="middle" class="silk" font-size="6">FLASH</text>
+        <!-- pins -->
+        <g stroke="#1a5070" stroke-width="0.8">
+          <line x1="90" y1="38" x2="82" y2="38"/><line x1="90" y1="46" x2="82" y2="46"/>
+          <line x1="90" y1="54" x2="82" y2="54"/><line x1="90" y1="62" x2="82" y2="62"/>
+          <line x1="90" y1="70" x2="82" y2="70"/><line x1="90" y1="78" x2="82" y2="78"/>
+          <line x1="170" y1="38" x2="178" y2="38"/><line x1="170" y1="46" x2="178" y2="46"/>
+          <line x1="170" y1="54" x2="178" y2="54"/><line x1="170" y1="62" x2="178" y2="62"/>
+          <line x1="170" y1="70" x2="178" y2="70"/><line x1="170" y1="78" x2="178" y2="78"/>
+        </g>
+
+        <!-- controller chip -->
+        <rect x="200" y="34" width="70" height="52" class="comp-border" rx="2"/>
+        <text x="235" y="58" text-anchor="middle" class="silk" font-size="7" letter-spacing="1">USB</text>
+        <text x="235" y="68" text-anchor="middle" class="silk" font-size="6">CTRL</text>
+        <g stroke="#1a5070" stroke-width="0.8">
+          <line x1="200" y1="42" x2="192" y2="42"/><line x1="200" y1="50" x2="192" y2="50"/>
+          <line x1="200" y1="58" x2="192" y2="58"/><line x1="200" y1="66" x2="192" y2="66"/>
+          <line x1="200" y1="74" x2="192" y2="74"/>
+          <line x1="270" y1="42" x2="278" y2="42"/><line x1="270" y1="50" x2="278" y2="50"/>
+          <line x1="270" y1="58" x2="278" y2="58"/><line x1="270" y1="66" x2="278" y2="66"/>
+          <line x1="270" y1="74" x2="278" y2="74"/>
+        </g>
+
+        <!-- traces between chips -->
+        <path d="M178 54 Q188 54 192 58" class="trace-hot" filter="url(#glow)"/>
+        <path d="M178 62 Q188 62 192 66" class="trace"/>
+        <path d="M178 70 Q188 68 192 74" class="trace"/>
+
+        <!-- power trace along bottom -->
+        <path d="M20 100 L320 100" class="trace" stroke="#1e4060"/>
+
+        <!-- vias -->
+        <circle cx="130" cy="100" r="2" class="via"/>
+        <circle cx="235" cy="100" r="2" class="via"/>
+        <circle cx="48"  cy="100" r="2" class="via"/>
+
+        <!-- crystal -->
+        <rect x="295" y="48" width="22" height="24" fill="#050c18" stroke="#2a7faa" stroke-width="0.8" rx="1"/>
+        <line x1="295" y1="60" x2="287" y2="60" stroke="#1a5070" stroke-width="0.8"/>
+        <line x1="317" y1="60" x2="325" y2="60" stroke="#1a5070" stroke-width="0.8"/>
+        <text x="306" y="64" text-anchor="middle" class="silk" font-size="5">XTAL</text>
+        <path d="M325 58 L278 58" class="trace"/>
+
+        <!-- dimension lines -->
+        <line x1="2" y1="8" x2="338" y2="8" class="dim-line"/>
+        <line x1="2" y1="5" x2="2" y2="11" stroke="#1e4560" stroke-width="0.5"/>
+        <line x1="338" y1="5" x2="338" y2="11" stroke="#1e4560" stroke-width="0.5"/>
+        <text x="170" y="7" text-anchor="middle" class="schematic-label" font-size="7">65.00mm</text>
+
+        <!-- part number -->
+        <text x="6" y="115" class="schematic-label" font-size="7">USB-MSD-32G · REV B · SCHEMATIC</text>
+        <text x="334" y="115" text-anchor="end" class="schematic-label" font-size="7">©2026</text>
+      </svg>
+    </div>
+
+    <div class="face" id="f-back"></div>
+    <div class="face" id="f-top"></div>
+    <div class="face" id="f-bottom"></div>
+    <div class="face" id="f-left"></div>
+    <div class="face" id="f-right"></div>
+
+    <div id="connector">
+      <div id="connector-inner"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── INTERNALS PANEL ── -->
+<div id="internals">
+  <svg id="internals-svg" viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="igrid" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M20 0L0 0 0 20" fill="none" stroke="#0b1a28" stroke-width="0.5"/>
+      </pattern>
+      <filter id="glow2">
+        <feGaussianBlur stdDeviation="2" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#2a5a72"/>
+      </marker>
+    </defs>
+
+    <rect width="760" height="340" fill="url(#igrid)"/>
+    <rect x="1" y="1" width="758" height="338" fill="none" stroke="#1e4d6b" stroke-width="1"/>
+
+    <!-- Title block -->
+    <text x="380" y="22" text-anchor="middle" fill="#4aa8c8" font-family="Courier New" font-size="13" letter-spacing="3">USB MASS STORAGE — INTERNAL EXPLODED VIEW</text>
+    <line x1="20" y1="30" x2="740" y2="30" stroke="#1e4d6b" stroke-width="0.8"/>
+
+    <!-- ─── OUTER CASING (exploded top) ─── -->
+    <rect x="60" y="48" width="560" height="36" rx="3" fill="#050c18" stroke="#2a7faa" stroke-width="1.2"/>
+    <text x="380" y="71" text-anchor="middle" class="silk" font-size="9" letter-spacing="2">OUTER CASING — ABS PLASTIC  (TOP SHELL)</text>
+    <!-- leader -->
+    <line x1="640" y1="66" x2="700" y2="66" class="leader" marker-end="url(#arr)"/>
+    <text x="704" y="70" class="schematic-label" font-size="8">ABS-UL94V-0</text>
+
+    <!-- ─── PCB ─── -->
+    <rect x="80" y="138" width="500" height="64" rx="2" fill="#03120a" stroke="#2aaa60" stroke-width="1.2"/>
+    <!-- PCB silk outline -->
+    <rect x="84" y="142" width="492" height="56" rx="1" fill="none" stroke="#1a6a3a" stroke-width="0.6" stroke-dasharray="3 2"/>
+    <text x="92" y="193" class="schematic-label" font-size="7" fill="#2aaa60">PCB · FR4 · 1.0mm</text>
+
+    <!-- solder mask pattern -->
+    <g fill="none" stroke="#0d3320" stroke-width="0.4">
+      <line x1="84" y1="150" x2="576" y2="150"/>
+      <line x1="84" y1="158" x2="576" y2="158"/>
+      <line x1="84" y1="166" x2="576" y2="166"/>
+      <line x1="84" y1="174" x2="576" y2="174"/>
+      <line x1="84" y1="182" x2="576" y2="182"/>
+      <line x1="84" y1="190" x2="576" y2="190"/>
+    </g>
+
+    <!-- USB Connector on PCB -->
+    <rect x="550" y="145" width="50" height="50" fill="#060f1e" stroke="#2a7faa" stroke-width="1.2"/>
+    <rect x="556" y="151" width="38" height="38" fill="#030810" stroke="#1a5070" stroke-width="0.8"/>
+    <!-- pins inside connector -->
+    <g stroke="#c8a82a" stroke-width="1.5">
+      <line x1="562" y1="163" x2="562" y2="177"/>
+      <line x1="568" y1="163" x2="568" y2="177"/>
+      <line x1="574" y1="163" x2="574" y2="177"/>
+      <line x1="580" y1="163" x2="580" y2="177"/>
+    </g>
+    <text x="575" y="205" text-anchor="middle" class="schematic-label" font-size="7">USB-A</text>
+    <line x1="575" y1="195" x2="575" y2="203" class="leader" marker-end="url(#arr)"/>
+
+    <!-- NAND Flash chip -->
+    <rect x="340" y="148" width="90" height="44" class="comp-border" rx="2"/>
+    <!-- Pin marks -->
+    <g stroke="#1a5070" stroke-width="0.8">
+      <line x1="340" y1="156" x2="332" y2="156"/><line x1="340" y1="164" x2="332" y2="164"/>
+      <line x1="340" y1="172" x2="332" y2="172"/><line x1="340" y1="180" x2="332" y2="180"/>
+      <line x1="430" y1="156" x2="438" y2="156"/><line x1="430" y1="164" x2="438" y2="164"/>
+      <line x1="430" y1="172" x2="438" y2="172"/><line x1="430" y1="180" x2="438" y2="180"/>
+    </g>
+    <text x="385" y="166" text-anchor="middle" class="silk" font-size="8" letter-spacing="1">NAND</text>
+    <text x="385" y="177" text-anchor="middle" class="silk" font-size="7">32 Gbit</text>
+    <!-- callout -->
+    <line x1="385" y1="148" x2="385" y2="110" class="leader" marker-end="url(#arr)"/>
+    <text x="385" y="107" text-anchor="middle" class="schematic-label" font-size="8">NAND FLASH · MLC · 32Gb</text>
+
+    <!-- USB Controller chip -->
+    <rect x="190" y="148" width="80" height="44" class="comp-border" rx="2"/>
+    <g stroke="#1a5070" stroke-width="0.8">
+      <line x1="190" y1="156" x2="182" y2="156"/><line x1="190" y1="164" x2="182" y2="164"/>
+      <line x1="190" y1="172" x2="182" y2="172"/><line x1="190" y1="180" x2="182" y2="180"/>
+      <line x1="270" y1="156" x2="278" y2="156"/><line x1="270" y1="164" x2="278" y2="164"/>
+      <line x1="270" y1="172" x2="278" y2="172"/><line x1="270" y1="180" x2="278" y2="180"/>
+    </g>
+    <text x="230" y="166" text-anchor="middle" class="silk" font-size="7" letter-spacing="1">USB CTRL</text>
+    <text x="230" y="177" text-anchor="middle" class="silk" font-size="6">USB2.0 HS</text>
+    <line x1="230" y1="148" x2="230" y2="110" class="leader" marker-end="url(#arr)"/>
+    <text x="230" y="107" text-anchor="middle" class="schematic-label" font-size="8">USB 2.0 HS CONTROLLER</text>
+
+    <!-- Decoupling caps -->
+    <g fill="#060c1a" stroke="#2a7faa" stroke-width="0.8">
+      <rect x="130" y="153" width="14" height="8" rx="1"/>
+      <rect x="148" y="153" width="14" height="8" rx="1"/>
+    </g>
+    <text x="144" y="175" text-anchor="middle" class="schematic-label" font-size="6">100nF×2</text>
+
+    <!-- Crystal -->
+    <rect x="120" y="158" width="22" height="24" fill="#050c18" stroke="#2a7faa" stroke-width="0.8" rx="1"/>
+    <line x1="109" y1="170" x2="120" y2="170" stroke="#1a5070" stroke-width="0.8"/>
+    <line x1="142" y1="170" x2="153" y2="170" stroke="#1a5070" stroke-width="0.8"/>
+    <text x="131" y="174" text-anchor="middle" class="silk" font-size="5">XTAL</text>
+    <line x1="131" y1="158" x2="131" y2="110" class="leader" marker-end="url(#arr)"/>
+    <text x="131" y="107" text-anchor="middle" class="schematic-label" font-size="8">12 MHz XTAL</text>
+
+    <!-- LED -->
+    <circle cx="97" cy="170" r="7" fill="#050c18" stroke="#2a7faa" stroke-width="0.8"/>
+    <circle cx="97" cy="170" r="3.5" fill="#1a6090" filter="url(#glow2)"/>
+    <line x1="97" y1="163" x2="97" y2="110" class="leader" marker-end="url(#arr)"/>
+    <text x="97" y="107" text-anchor="middle" class="schematic-label" font-size="8">STATUS LED</text>
+
+    <!-- Traces on PCB -->
+    <path d="M270 160 Q300 160 332 160" class="trace-hot"/>
+    <path d="M270 168 Q300 168 332 168" class="trace-hot"/>
+    <path d="M430 164 Q490 164 550 164" class="trace-hot"/>
+    <path d="M430 172 Q490 172 550 172" class="trace-hot"/>
+    <!-- power bus -->
+    <path d="M84 196 L576 196" stroke="#aa2a2a" stroke-width="1" fill="none"/>
+    <path d="M84 200 L576 200" stroke="#1a3a1a" stroke-width="1" fill="none"/>
+
+    <!-- ─── BOTTOM CASING (exploded bottom) ─── -->
+    <rect x="60" y="256" width="560" height="36" rx="3" fill="#050c18" stroke="#2a7faa" stroke-width="1.2"/>
+    <text x="380" y="279" text-anchor="middle" class="silk" font-size="9" letter-spacing="2">OUTER CASING — ABS PLASTIC  (BOT SHELL)</text>
+
+    <!-- Explode arrows -->
+    <g stroke="#1e4560" stroke-width="0.8" marker-end="url(#arr)">
+      <line x1="380" y1="84" x2="380" y2="134"/>
+      <line x1="380" y1="206" x2="380" y2="252"/>
+    </g>
+
+    <!-- Explode dimension callouts -->
+    <line x1="620" y1="84" x2="620" y2="254" class="dim-line"/>
+    <line x1="616" y1="84" x2="624" y2="84" stroke="#1e4560" stroke-width="0.5"/>
+    <line x1="616" y1="254" x2="624" y2="254" stroke="#1e4560" stroke-width="0.5"/>
+    <text x="630" y="170" class="schematic-label" font-size="8" transform="rotate(90 630 170)">EXPLODED 8mm</text>
+
+    <!-- border + title bar -->
+    <line x1="20" y1="310" x2="740" y2="310" stroke="#1e4d6b" stroke-width="0.8"/>
+    <text x="26" y="326" class="schematic-label" font-size="8">USB-MSD-32G · INTERNAL EXPLODED ASSEMBLY · SHEET 2 OF 2</text>
+    <text x="734" y="326" text-anchor="end" class="schematic-label" font-size="8">CONFIDENTIAL</text>
+  </svg>
+</div>
+
+<button id="close-btn" onclick="closeInternals()">&#x2715; CLOSE</button>
+
+<script>
+  const scene   = document.getElementById('scene');
+  const group   = document.getElementById('usb-group');
+  const overlay = document.getElementById('internals');
+
+  let rotY = -28, rotX = -12;
+  let dragging = false, lastX = 0, lastY = 0;
+  let dragMoved = false;
+
+  scene.addEventListener('mousedown', e => {
+    dragging  = true;
+    dragMoved = false;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    if (Math.abs(dx) + Math.abs(dy) > 2) dragMoved = true;
+    rotY += dx * 0.55;
+    rotX -= dy * 0.35;
+    rotX = Math.max(-40, Math.min(40, rotX));
+    group.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+
+  window.addEventListener('mouseup', () => { dragging = false; });
+
+  // Touch support
+  let lastTX = 0, lastTY = 0, tapTime = 0;
+  scene.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    lastTX = t.clientX; lastTY = t.clientY;
+    dragMoved = false;
+    const now = Date.now();
+    if (now - tapTime < 350) openInternals();
+    tapTime = now;
+    e.preventDefault();
+  }, { passive: false });
+
+  scene.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    const dx = t.clientX - lastTX;
+    const dy = t.clientY - lastTY;
+    dragMoved = true;
+    rotY += dx * 0.55;
+    rotX -= dy * 0.35;
+    rotX = Math.max(-40, Math.min(40, rotX));
+    group.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+    lastTX = t.clientX; lastTY = t.clientY;
+    e.preventDefault();
+  }, { passive: false });
+
+  scene.addEventListener('dblclick', e => {
+    if (!dragMoved) openInternals();
+  });
+
+  function openInternals() {
+    overlay.classList.add('open');
+  }
+
+  function closeInternals() {
+    overlay.classList.remove('open');
+  }
+
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeInternals();
+  });
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeInternals();
+  });
+</script>
+</body>
+</html>
