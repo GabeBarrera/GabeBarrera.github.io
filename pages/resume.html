@@ -356,6 +356,8 @@ function GlitchText({ text, className = '' }) {
 }
 
 function Topbar() {
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
   return (
     <header className="topbar">
       <div className="topbar-l">
@@ -364,12 +366,18 @@ function Topbar() {
           <span className="logo-txt">gabriel.barrera<span className="caret">_</span></span>
         </a>
       </div>
-      <nav className="topbar-nav">
-        <a href="../index.html#hacker">/01.hacker</a>
-        <a href="../index.html#poet">/02.poet</a>
-        <a href="../index.html#gamer">/03.gamer</a>
-        <a href="../index.html#contact">/04.contact</a>
+      <nav className={`topbar-nav${open ? ' open' : ''}`}>
+        <a href="hacker.html" onClick={close}>/01.hacker</a>
+        <a href="poet.html" onClick={close}>/02.poet</a>
+        <a href="gamer.html" onClick={close}>/03.gamer</a>
+        <a href="../index.html#contact" onClick={close}>/04.contact</a>
       </nav>
+      <div className="topbar-mobile-r">
+        <img src="../headshot.png" alt="Gabriel Barrera" className="topbar-avatar" />
+        <button className={`hamburger${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="Toggle menu">
+          <span /><span /><span />
+        </button>
+      </div>
     </header>
   );
 }

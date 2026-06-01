@@ -176,6 +176,7 @@
   padding-top: 6px;
 }
 .post-num .post-date { color: var(--dim); display: block; margin-top: 4px; text-shadow: none; font-size: 10px; }
+.post-num .post-read-time { color: var(--dimmer); display: block; margin-top: 3px; text-shadow: none; font-size: 10px; letter-spacing: 0.04em; }
 
 .post-title {
   font-family: 'Space Grotesk', sans-serif;

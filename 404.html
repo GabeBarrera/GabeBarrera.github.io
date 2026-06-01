@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>// 404 — gabriel barrera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+.err-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: 40px 0 80px;
+  text-align: center;
+}
+
+.err-404 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: clamp(120px, 20vw, 220px);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: var(--acc);
+  text-shadow: 0 0 40px oklch(0.72 0.28 var(--hue-a) / 0.5), 0 0 80px oklch(0.72 0.28 var(--hue-a) / 0.2);
+  margin-bottom: 40px;
+  position: relative;
+  user-select: none;
+}
+.err-404::before, .err-404::after {
+  content: '404';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.err-404::before {
+  color: var(--acc-2);
+  transform: translate(-3px, 0);
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  animation: glitchA 3s infinite steps(40);
+  opacity: 0.7;
+}
+.err-404::after {
+  color: oklch(0.78 0.22 75);
+  transform: translate(3px, 0);
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  animation: glitchB 2.7s infinite steps(40);
+  opacity: 0.7;
+}
+@keyframes glitchA {
+  0%, 92%, 100% { transform: translate(-3px, 0); }
+  93% { transform: translate(-8px, 2px); }
+  95% { transform: translate(-1px, -3px); }
+  97% { transform: translate(-5px, 0); }
+}
+@keyframes glitchB {
+  0%, 90%, 100% { transform: translate(3px, 0); }
+  91% { transform: translate(9px, -2px); }
+  94% { transform: translate(1px, 3px); }
+  96% { transform: translate(6px, 0); }
+}
+
+.err-card {
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto 32px;
+  padding: 24px 28px;
+  background: oklch(0.06 0.02 280 / 0.8);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--acc);
+  transition: opacity 0.3s ease;
+}
+.err-card.fading { opacity: 0; }
+
+.err-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--acc);
+  text-shadow: 0 0 8px var(--acc);
+  margin-bottom: 10px;
+}
+.err-msg {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: clamp(22px, 4vw, 36px);
+  letter-spacing: -0.01em;
+  margin: 0 0 14px;
+  color: var(--ink);
+  text-transform: lowercase;
+}
+.err-detail {
+  font-size: 12px;
+  color: var(--acc-2);
+  line-height: 1.65;
+  margin: 0;
+  white-space: pre-wrap;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.err-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+.err-actions .btn { padding: 10px 20px; font-size: 13px; }
+
+.err-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.err-dot {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-radius: 0;
+}
+.err-dot.active {
+  background: var(--acc);
+  border-color: var(--acc);
+  box-shadow: 0 0 6px var(--acc);
+}
+.err-dot:hover { border-color: var(--acc-2); }
+
+.err-progress {
+  font-size: 10px;
+  color: var(--dimmer);
+  letter-spacing: 0.1em;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 880px) {
+  .err-card { padding: 20px; }
+  .err-detail { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+const ERRORS = [
+  {
+    label: 'SIGSEGV',
+    msg: 'segmentation fault',
+    detail: 'the page you\'re looking for was never allocated.\ncheck your pointer arithmetic and try again.',
+  },
+  {
+    label: 'NULL_DEREF',
+    msg: 'null pointer exception',
+    detail: 'you tried to dereference a URL that doesn\'t exist.\nhave you null-checked your life choices?',
+  },
+  {
+    label: 'KERNEL PANIC',
+    msg: 'not syncing',
+    detail: 'attempted to access virtual address 0xDEAD404F.\nthe kernel gave up. so did the page.',
+  },
+  {
+    label: 'GIT FATAL',
+    msg: 'pathspec not found',
+    detail: '$ git log --all -- ./requested-page\nfatal: no such path exists in any commit.',
+  },
+  {
+    label: 'GREP MISS',
+    msg: 'no matches found',
+    detail: '$ grep -r "page" ./*\n// searched everywhere. it\'s not here.\n// try /dev/null, that\'s where things go.',
+  },
+  {
+    label: 'CONN_REFUSED',
+    msg: 'connection refused',
+    detail: 'the route you\'re requesting doesn\'t exist.\nport 404 is firewalled — by existence.',
+  },
+  {
+    label: 'rm -rf',
+    msg: 'operation complete',
+    detail: 'this page has been successfully deleted from reality.\n--force will not help you. it was never here.',
+  },
+  {
+    label: 'NMAP SCAN',
+    msg: 'host seems down',
+    detail: '$ nmap -Pn requested-page\nHost status: NOT FOUND\nnote: the page might just be ghosting you.',
+  },
+  {
+    label: 'CLASSIFIED',
+    msg: 'access denied',
+    detail: 'the NSA knows where this page is.\nthey\'re not sharing. your clearance is insufficient.',
+  },
+  {
+    label: 'DIVIDE_BY_ZERO',
+    msg: 'mathematical paradox',
+    detail: 'this page exists in a superposition of\nhere and not-here. schrodinger\'s 404.\nobserving it has collapsed the wave function.',
+  },
+];
+
+function MatrixRain({ hue }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let raf, cols, drops;
+    const fontSize = 14;
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      cols = Math.floor(canvas.offsetWidth / fontSize);
+      drops = Array(cols).fill(0).map(() => Math.random() * -100);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    const glyphs = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロヲゴゾドボポ0123456789ABCDEF{}<>[]/$#@!?*';
+    const draw = () => {
+      ctx.fillStyle = 'rgba(6, 4, 12, 0.08)';
+      ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
+      for (let i = 0; i < cols; i++) {
+        const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        ctx.fillStyle = `oklch(0.92 0.18 ${hue})`;
+        ctx.fillText(ch, x, y);
+        ctx.fillStyle = `oklch(0.6 0.2 ${hue} / 0.6)`;
+        ctx.fillText(ch, x, y - fontSize);
+        if (y > canvas.offsetHeight && Math.random() > 0.975) drops[i] = 0;
+        drops[i] += 0.4;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, [hue]);
+  return <canvas ref={ref} className="matrix-rain" />;
+}
+
+function Topbar() {
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
+  return (
+    <header className="topbar">
+      <div className="topbar-l">
+        <a href="index.html" style={{display:'flex',alignItems:'center',gap:10}}>
+          <span className="logo-mark">◆</span>
+          <span className="logo-txt">gabriel.barrera<span className="caret">_</span></span>
+        </a>
+      </div>
+      <nav className={`topbar-nav${open ? ' open' : ''}`}>
+        <a href="pages/hacker.html" onClick={close}>/01.hacker</a>
+        <a href="pages/poet.html" onClick={close}>/02.poet</a>
+        <a href="pages/gamer.html" onClick={close}>/03.gamer</a>
+        <a href="index.html#contact" onClick={close}>/04.contact</a>
+      </nav>
+      <div className="topbar-mobile-r">
+        <img src="headshot.png" alt="Gabriel Barrera" className="topbar-avatar" />
+        <button className={`hamburger${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="Toggle menu">
+          <span /><span /><span />
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function App() {
+  const styleVars = { '--hue-a': 320, '--hue-b': 200 };
+  const [idx, setIdx] = useState(0);
+  const [fading, setFading] = useState(false);
+
+  const advance = (next) => {
+    setFading(true);
+    setTimeout(() => {
+      setIdx(next);
+      setFading(false);
+    }, 300);
+  };
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      advance((idx + 1) % ERRORS.length);
+    }, 5000);
+    return () => clearInterval(t);
+  }, [idx]);
+
+  const err = ERRORS[idx];
+
+  return (
+    <div className="page has-scan has-flicker" style={styleVars}>
+      <MatrixRain hue={320} />
+      <Topbar />
+      <main className="err-main">
+        <div className="err-404">404</div>
+
+        <div className={`err-card${fading ? ' fading' : ''}`}>
+          <div className="err-label">{'> '}{err.label}</div>
+          <h1 className="err-msg">{err.msg}</h1>
+          <pre className="err-detail">{err.detail}</pre>
+        </div>
+
+        <div className="err-progress">
+          {String(idx + 1).padStart(2,'0')} / {String(ERRORS.length).padStart(2,'0')} — rotating every 5s
+        </div>
+
+        <div className="err-actions">
+          <a href="index.html" className="btn">cd ~</a>
+          <a href="pages/hacker.html" className="btn btn-ghost">./hacker.log</a>
+          <a href="pages/poet.html" className="btn btn-ghost">./poet.log</a>
+        </div>
+
+        <div className="err-dots">
+          {ERRORS.map((_, i) => (
+            <div key={i} className={`err-dot${i === idx ? ' active' : ''}`}
+              onClick={() => advance(i)} title={ERRORS[i].label} />
+          ))}
+        </div>
+      </main>
+      <footer className="bottombar">
+        <span>© 2026 — gabriel barrera // 404.log</span>
+        <span className="dim">// this page does not exist</span>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

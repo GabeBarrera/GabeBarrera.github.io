@@ -328,24 +328,39 @@ function Contact() {
   );
 }
 
+// ─── Topbar ─────────────────────────────────────────────────────
+function Topbar() {
+  const [open, setOpen] = React.useState(false);
+  const close = () => setOpen(false);
+  return (
+    <header className="topbar">
+      <div className="topbar-l">
+        <span className="logo-mark">◆</span>
+        <span className="logo-txt">gabriel.barrera<span className="caret">_</span></span>
+      </div>
+      <nav className={`topbar-nav${open ? ' open' : ''}`}>
+        <a href="#hacker" onClick={close}>/01.hacker</a>
+        <a href="#poet" onClick={close}>/02.poet</a>
+        <a href="#gamer" onClick={close}>/03.gamer</a>
+        <a href="#contact" onClick={close}>/04.contact</a>
+      </nav>
+      <div className="topbar-mobile-r">
+        <img src="headshot.png" alt="Gabriel Barrera" className="topbar-avatar" />
+        <button className={`hamburger${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="Toggle menu">
+          <span /><span /><span />
+        </button>
+      </div>
+    </header>
+  );
+}
+
 // ─── App ───────────────────────────────────────────────────────
 function App() {
   const styleVars = { '--hue-a': 320, '--hue-b': 200 };
   return (
     <div className="page has-scan has-flicker" style={styleVars}>
       <MatrixRain enabled={true} hue={320} />
-      <header className="topbar">
-        <div className="topbar-l">
-          <span className="logo-mark">◆</span>
-          <span className="logo-txt">gabriel.barrera<span className="caret">_</span></span>
-        </div>
-        <nav className="topbar-nav">
-          <a href="#hacker">/01.hacker</a>
-          <a href="#poet">/02.poet</a>
-          <a href="#gamer">/03.gamer</a>
-          <a href="#contact">/04.contact</a>
-        </nav>
-      </header>
+      <Topbar />
       <main>
         <Hero />
         <section className="pillars">

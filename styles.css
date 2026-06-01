@@ -692,12 +692,81 @@ body::before {
 .twk-val { color: var(--acc-2) !important; }
 .twk-field { background: oklch(0.06 0.02 280 / 0.7) !important; border-color: var(--line) !important; color: var(--ink) !important; }
 
+/* ── Mobile hamburger + avatar ─────────────────────────────────── */
+.topbar-mobile-r {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.topbar-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid var(--acc);
+  object-fit: cover;
+  object-position: center top;
+  box-shadow: 0 0 10px oklch(0.72 0.28 var(--hue-a) / 0.5);
+  flex-shrink: 0;
+}
+.hamburger {
+  background: none;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  padding: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+}
+.hamburger span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: var(--dim);
+  transition: transform 0.2s, opacity 0.2s, background 0.2s;
+  transform-origin: center;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); background: var(--acc); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); background: var(--acc); }
+
 /* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 880px) {
   .page { padding: 0 24px; }
   .hero { grid-template-columns: 1fr; gap: 40px; padding: 48px 0; }
   .hero-portrait { order: -1; max-width: 360px; margin: 0 auto; }
   .pillar { grid-template-columns: 1fr; gap: 32px; padding: 56px 0; }
-  .topbar-nav { display: none; }
   .status { display: none; }
+
+  .topbar-mobile-r { display: flex; }
+
+  .topbar-nav {
+    display: none;
+    position: fixed;
+    top: 73px;
+    left: 0;
+    right: 0;
+    z-index: 49;
+    background: oklch(0.07 0.03 280 / 0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 24px 16px;
+    flex-direction: column;
+    gap: 0;
+  }
+  .topbar-nav.open { display: flex; }
+  .topbar-nav.open a {
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 14px;
+    color: var(--dim);
+  }
+  .topbar-nav.open a:last-child { border-bottom: none; }
+  .topbar-nav.open a:hover,
+  .topbar-nav.open a.on { color: var(--acc); text-shadow: 0 0 8px var(--acc); }
 }
