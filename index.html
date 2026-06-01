@@ -267,9 +267,12 @@ function Pillar({ p }) {
           {p.chips.map((c) => <span key={c} className="chip">{c}</span>)}
         </div>
         {p.id === 'hacker' && (
-          <div style={{marginTop:18}}>
+          <div style={{marginTop:18,display:'flex',gap:10,flexWrap:'wrap'}}>
             <a href="pages/hacker.html" className="chip" style={{borderColor:'var(--acc)',color:'var(--acc)',textShadow:'0 0 6px var(--acc)',padding:'7px 14px'}}>
               {'> '}read hacker.log →
+            </a>
+            <a href="pages/resume.html" className="chip" style={{borderColor:'var(--acc-2)',color:'var(--acc-2)',textShadow:'0 0 6px var(--acc-2)',padding:'7px 14px'}}>
+              {'> '}view resume →
             </a>
           </div>
         )}
