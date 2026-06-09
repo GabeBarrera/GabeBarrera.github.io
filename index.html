@@ -276,6 +276,13 @@ function Pillar({ p }) {
             </a>
           </div>
         )}
+        {p.id === 'poet' && (
+          <div style={{marginTop:18,display:'flex',gap:10,flexWrap:'wrap'}}>
+            <a href="pages/poet.html" className="chip" style={{borderColor:'var(--acc)',color:'var(--acc)',textShadow:'0 0 6px var(--acc)',padding:'7px 14px'}}>
+              {'> '}read poems →
+            </a>
+          </div>
+        )}
       </div>
       <div className="pillar-art">
         <pre className={p.artClass}>{p.art}</pre>
