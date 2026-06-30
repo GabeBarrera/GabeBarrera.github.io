@@ -48,12 +48,12 @@ document.querySelectorAll('[data-tel]').forEach(el => {
 /* Career map */
 const CAREER = [
   {
-    years: '2011 – 2015',
+    years: '2011 \u2013 2015',
     name: 'Steele Canyon High School',
     role: 'High School Diploma',
     addr: '12440 Campo Rd, Spring Valley, CA 91978',
     desc: 'Graduated with honors.',
-    detail: 'Where it all started — a charter high school in the hills east of San Diego. I graduated with honors while loading up on AP STEM coursework and getting my first real taste of writing code.',
+    detail: 'Where it all started \u2014 a charter high school in the hills east of San Diego. I graduated with honors while loading up on AP STEM coursework and getting my first real taste of writing code.',
     highlights: ['Graduated with honors', 'AP coursework across STEM', 'First taste of programming'],
     lat: 32.73044007874343, lng: -116.92527658589
   },
@@ -68,17 +68,17 @@ const CAREER = [
     lat: 32.87747639593132, lng: -117.20172435382554
   },
   {
-    years: '2015 – 2019',
+    years: '2015 \u2013 2019',
     name: 'San Diego State University',
     role: 'B.S. Computer Science',
     addr: '5500 Campanile Dr, San Diego, CA 92182',
     desc: 'Attended hackathons; built homemade recon & penetration tools in spare time; honed software development and cybersecurity skills.',
-    detail: 'Four years earning a B.S. in Computer Science. Outside of class I lived at hackathons and spent late nights building homemade reconnaissance and penetration-testing tools — sharpening my engineering instincts and a growing obsession with security.',
+    detail: 'Four years earning a B.S. in Computer Science. Outside of class I lived at hackathons and spent late nights building homemade reconnaissance and penetration-testing tools \u2014 sharpening my engineering instincts and a growing obsession with security.',
     highlights: ['B.S. Computer Science', 'Competitive hackathon regular', 'Built custom recon & pentest tooling'],
     lat: 32.77570, lng: -117.07190
   },
   {
-    years: '2016 – 2017',
+    years: '2016 \u2013 2017',
     name: 'Old Town Ice Cream',
     role: 'Ice Cream Scooper & Barista',
     addr: '2611 San Diego Ave, San Diego, CA 92110',
@@ -88,13 +88,13 @@ const CAREER = [
     lat: 32.753112864830584, lng: -117.19631980765807
   },
   {
-    years: '2018 – Present',
+    years: '2018 \u2013 Present',
     name: 'Port of San Diego',
-    role: 'IT Intern → Systems Support Analyst → InfoSec Analyst I → InfoSec Analyst II',
+    role: 'IT Intern \u2192 Systems Support Analyst \u2192 InfoSec Analyst I \u2192 InfoSec Analyst II',
     addr: '3165 Pacific Highway, San Diego, CA 92101',
     desc: 'Founding member of the Innovation Lab; current InfoSec team software developer and data analytics lead.',
-    detail: 'Home base ever since. I joined as an IT intern and grew through Systems Support and two Information Security Analyst roles. A founding member of the Innovation Lab, I now serve as the InfoSec team\'s software developer and data-analytics lead — building tooling and turning security data into decisions.',
-    highlights: ['Founding member, Innovation Lab', 'IT Intern → InfoSec Analyst II', 'InfoSec software dev & analytics lead'],
+    detail: 'Home base ever since. I joined as an IT intern and grew through Systems Support and two Information Security Analyst roles. A founding member of the Innovation Lab, I now serve as the InfoSec team\'s software developer and data-analytics lead \u2014 building tooling and turning security data into decisions.',
+    highlights: ['Founding member, Innovation Lab', 'IT Intern \u2192 InfoSec Analyst II', 'InfoSec software dev & analytics lead'],
     lat: 32.73567805024912, lng: -117.1771063400875
   }
 ]
@@ -112,7 +112,7 @@ const initCareer = () => {
   }).setView([32.78, -117.13], 11)
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap, © CARTO',
+    attribution: '\u00A9 OpenStreetMap, \u00A9 CARTO',
     subdomains: 'abcd',
     maxZoom: 19
   }).addTo(map)
@@ -124,7 +124,7 @@ const initCareer = () => {
       ${e.role ? `<div class="pop__role">${e.role}</div>` : ''}
       <div class="pop__addr">${e.addr}</div>
       <p class="pop__desc">${e.desc}</p>
-      <button type="button" class="pop__more" data-i="${CAREER.indexOf(e)}">Read More →</button>
+      <button type="button" class="pop__more" data-i="${CAREER.indexOf(e)}">Read More \u2192</button>
     </div>`
 
   const markers = CAREER.map(e => {
@@ -428,8 +428,8 @@ const initTerminal = () => {
       const url = `https://github.com/GabeBarrera/${name}`
       return `<div class="term__line">  <a href="${url}" target="_blank" rel="noopener">${pad(name, 24)}</a><span class="term__muted">${esc(desc)}</span></div>`
     }).join('')
-    return `<div class="term__line term__heading">Public repositories — github.com/GabeBarrera (${REPOS.length})</div>` +
-      `<div class="term__line term__muted">────────────────────────────────────────────────────────</div>` +
+    return `<div class="term__line term__heading">Public repositories \u2014 github.com/GabeBarrera (${REPOS.length})</div>` +
+      `<div class="term__line term__muted">\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500</div>` +
       rows +
       `<div class="term__line">&nbsp;</div>` +
       `<div class="term__line term__muted">tip: type <span class="term__bright">help</span> for available commands.</div>`
@@ -437,13 +437,13 @@ const initTerminal = () => {
 
   const helpHTML = () =>
     `<div class="term__line term__heading">Available commands</div>` +
-    `<div class="term__line term__muted">────────────────────────────</div>` +
+    `<div class="term__line term__muted">\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500</div>` +
     `<div class="term__line">  <span class="term__bright">help</span>     &nbsp;Show this list of commands</div>` +
     `<div class="term__line">  <span class="term__bright">projects</span> &nbsp;List all public GitHub projects</div>` +
     `<div class="term__line">  <span class="term__bright">clear</span>    &nbsp;Clear the terminal screen</div>`
 
   const bannerHTML = () =>
-    `<div class="term__line term__bright">Gabe Barrera — Projects Terminal  (zsh)</div>` +
+    `<div class="term__line term__bright">Gabe Barrera \u2014 Projects Terminal  (zsh)</div>` +
     `<div class="term__line term__muted">Last login: pulling from github.com/GabeBarrera</div>` +
     `<div class="term__line">&nbsp;</div>`
 
@@ -541,7 +541,7 @@ const initResume = () => {
   if (!mcanvas) return
   const ctx = mcanvas.getContext('2d')
   let cols, drops, fontSize, raf
-  const glyphs = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロヲゴゾドボポ0123456789ABCDEF{}<>[]/$#@!?*'
+  const glyphs = '\u30A2\u30A1\u30AB\u30B5\u30BF\u30CA\u30CF\u30DE\u30E4\u30E3\u30E9\u30EF\u30AC\u30B6\u30C0\u30D0\u30D1\u30A4\u30A3\u30AD\u30B7\u30C1\u30CB\u30D2\u30DF\u30EA\u30AE\u30B8\u30C2\u30D3\u30D4\u30A6\u30A5\u30AF\u30B9\u30C4\u30CC\u30D5\u30E0\u30E6\u30E5\u30EB\u30B0\u30BA\u30D6\u30C5\u30D7\u30A8\u30A7\u30B1\u30BB\u30C6\u30CD\u30D8\u30E1\u30EC\u30B2\u30BC\u30C7\u30D9\u30DA\u30AA\u30A9\u30B3\u30BD\u30C8\u30CE\u30DB\u30E2\u30E8\u30E7\u30ED\u30F2\u30B4\u30BE\u30C9\u30DC\u30DD0123456789ABCDEF{}<>[]/$#@!?*'
   const resize = () => {
     const dpr = window.devicePixelRatio || 1
     const w = mcanvas.offsetWidth || mcanvas.parentElement.offsetWidth
