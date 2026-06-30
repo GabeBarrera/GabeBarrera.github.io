@@ -1,392 +1,475 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gabriel Barrera // root@gabriel</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App ExposÃ© with View Transitions</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="src/style.css" />
 </head>
 <body>
-<div id="root"></div>
-
-<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
-
-<script type="text/babel" data-presets="react">
-const { useState, useEffect, useRef } = React;
-
-// ─── Matrix rain ───────────────────────────────────────────────
-function MatrixRain({ enabled, hue }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!enabled) return;
-    const canvas = ref.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let raf, cols, drops, fontSize;
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = canvas.offsetWidth * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
-      fontSize = 14;
-      cols = Math.floor(canvas.offsetWidth / fontSize);
-      drops = Array(cols).fill(0).map(() => Math.random() * -100);
-    };
-    resize();
-    window.addEventListener('resize', resize);
-    const glyphs = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレゲゼデベペオォコソトノホモヨョロヲゴゾドボポ0123456789ABCDEF{}<>[]/$#@!?*';
-    const draw = () => {
-      ctx.fillStyle = 'rgba(6, 4, 12, 0.08)';
-      ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
-      ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
-      for (let i = 0; i < cols; i++) {
-        const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
-        const x = i * fontSize;
-        const y = drops[i] * fontSize;
-        ctx.fillStyle = `oklch(0.92 0.18 ${hue})`;
-        ctx.fillText(ch, x, y);
-        ctx.fillStyle = `oklch(0.6 0.2 ${hue} / 0.6)`;
-        ctx.fillText(ch, x, y - fontSize);
-        if (y > canvas.offsetHeight && Math.random() > 0.975) drops[i] = 0;
-        drops[i] += 0.4;
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
-    };
-  }, [enabled, hue]);
-  if (!enabled) return null;
-  return <canvas ref={ref} className="matrix-rain" />;
-}
-
-// ─── Glitch text ───────────────────────────────────────────────
-function GlitchText({ text, className = '' }) {
-  return (
-    <span className={`glitch-text ${className}`} data-text={text}>{text}</span>
-  );
-}
-
-// ─── Typewriter ────────────────────────────────────────────────
-function Typewriter({ phrases, speed = 70, pause = 1400 }) {
-  const [i, setI] = useState(0);
-  const [text, setText] = useState('');
-  const [del, setDel] = useState(false);
-  useEffect(() => {
-    const cur = phrases[i];
-    let t;
-    if (!del && text.length < cur.length) {
-      t = setTimeout(() => setText(cur.slice(0, text.length + 1)), speed);
-    } else if (!del && text.length === cur.length) {
-      t = setTimeout(() => setDel(true), pause);
-    } else if (del && text.length > 0) {
-      t = setTimeout(() => setText(cur.slice(0, text.length - 1)), speed / 2);
-    } else if (del && text.length === 0) {
-      setDel(false);
-      setI((i + 1) % phrases.length);
-    }
-    return () => clearTimeout(t);
-  }, [text, del, i, phrases, speed, pause]);
-  return (
-    <span className="typewriter">
-      <span>{text}</span>
-      <span className="caret">█</span>
-    </span>
-  );
-}
-
-// ─── System status ─────────────────────────────────────────────
-function SystemStatus() {
-  const [time, setTime] = useState(new Date());
-  const [ping, setPing] = useState(12);
-  const [load, setLoad] = useState(0.34);
-  useEffect(() => {
-    const t = setInterval(() => {
-      setTime(new Date());
-      setPing(Math.floor(8 + Math.random() * 18));
-      setLoad(0.2 + Math.random() * 0.5);
-    }, 1500);
-    return () => clearInterval(t);
-  }, []);
-  const uptimeRef = useRef(Date.now());
-  const up = Math.floor((Date.now() - uptimeRef.current) / 1000);
-  const fmt = (n) => String(n).padStart(2, '0');
-  return (
-    <div className="status">
-      <div className="status-row"><span className="status-dot" /><span>SECURE_CHANNEL</span></div>
-      <div className="status-row"><span className="status-k">UTC</span><span>{fmt(time.getUTCHours())}:{fmt(time.getUTCMinutes())}:{fmt(time.getUTCSeconds())}</span></div>
-      <div className="status-row"><span className="status-k">PING</span><span>{ping}ms</span></div>
-      <div className="status-row"><span className="status-k">LOAD</span><span>{(load * 100).toFixed(1)}%</span></div>
-      <div className="status-row"><span className="status-k">UP</span><span>{Math.floor(up / 60)}m {up % 60}s</span></div>
+  <nav aria-hidden="true" class="fake-nav">
+    <ul>
+      <li>
+        <img class="bear-logo" src="assets/images/menu.png" alt="Menu" />
+      </li>
+      <li>
+        <a class="brand" href="https://github.com/GabeBarrera" target="_blank" rel="noopener"><strong>GabeBarrera</strong></a>
+      </li>
+      <li>File</li>
+      <li>Edit</li>
+      <li>Find</li>
+      <li>View</li>
+      <li>Tools</li>
+      <li>Window</li>
+    </ul>
+  </nav>
+  <nav class="expose" popover id="nav">
+    <ul>
+      <li>
+        <a href="#home" title="Home">
+          <span>Home</span>
+        </a>
+      </li>
+      <li>
+        <a href="#projects" title="Projects">
+          <span>Projects</span>
+        </a>
+      </li>
+      <li>
+        <a href="#contact" title="Contact">
+          <span>Contact</span>
+        </a>
+      </li>
+      <li>
+        <a href="#career" title="Career">
+          <span>Career</span>
+        </a>
+      </li>
+      <li>
+        <a href="#links" title="Resume">
+          <span>Resume</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <section id="#home" data-current="true">
+    <div class="section__content welcome">
+      <video class="welcome__bg" autoplay muted loop playsinline preload="auto">
+        <source src="assets/video/coding.mp4" type="video/mp4" />
+      </video>
+      <div class="welcome__scrim"></div>
+      <div class="section__header">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="welcome__fg">
+        <div class="welcome__text">
+          <h2><span class="welcome__title-line">The Hacker Poet</span><span class="welcome__type"><span id="welcome-typed"></span><span class="welcome__type-caret">â–ˆ</span></span></h2>
+          <p>Welcome to the living showcase of the words that I etch or enter. Tap the button below to explore.</p>
+        </div>
+        <div class="welcome__avatar">
+          <img src="assets/images/profile.png" alt="Gabe Barrera" />
+        </div>
+      </div>
     </div>
-  );
-}
-
-// ─── Hero ──────────────────────────────────────────────────────
-function Hero() {
-  return (
-    <section className="hero">
-      <div className="hero-left">
-        <div className="hero-prefix">
-          <span className="prompt">root@gabriel</span>
-          <span className="dim">:~$ whoami</span>
-        </div>
-        <h1 className="hero-name">
-          <GlitchText text="Gabriel" />
-          <GlitchText text="Barrera" />
-        </h1>
-        <div className="hero-roles">
-          <span className="bracket">[</span>
-          <Typewriter phrases={['hacker', 'poet', 'gamer']} />
-          <span className="bracket">]</span>
-        </div>
-        <div className="hero-tags">
-          <span className="tag">// breaks systems</span>
-          <span className="tag">// writes verse</span>
-          <span className="tag">// overclocks GPUs</span>
-        </div>
-        <p className="hero-summary">
-          {'>'} Software dev by trade, verse maker by compulsion, pixel-chaser by obsession.
-          I live at the intersection of code and creativity, where logic meets lyricism. I build things that go brrt and write things that go hmm.
-        </p>
-        <div className="hero-meta">
-          <div><span className="status-k">ID</span> 0xGB-2A4F-9E11</div>
-          <div><span className="status-k">LOC</span> [REDACTED]</div>
-          <div><span className="status-k">PGP</span> 4F3C 8A91 E2D7 ...</div>
-        </div>
+  </section>
+  <section id="#projects">
+    <div class="section__content term">
+      <div class="section__header term__header">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span class="term__title">gabe@portfolio: ~/projects â€” zsh</span>
       </div>
-      <div className="hero-portrait" style={{ '--glitch-intensity': 0.7 }}>
-        <div className="portrait-frame">
-          <div className="portrait-corners"><span /><span /><span /><span /></div>
-          <div className="portrait-img">
-            <img src="headshot.png" alt="Gabriel Barrera" />
-            <img src="headshot.png" alt="" className="glitch-layer r" aria-hidden="true" />
-            <img src="headshot.png" alt="" className="glitch-layer g" aria-hidden="true" />
-            <img src="headshot.png" alt="" className="glitch-layer b" aria-hidden="true" />
-            <div className="portrait-scanlines" />
-            <div className="portrait-noise" />
-            <div className="portrait-tag">SUBJECT_01.IMG</div>
-            <div className="portrait-tag tr">REC ●</div>
-            <div className="portrait-tag bl">{'>'} TRACE OK</div>
-            <div className="portrait-tag br">FRAME 0427</div>
-          </div>
+      <div class="term__screen" id="term-screen">
+        <div class="term__output" id="term-output"></div>
+        <div class="term__inputline">
+          <span class="term__prompt">gabe@portfolio<span class="term__path">~</span>%</span>
+          <span class="term__input" id="term-input"></span><span class="term__cursor" id="term-cursor"></span>
         </div>
+        <input type="text" id="term-hidden" class="term__hidden" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Terminal input" />
       </div>
-    </section>
-  );
-}
-
-// ─── Pillars ───────────────────────────────────────────────────
-const PILLARS = [
-  {
-    id: 'hacker', num: '01', title: 'hacker',
-    sub: '// offensive security & curiosity',
-    body: 'I build the plumbing that makes security teams faster — PowerShell scripts, Python tooling, and Power Automate flows wired into Microsoft Defender for automated detection, triage, and response.',
-    chips: ['PowerShell', 'Python', 'Blue Team', 'Microsoft Defender', 'Threat Detection', 'SOC Analyst'],
-    art: `$ nmap -A target.local
-PORT     STATE  SERVICE
-22/tcp   open   ssh
-80/tcp   open   http
-443/tcp  open   https
-1337/tcp open   ?????
-$ ./exploit.py --shell
-[+] payload landed
-[+] shell acquired
-[+] root obtained`,
-    artClass: 'ascii-art',
-  },
-  {
-    id: 'poet', num: '02', title: 'poet',
-    sub: '// language as buffer overflow',
-    body: 'Hacking and poetry are the same compulsion in different syntaxes — both look at the rules and ask what happens at the edges. Published only in my heart and shared with people I love... or whomever happens to be at the open mic.',
-    chips: ['short verse', 'prose', 'open mics', 'iambic pentameter', 'haikus'],
-    art: `           404 NOT FOUND
-           The requested resource
-           Could not be found
-
-           But
-           May be available
-           In the future.
-
-           Subsequent requests
-           by the client
-           are permissible
-           
-           That is to say:
-           Sometimes what you are looking for
-           Will not be there when you want it
-           But maybe eventually
-
-           Keep Trying`,
-    artClass: 'ascii-art poem',
-  },
-  {
-    id: 'gamer', num: '03', title: 'gamer',
-    sub: '// permadeath enthusiast',
-    body: 'I am an open world die hard, a city builder and tactical shooter/FPS enthusiast, and a softie for cozy games. Red Dead Redemption 2 is my favorite game of all time, but ARC Raiders currently has my heart. Rainbow Six series was a staple, and I enjoy making a quiet village in Town to City if I only have a short while to play.',
-    chips: ['open world', 'city builder', 'fps', 'cozygames', 'casual'],
-    art: `+----------------------+
-| RUN_LOG  ARC Raiders |
-|----------------------|
-| seed:  0x4A7F E2D9   |
-| KOs:   23            |
-| time:  143:36:13     |
-| death: >100          |
-| chr:   silent.       |
-| run:   ████████░░ 81 |
-+----------------------+
-> press [SPACE] to see you topside, raider...`,
-    artClass: 'ascii-art',
-  },
-];
-
-function Pillar({ p }) {
-  const [hover, setHover] = useState(false);
-  return (
-    <article className="pillar" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-      <div className="pillar-text">
-        <div className="pillar-head">
-          <span className="pillar-num">{p.num}</span>
-          <span className="pillar-bar" />
-          <span className="pillar-id">/dev/{p.id}</span>
+    </div>
+  </section>
+  <section id="#contact">
+    <div class="section__content contact">
+      <div class="section__header">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <aside class="contacts">
+        <div class="contacts__bar">
+          <span class="contacts__plus">+</span>
         </div>
-        <h2 className="pillar-title">
-          <GlitchText className={hover ? 'on' : ''} text={p.title} />
-        </h2>
-        <div className="pillar-sub">{p.sub}</div>
-        <p className="pillar-body">{p.body}</p>
-        <div className="pillar-chips">
-          {p.chips.map((c) => <span key={c} className="chip">{c}</span>)}
+        <h1 class="contacts__title">Contacts</h1>
+        <div class="contacts__search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+          <span>Search</span>
+          <svg class="contacts__mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><path d="M12 18v3"></path></svg>
         </div>
-        {p.id === 'hacker' && (
-          <div style={{marginTop:18,display:'flex',gap:10,flexWrap:'wrap'}}>
-            <a href="pages/hacker.html" className="chip" style={{borderColor:'var(--acc)',color:'var(--acc)',textShadow:'0 0 6px var(--acc)',padding:'7px 14px'}}>
-              {'> '}read hacker.log →
-            </a>
-            <a href="pages/resume.html" className="chip" style={{borderColor:'var(--acc-2)',color:'var(--acc-2)',textShadow:'0 0 6px var(--acc-2)',padding:'7px 14px'}}>
-              {'> '}view resume →
-            </a>
-          </div>
-        )}
-        {p.id === 'poet' && (
-          <div style={{marginTop:18,display:'flex',gap:10,flexWrap:'wrap'}}>
-            <a href="pages/poet.html" className="chip" style={{borderColor:'var(--acc)',color:'var(--acc)',textShadow:'0 0 6px var(--acc)',padding:'7px 14px'}}>
-              {'> '}read poems →
-            </a>
-          </div>
-        )}
-      </div>
-      <div className="pillar-art">
-        <pre className={p.artClass}>{p.art}</pre>
-      </div>
-    </article>
-  );
-}
+        <div class="contacts__mycard">
+          <span class="contacts__avatar">GB</span>
+          <span class="contacts__mc-text">
+            <span class="contacts__mc-name">Gabe Barrera</span>
+            <span class="contacts__mc-sub">My Card</span>
+          </span>
+        </div>
+        <div class="contacts__list" id="contacts-list"></div>
+        <nav class="contacts__index" id="contacts-index" aria-label="Alphabet index"></nav>
+      </aside>
+      <div class="contact__main">
+      <div class="contact__card">
+        <div class="contact__avatar">
+          <img src="assets/images/contact.png" alt="Gabe Barrera" />
+        </div>
+        <h2 class="contact__name">Gabe Barrera</h2>
+        <p class="contact__role">Information Security Analyst</p>
 
-// ─── Contact ───────────────────────────────────────────────────
-const SOCIALS = [
-  { k: 'mail',    v: 'gbarrera.infosec@protonmail.com',   href: 'mailto:gbarrera.infosec@protonmail.com' },
-  { k: 'github',  v: 'github.com/GabeBarrera',            href: 'https://github.com/GabeBarrera' },
-  { k: 'twitter', v: '@GabeBarrera__',                    href: 'https://x.com/gabebarrera__' },
-  { k: 'linkedin',v: 'linkedin.com/in/gbinfosec',         href: 'https://www.linkedin.com/in/gbinfosec' },
-  { k: 'burner',  v: '+1.619.910.3400',                   href: 'tel:+16199103400' },
-  { k: 'signal',  v: 'on request',                        href: '#' },
-];
-
-function Contact() {
-  const [copied, setCopied] = useState(null);
-  const copy = (k, v) => {
-    if (navigator.clipboard) navigator.clipboard.writeText(v);
-    setCopied(k);
-    setTimeout(() => setCopied(null), 1200);
-  };
-  return (
-    <section className="contact">
-      <div className="section-head">
-        <span className="section-num">04</span>
-        <span className="pillar-bar" />
-        <span className="pillar-id">/dev/contact</span>
-      </div>
-      <h2 className="contact-title"><GlitchText text="establish_link( )" /></h2>
-      <p className="contact-lede">Open a channel. I read everything; I reply to most of it.</p>
-      <div className="contact-grid">
-        {SOCIALS.map((s) => (
-          <a key={s.k} className="contact-card" href={s.href}
-             onClick={(e) => { if (s.href === '#') e.preventDefault(); copy(s.k, s.v); }}>
-            <div className="contact-k">{s.k}</div>
-            <div className="contact-v">{s.v}</div>
-            <div className="contact-action">{copied === s.k ? '> copied' : '> copy'}</div>
+        <div class="contact__actions">
+          <a class="contact__action" href="mailto:gbarrera.infosec@protonmail.com" aria-label="Email">
+            <span class="contact__action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M4 7l8 6 8-6"></path></svg>
+            </span>
+            <span class="contact__action-label">email</span>
           </a>
-        ))}
-      </div>
-      <div className="contact-foot">
-        <span>{'>'}_ end of transmission</span>
-        <span className="dim">// signed: 0xGB</span>
-      </div>
-    </section>
-  );
-}
+          <a class="contact__action" href="tel:+16199103400" data-tel="+1.619.910.3400" aria-label="Call">
+            <span class="contact__action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L17 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>
+            </span>
+            <span class="contact__action-label">call</span>
+          </a>
+          <a class="contact__action" href="https://github.com/GabeBarrera" target="_blank" rel="noopener" aria-label="GitHub">
+            <span class="contact__action-icon contact__action-mono">GH</span>
+            <span class="contact__action-label">github</span>
+          </a>
+          <a class="contact__action" href="https://linkedin.com/in/gbinfosec" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <span class="contact__action-icon contact__action-mono">in</span>
+            <span class="contact__action-label">linkedin</span>
+          </a>
+        </div>
 
-// ─── Topbar ─────────────────────────────────────────────────────
-function Topbar() {
-  const [open, setOpen] = React.useState(false);
-  const close = () => setOpen(false);
-  return (
-    <header className="topbar">
-      <div className="topbar-l">
-        <span className="logo-mark">◆</span>
-        <span className="logo-txt">gabriel.barrera<span className="caret">_</span></span>
+        <div class="contact__fields">
+          <a class="contact__field" href="mailto:gbarrera.infosec@protonmail.com">
+            <span class="contact__label">email</span>
+            <span class="contact__value">gbarrera.infosec@protonmail.com</span>
+          </a>
+          <a class="contact__field" href="tel:+16199103400" data-tel="+1.619.910.3400">
+            <span class="contact__label">burner</span>
+            <span class="contact__value">+1.619.910.3400</span>
+          </a>
+          <a class="contact__field" href="https://github.com/GabeBarrera" target="_blank" rel="noopener">
+            <span class="contact__label">github</span>
+            <span class="contact__value">github.com/GabeBarrera</span>
+          </a>
+          <a class="contact__field" href="https://twitter.com/GabeBarrera__" target="_blank" rel="noopener">
+            <span class="contact__label">twitter</span>
+            <span class="contact__value">@GabeBarrera__</span>
+          </a>
+          <a class="contact__field" href="https://linkedin.com/in/gbinfosec" target="_blank" rel="noopener">
+            <span class="contact__label">linkedin</span>
+            <span class="contact__value">linkedin.com/in/gbinfosec</span>
+          </a>
+        </div>
       </div>
-      <nav className={`topbar-nav${open ? ' open' : ''}`}>
-        <a href="#hacker" onClick={close}>/01.hacker</a>
-        <a href="#poet" onClick={close}>/02.poet</a>
-        <a href="#gamer" onClick={close}>/03.gamer</a>
-        <a href="#contact" onClick={close}>/04.contact</a>
-      </nav>
-      <div className="topbar-mobile-r">
-        <img src="headshot.png" alt="Gabriel Barrera" className="topbar-avatar" />
-        <button className={`hamburger${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="Toggle menu">
-          <span /><span /><span />
-        </button>
       </div>
-    </header>
-  );
-}
-
-// ─── App ───────────────────────────────────────────────────────
-function App() {
-  const styleVars = { '--hue-a': 320, '--hue-b': 200 };
-  return (
-    <div className="page has-scan has-flicker" style={styleVars}>
-      <MatrixRain enabled={true} hue={320} />
-      <Topbar />
-      <main>
-        <Hero />
-        <section className="pillars">
-          {PILLARS.map((p) => (
-            <div key={p.id} id={p.id}><Pillar p={p} /></div>
-          ))}
-        </section>
-        <div id="contact"><Contact /></div>
-      </main>
-      <footer className="bottombar">
-        <span>© 2026 — gabriel barrera // all signals reserved</span>
-        <span className="dim">build 0x4A7F.E2D9 — last commit 04:17 UTC</span>
-      </footer>
-      <SystemStatus />
     </div>
-  );
-}
+  </section>
+  <section id="#career">
+    <div class="section__content career">
+      <div id="career-map" class="career__map"></div>
+      <div class="section__header">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="career__toggle" role="group" aria-label="Map mode">
+        <button type="button" class="career__btn is-active" data-mode="timeline">Timeline</button>
+        <button type="button" class="career__btn" data-mode="interactive">Interactive</button>
+      </div>
+      <div class="career__progress" id="career-progress"><span></span></div>
+      <div class="career__timeline" id="career-timeline"></div>
+      <aside class="career__sidebar" id="career-sidebar" aria-hidden="true">
+        <button type="button" class="career__sb-tab" id="career-sb-tab" aria-label="Toggle career detail">
+          <span class="career__sb-tab-label">Career Detail</span>
+        </button>
+        <div class="career__sb-head">
+          <span class="career__sb-title">Career Detail</span>
+          <button type="button" class="career__sb-close" id="career-sb-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="career__sb-list" id="career-sb-list"></div>
+        <div class="career__sb-detail" id="career-sb-detail"></div>
+      </aside>
+    </div>
+  </section>
+  <section id="#links">
+    <div class="section__content resume-win has-scan has-flicker">
+      <div class="section__header">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="pdfv__toolbar">
+        <div class="pdfv__group pdfv__file">
+          <span class="pdfv__badge">PDF</span>
+          <span class="pdfv__name">Barrera_Gabriel_IS_Resume.pdf</span>
+        </div>
+        <div class="pdfv__group pdfv__pager">
+          <button type="button" class="pdfv__btn" id="pdfv-prev" aria-label="Previous page">&lsaquo;</button>
+          <span class="pdfv__page"><span class="pdfv__page-cur">1</span><span class="pdfv__page-sep">/</span><span class="pdfv__page-tot">1</span></span>
+          <button type="button" class="pdfv__btn" id="pdfv-next" aria-label="Next page">&rsaquo;</button>
+          <span class="pdfv__sep"></span>
+          <button type="button" class="pdfv__btn" id="pdfv-zoom-out" aria-label="Zoom out">&minus;</button>
+          <span class="pdfv__zoom" id="pdfv-zoom">100%</span>
+          <button type="button" class="pdfv__btn" id="pdfv-zoom-in" aria-label="Zoom in">+</button>
+          <button type="button" class="pdfv__btn" id="pdfv-zoom-reset" aria-label="Fit width">&#9633;</button>
+        </div>
+        <div class="pdfv__group pdfv__actions">
+          <button type="button" class="pdfv__btn" id="pdfv-print" aria-label="Print">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"></path><rect x="6" y="13" width="12" height="8"></rect><path d="M6 17H4a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2"></path></svg>
+          </button>
+          <a class="pdfv__btn pdfv__dl" id="pdfv-download" href="assets/documents/Barrera_Gabriel_IS_Resume.pdf" download="Barrera_Gabriel_IS_Resume.pdf" aria-label="Download">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M5 21h14"></path></svg>
+          </a>
+        </div>
+      </div>
+      <canvas class="rz-matrix" id="rz-matrix"></canvas>
+      <div class="rz-scroll">
+        <div class="pdfv__canvas">
+        <div class="page resume-page">
+          <header class="topbar">
+            <div class="topbar-l">
+              <span class="topbar-logo" style="display:flex;align-items:center;gap:10px">
+                <span class="logo-mark">â—†</span>
+                <span class="logo-txt">gabriel.barrera<span class="caret">_</span></span>
+              </span>
+            </div>
+            <nav class="topbar-nav">
+              <span>/01.hacker</span>
+              <span>/02.poet</span>
+              <span>/03.gamer</span>
+              <span>/04.contact</span>
+            </nav>
+          </header>
+          <main>
+            <section class="resume-hero">
+              <div class="resume-crumbs">
+                <span>~</span>
+                <span class="sep">/</span>
+                <span>hacker</span>
+                <span class="sep">/</span>
+                <span class="here">resume</span>
+              </div>
+              <h1 class="resume-name">
+                <span class="glitch-text" data-text="Gabriel">Gabriel</span>
+                <span class="glitch-text" data-text="Barrera">Barrera</span>
+              </h1>
+              <div class="resume-title-line"><span>&gt;</span>Information Security Analyst II</div>
+              <p class="resume-summary">
+                Driven computer scientist skilled in problem-solving, software development, and building cloud solutions.
+                Passionate about learning new emerging threats and techniques in cyber security, and implementing new
+                and innovative mitigating controls and automations.
+              </p>
+              <a class="resume-download" id="resume-download" href="assets/documents/Barrera_Gabriel_IS_Resume.pdf" download="Barrera_Gabriel_IS_Resume.pdf">
+                <span class="rd-bracket">[</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                download resume.pdf
+                <span class="rd-bracket">]</span>
+              </a>
+            </section>
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-</script>
+            <div class="term-bar" style="margin-top:40px">
+              <div class="term-dots">
+                <div class="term-dot r"></div>
+                <div class="term-dot y"></div>
+                <div class="term-dot g"></div>
+              </div>
+              <span class="term-path">~/resume/barrera_gabriel.log</span>
+            </div>
+            <pre class="resume-ascii">$ cat barrera_gabriel.log | grep -E "MTTD|MTTR|Azure|KQL|Defender"
+[2019-11] ROLE: IS Analyst â€” Port of San Diego
+[2021-03] BUILD: Azure event pipeline â€” MTTD â†“70%  MTTR â†“30%
+[2022-06] TOOL: MS Defender XDR + Azure Sentinel + Palo Alto + InfoBlox
+[2023-01] IMPL: Okta MFA + CBA policies + AD IAM audits + CIS hardening
+[2023-09] CODE: Graph API integrations via Logic Apps + PowerShell
+[2024-02] HUNT: KQL rules for emerging IOCs and critical CVEs
+[2025-11] SCAN: Rapid7 + Defender vuln assessments + SOC II reviews
+&gt; â–ˆ</pre>
+
+            <div class="resume-body">
+              <div class="resume-sidebar">
+                <div class="res-section">
+                  <div class="res-section-head">
+                    <span class="acc">A</span>
+                    <span class="pillar-bar"></span>
+                    <span style="color:var(--rz-acc-2)">/edu</span>
+                  </div>
+                  <div class="edu-entry">
+                    <div class="edu-degree">Bachelors Science â€” Computer Science</div>
+                    <div class="edu-school">San Diego State University</div>
+                    <div class="edu-dates">2015 â€“ 2019</div>
+                    <div class="edu-courses-label">Relevant Courses</div>
+                    <div class="edu-courses">
+                      <span class="skill-chip">Cyber Security</span>
+                      <span class="skill-chip">Machine Learning</span>
+                      <span class="skill-chip">Systems Programming</span>
+                      <span class="skill-chip">Data Structures</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="res-section">
+                  <div class="res-section-head">
+                    <span class="acc">B</span>
+                    <span class="pillar-bar"></span>
+                    <span style="color:var(--rz-acc-2)">/skills</span>
+                  </div>
+                  <div class="skill-group">
+                    <div class="skill-group-label">Languages</div>
+                    <div class="skill-chips">
+                      <span class="skill-chip">PowerShell</span>
+                      <span class="skill-chip">Python</span>
+                      <span class="skill-chip">JavaScript</span>
+                      <span class="skill-chip">PHP</span>
+                      <span class="skill-chip">KQL</span>
+                      <span class="skill-chip">SQL</span>
+                      <span class="skill-chip">Bash</span>
+                    </div>
+                  </div>
+                  <div class="skill-group">
+                    <div class="skill-group-label">Cloud Services</div>
+                    <div class="skill-chips">
+                      <span class="skill-chip">Microsoft Azure</span>
+                      <span class="skill-chip">Intune</span>
+                      <span class="skill-chip">O365</span>
+                      <span class="skill-chip">SolarWinds</span>
+                      <span class="skill-chip">Okta</span>
+                      <span class="skill-chip">Twilio</span>
+                    </div>
+                  </div>
+                  <div class="skill-group">
+                    <div class="skill-group-label">Tools</div>
+                    <div class="skill-chips">
+                      <span class="skill-chip">MS Defender XDR</span>
+                      <span class="skill-chip">Palo Alto</span>
+                      <span class="skill-chip">Power Automate</span>
+                      <span class="skill-chip">Power BI</span>
+                      <span class="skill-chip">Postman</span>
+                      <span class="skill-chip">Git</span>
+                      <span class="skill-chip">InfoBlox</span>
+                      <span class="skill-chip">Any.Run</span>
+                      <span class="skill-chip">VT</span>
+                      <span class="skill-chip">Rapid7</span>
+                      <span class="skill-chip">Ghidra</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="res-section">
+                  <div class="res-section-head">
+                    <span class="acc">C</span>
+                    <span class="pillar-bar"></span>
+                    <span style="color:var(--rz-acc-2)">/soft</span>
+                  </div>
+                  <div class="soft-chips">
+                    <span class="skill-chip">Verbal/Written Communication</span>
+                    <span class="skill-chip">Critical Thinking</span>
+                    <span class="skill-chip">Teamwork</span>
+                    <span class="skill-chip">Problem Solving</span>
+                    <span class="skill-chip">Adaptability</span>
+                    <span class="skill-chip">Self-Management</span>
+                    <span class="skill-chip">Design</span>
+                    <span class="skill-chip">Questioning</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="resume-main">
+                <div class="res-section">
+                  <div class="res-section-head">
+                    <span class="acc">01</span>
+                    <span class="pillar-bar"></span>
+                    <span style="color:var(--rz-acc-2)">/dev/experience</span>
+                  </div>
+                  <div class="exp-entry">
+                    <div class="exp-header">
+                      <div>
+                        <div class="exp-role"><span>Information Security Analyst</span><span><span class="arrow">â†’</span>IS Analyst II</span></div>
+                        <div class="exp-company">Port of San Diego</div>
+                      </div>
+                      <div class="exp-dates">Nov 2019 â€“ Present</div>
+                    </div>
+                    <ul class="exp-bullets">
+                      <li>Reduced MTTD by ~70% and MTTR by ~30% by building a centralized event collection and alerting system in Azure, bridging the gap until a formal SIEM was procured and implemented.</li>
+                      <li>Monitored security alerts and SIEM dashboards (Azure Sentinel, FireEye Helix) for suspicious activity; performed daily reviews of Palo Alto firewall and IDS/IPS logs; investigated and documented incidents involving phishing, malware, and unauthorized access.</li>
+                      <li>Led threat hunting operations using Defender XDR, Azure Sentinel, Palo Alto traffic analysis, and InfoBlox queries to identify, contain, and remediate confirmed or suspected compromises within defined SLAs.</li>
+                      <li>Hardened identity security by implementing Okta MFA, configuring Certificate-Based Authentication policies, managing user provisioning and deprovisioning across Active Directory and Azure Entra, and auditing IAM against CIS benchmarks.</li>
+                      <li>Automated detection and response workflows via Logic Apps, App Registrations, and PowerShell scripts leveraging the Graph API, reducing time-to-audit and addressing operational inefficiencies.</li>
+                      <li>Performed risk assessments of vulnerabilities surfaced by Defender and Rapid7, ensured timely patching and remediation, and reviewed SOC 2 / ISO 27001 reports from third-party vendors.</li>
+                      <li>Developed KQL detection rules in Defender and Sentinel based on emerging threat research, critical CVEs, and new IOCs; analyzed suspicious executables using Ghidra and ClamAV.</li>
+                      <li>Managed endpoint security monitoring across antivirus and EDR solutions; collaborated with sysadmin and network teams to enforce security controls and kept security policies and documentation current.</li>
+                      <li>Drove security awareness through phishing simulations, targeted email alerts, and quarterly interactive training campaigns.</li>
+                    </ul>
+                  </div>
+                  <div class="exp-entry">
+                    <div class="exp-header">
+                      <div>
+                        <div class="exp-role"><span>Software Developer Intern</span></div>
+                        <div class="exp-company">Port of San Diego</div>
+                      </div>
+                      <div class="exp-dates">Jan 2018 â€“ Nov 2019</div>
+                    </div>
+                    <ul class="exp-bullets">
+                      <li>Aided recovery efforts of the Port of San Diego's Incident Response Team following a company-wide ransomware attack, collaborating across departments, validating recovery checkpoints, and verifying rebuilt systems met security and compliance baselines before reintegration.</li>
+                      <li>Developed and maintained PowerShell and Python scripts to automate deployment and incident response tasks, improving team efficiency and reducing workload against SLA targets.</li>
+                      <li>Contributed to full-stack features and bug fixes spanning UI/UX, back-end logic, and API integrations; conducted unit and integration testing to validate functionality and reliability.</li>
+                      <li>Participated in daily stand-ups, sprint planning, and code reviews; applied Git/GitHub version control best practices and maintained documentation for code changes and technical processes.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="res-section">
+                  <div class="res-section-head">
+                    <span class="acc">02</span>
+                    <span class="pillar-bar"></span>
+                    <span style="color:var(--rz-acc-2)">/dev/projects</span>
+                  </div>
+                  <div class="proj-entry">
+                    <div class="proj-name">&gt; The Hunt</div>
+                    <div class="proj-desc">Implemented detection alerts, learned to read/write Russian, and investigated the chain of command to determine the legitimacy of a highly suspicious user.</div>
+                  </div>
+                  <div class="proj-entry">
+                    <div class="proj-name">&gt; The Sentinel Unified System (SUS)</div>
+                    <div class="proj-desc">Integrated SolarWinds Service Desk, custom KQLs and Analytics Rules, Teams, and Logic Apps for a more efficient and robust security event detection and lifecycle management.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+          <footer class="bottombar">
+            <span>Â© 2026 â€” gabriel barrera // resume.log</span>
+            <span class="dim">// signed: 0xGB</span>
+          </footer>
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <button popovertarget="nav">
+    <span class="sr-only">Open Menu</span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+      <path d="M11.644 1.59a.75.75 0 01.712 0l9.75 5.25a.75.75 0 010 1.32l-9.75 5.25a.75.75 0 01-.712 0l-9.75-5.25a.75.75 0 010-1.32l9.75-5.25z" />
+      <path d="M3.265 10.602l7.668 4.129a2.25 2.25 0 002.134 0l7.668-4.13 1.37.739a.75.75 0 010 1.32l-9.75 5.25a.75.75 0 01-.71 0l-9.75-5.25a.75.75 0 010-1.32l1.37-.738z" />
+      <path d="M10.933 19.231l-7.668-4.13-1.37.739a.75.75 0 000 1.32l9.75 5.25c.221.12.489.12.71 0l9.75-5.25a.75.75 0 000-1.32l-1.37-.738-7.668 4.13a2.25 2.25 0 01-2.134-.001z" />
+    </svg>
+  </button>
+  <script src="src/script.js" defer></script>
 </body>
 </html>
+
