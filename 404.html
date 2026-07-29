@@ -20,10 +20,9 @@ a:hover{color:#ff2fb0}
 </style>
 </helmet>
 <div style="min-height:100vh;background:radial-gradient(circle at 50% 35%,rgba(255,47,176,.16),transparent 55%),#05060e;display:flex;flex-direction:column">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 28px;border-bottom:1px solid rgba(255,47,176,.35)">
-    <a href="index.dc.html" style="font-size:13px;letter-spacing:.24em;color:#ff2fb0">&#9664; RETURN TO TERMINAL</a>
+  <div style="display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:16px 28px;border-bottom:1px solid rgba(255,47,176,.35)">
     <div style="display:flex;gap:22px;font-size:13px;letter-spacing:.24em">
-      <a href="index.dc.html#/projects">PROJECTS</a><a href="index.dc.html#/resume">RESUME</a><a href="index.dc.html#/about">ABOUT</a>
+      <a href="index.html#/projects">PROJECTS</a><a href="index.html#/resume">RESUME</a><a href="index.html#/about">ABOUT</a>
     </div>
   </div>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:70px 28px;text-align:center">
@@ -36,8 +35,7 @@ a:hover{color:#ff2fb0}
       <p style="margin:0;font-size:clamp(17px,2.6vw,24px);line-height:1.55;color:#c9f7ff;text-wrap:pretty">{{ joke }}</p>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
-      <button type="button" onClick="{{ reroll }}" style="font-family:'Share Tech Mono',monospace;cursor:pointer;background:transparent;border:1px solid #00f0ff;color:#00f0ff;padding:11px 20px;font-size:13px;letter-spacing:.2em" style-hover="background:rgba(0,240,255,.14);box-shadow:0 0 22px rgba(0,240,255,.35)">NEXT EXCUSE &#8635;</button>
-      <a href="index.dc.html" style="border:1px solid #39ff9a;color:#39ff9a;padding:11px 20px;font-size:13px;letter-spacing:.2em" style-hover="background:rgba(57,255,154,.14);box-shadow:0 0 22px rgba(57,255,154,.35)">BACK TO THE DESK</a>
+      <a href="index.html" style="border:1px solid #39ff9a;color:#39ff9a;padding:11px 20px;font-size:13px;letter-spacing:.2em" style-hover="background:rgba(57,255,154,.14);box-shadow:0 0 22px rgba(57,255,154,.35)">BACK TO THE DESK</a>
     </div>
   </div>
 </div>
@@ -68,14 +66,17 @@ const JOKES = [
 
 class Component extends DCLogic {
   state = { joke: Math.floor(Math.random() * JOKES.length) };
+  componentDidMount() {
+    this.timer = setInterval(() => this.setState(s => ({ joke: (s.joke + 1) % JOKES.length })), 10000);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
   renderVals() {
     const from = new URLSearchParams(location.search).get('from');
     const hash = (location.hash || '').replace(/^#\/?/, '');
     return {
       joke: JOKES[this.state.joke],
       jokeNo: String(this.state.joke + 1).padStart(2, '0'),
-      badPath: from || (hash ? '/' + hash : location.pathname || '/???'),
-      reroll: () => this.setState(s => ({ joke: (s.joke + 1) % JOKES.length }))
+      badPath: from || (hash ? '/' + hash : location.pathname || '/???')
     };
   }
 }
