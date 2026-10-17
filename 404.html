@@ -1,85 +1,275 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wala Dito · 404</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
+<style>
+/* Same paper, ink and sun as the main site; follows the visitor's saved day/night choice. */
+:root{
+  --paper:#f0e6cc; --ink:#24201b; --ink-soft:#544b3f; --ink-faint:#8c826f; --sun:#d63f29;
+  --paper-rgb:240,230,204; --sky-top:240,230,204; --sky-hor:240,230,204; --scene-ink:36,32,27;
+  --boat:#24201b; --streak:#f0e6cc;
+  --font-name:"Orbitron","Eurostile","Bank Gothic","Arial Black",sans-serif;
+  --font-body:"Zen Kaku Gothic New","Hiragino Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace;
+  color-scheme:light;
+}
+html.night{
+  --paper:#262a35; --ink:#efe6cf; --ink-soft:#cbc2ac; --ink-faint:#8f8b80; --sun:#e0583f;
+  --paper-rgb:38,42,53; --sky-top:28,31,41; --sky-hor:47,52,66; --scene-ink:5,6,9;
+  --boat:#08090c; --streak:#3a4050; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--paper);color:var(--ink-soft);
+  font-family:var(--font-body);font-size:16.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.38;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .47  0 0 0 0 .33  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--sun);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* navbar, identical to the site's */
+.top{position:relative;z-index:5;background:linear-gradient(rgb(var(--sky-top)) 70%,rgba(var(--sky-top),0))}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px 22px}
+.seal{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}
+.seal-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:4px;background:var(--sun);color:var(--paper);
+  box-shadow:inset 0 0 0 2px rgba(var(--paper-rgb),.35);transform:rotate(-3deg)}
+.seal-mark svg{height:19px;width:auto;fill:currentColor;overflow:visible}
+.seal-name{font-family:var(--font-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase}
+nav ul{list-style:none;margin:0;padding:0;display:flex;gap:clamp(10px,2.4vw,30px);flex-wrap:wrap;justify-content:flex-end}
+nav a{font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink-faint);padding:6px 0;transition:color .4s}
+nav a:hover{color:var(--ink)}
+
+/* the scene */
+.scene{position:relative;height:clamp(380px,62vh,620px);margin-top:-24px;overflow:hidden}
+.sky{position:absolute;inset:0;background:linear-gradient(to bottom,rgb(var(--sky-top)) 0%,rgb(var(--sky-hor)) 70%)}
+.scene canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.code{position:absolute;left:0;right:0;top:12%;text-align:center}
+.code h1{margin:0;font-family:var(--font-name);font-weight:600;color:var(--ink);font-size:clamp(84px,17vw,200px);line-height:1;letter-spacing:.04em}
+.code h1 .ch{display:inline-block;text-align:center}
+.code h1 .ch.off{color:var(--sun)}
+.code p{margin:10px 0 0;font-family:var(--font-mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-faint)}
+.code p b{color:var(--sun);font-weight:500}
+
+/* boat: waterline (viewBox y=95) sits on the lake at 76% of the scene */
+.boat{--bw:clamp(230px,30vw,400px);position:absolute;left:calc(50% - var(--bw) * .62);width:var(--bw);top:calc(76% - var(--bw) * .3167);color:var(--boat)}
+.boat svg{display:block;width:100%;height:auto;overflow:visible}
+.boat .drift{animation:drift 9s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translateX(-4px) rotate(-.4deg)}to{transform:translateX(4px) rotate(.4deg)}}
+/* the salakot, bobbing on its own a little way off */
+.hat{--hw:clamp(46px,5.4vw,72px);position:absolute;left:calc(50% + var(--bw,30vw) * .5);width:var(--hw);top:calc(78% - var(--hw) * .5);color:var(--boat)}
+.hat svg{display:block;width:100%;height:auto;overflow:visible}
+.hat .bob{transform-origin:50% 60%;animation:bob 4.2s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0) rotate(-6deg)}to{transform:translateY(2px) rotate(4deg)}}
+.hat .ring{fill:none;stroke:currentColor;stroke-width:.8;opacity:0;transform-origin:50% 50%;animation:ring 4.2s ease-out infinite}
+.hat .ring:nth-of-type(2){animation-delay:1.4s}.hat .ring:nth-of-type(3){animation-delay:2.8s}
+@keyframes ring{0%{opacity:.5;transform:scale(.35)}100%{opacity:0;transform:scale(1.25)}}
+
+/* message + button */
+main{flex:1}
+.msg{text-align:center;padding-block:clamp(22px,4vw,40px) 64px}
+.msg p{margin:0 auto;max-width:34ch;font-size:clamp(17px,1.7vw,20px);line-height:1.6;color:var(--ink)}
+.home{display:inline-block;margin-top:28px;font-family:var(--font-mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  text-decoration:none;background:var(--ink);color:var(--paper);border-radius:2px;padding:14px 26px;transition:background .3s}
+.home:hover{background:var(--sun)}
+
+@media (max-width:600px){
+  .top .wrap{flex-direction:column;align-items:flex-start;gap:10px;padding-block:14px 16px}
+  nav ul{justify-content:flex-start;gap:16px}
+  nav a{font-size:11px;letter-spacing:.14em}
+  .boat{left:calc(50% - var(--bw) * .66)}
+  .hat{left:auto;right:6%}
+}
+@media (prefers-reduced-motion:reduce){ .boat .drift,.hat .bob,.hat .ring{animation:none} }
+</style>
 </head>
 <body>
-<x-dc>
-<helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet"/>
-<style>
-html,body{margin:0;padding:0;background:#04040a;color:#c9f7ff;font-family:'Share Tech Mono',ui-monospace,monospace}
-*{box-sizing:border-box}
-a{color:#00f0ff;text-decoration:none}
-a:hover{color:#ff2fb0}
-::selection{background:#ff2fb0;color:#04040a}
-@keyframes flick{0%,100%{opacity:.85}47%{opacity:.6}48%{opacity:1}52%{opacity:.7}}
-</style>
-</helmet>
-<div style="min-height:100vh;background:radial-gradient(circle at 50% 35%,rgba(255,47,176,.16),transparent 55%),#05060e;display:flex;flex-direction:column">
-  <div style="display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:16px 28px;border-bottom:1px solid rgba(255,47,176,.35)">
-    <div style="display:flex;gap:22px;font-size:13px;letter-spacing:.24em">
-      <a href="index.html#/projects">PROJECTS</a><a href="index.html#/resume">RESUME</a><a href="index.html#/about">ABOUT</a>
-    </div>
-  </div>
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:70px 28px;text-align:center">
-    <div style="font-family:Orbitron,sans-serif;font-weight:900;font-size:clamp(80px,20vw,220px);line-height:.9;color:#eafcff;text-shadow:0 0 40px rgba(255,47,176,.6),6px 0 0 rgba(0,240,255,.45),-6px 0 0 rgba(255,47,176,.45);animation:flick 3.4s steps(2) infinite">404</div>
-    <div style="font-size:12px;letter-spacing:.4em;color:#39ff9a">SIGNAL LOST &#8212; ROUTE NOT FOUND</div>
-    <div style="max-width:720px;border:1px solid rgba(0,240,255,.3);background:rgba(6,10,16,.75);padding:26px 28px">
-      <div style="display:flex;justify-content:space-between;gap:12px;font-size:11px;letter-spacing:.22em;color:#5f8894;margin-bottom:14px">
-        <span>GET {{ badPath }}</span><span>LOG {{ jokeNo }}/20</span>
-      </div>
-      <p style="margin:0;font-size:clamp(17px,2.6vw,24px);line-height:1.55;color:#c9f7ff;text-wrap:pretty">{{ joke }}</p>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
-      <a href="index.html" style="border:1px solid #39ff9a;color:#39ff9a;padding:11px 20px;font-size:13px;letter-spacing:.2em" style-hover="background:rgba(57,255,154,.14);box-shadow:0 0 22px rgba(57,255,154,.35)">BACK TO THE DESK</a>
-    </div>
-  </div>
-</div>
-</x-dc>
-<script type="text/x-dc" data-dc-script>
-const JOKES = [
-  'This page pulled a zero-day on us \u2014 undisclosed, unpatched, unfindable.',
-  'The page was here. Then someone ran rm -rf and called it "incident response".',
-  'We hunted this URL across every log source. Zero results, high confidence.',
-  'This route failed authentication with reality.',
-  'Packet sent. Packet lost. Classic UDP energy.',
-  'The page is in an air-gapped facility and refuses to route to you.',
-  'Our threat model did not account for you typing that.',
-  'DNS says it exists. DNS lies. DNS always lies.',
-  'This link expired faster than a self-signed certificate.',
-  'Somebody moved the page and forgot to file a change request.',
-  'Suspected exfiltration: one (1) web page, destination unknown.',
-  'The page is now a hash. We cannot reverse it and neither can you.',
-  'Firewall rule 404: DENY ALL curiosity.',
-  'Phishing test failed \u2014 you clicked a link that goes nowhere.',
-  'This resource has been quarantined pending further analysis.',
-  'You have discovered our least-privileged page: no content at all.',
-  'The page took the Fifth. Legal advised silence.',
-  'Ransomware note found: "your page is safe, our sense of humor is not".',
-  'Honeypot engaged. There was never a page here \u2014 only vibes.',
-  'Backup exists. Restore procedure documented in 2013. Nobody has tested it.'
-];
+<script>try{ if(localStorage.getItem("bantay-night")==="1") document.documentElement.classList.add("night"); }catch(e){}</script>
 
-class Component extends DCLogic {
-  state = { joke: Math.floor(Math.random() * JOKES.length) };
-  componentDidMount() {
-    this.timer = setInterval(() => this.setState(s => ({ joke: (s.joke + 1) % JOKES.length })), 10000);
-  }
-  componentWillUnmount() { clearInterval(this.timer); }
-  renderVals() {
-    const from = new URLSearchParams(location.search).get('from');
-    const hash = (location.hash || '').replace(/^#\/?/, '');
-    return {
-      joke: JOKES[this.state.joke],
-      jokeNo: String(this.state.joke + 1).padStart(2, '0'),
-      badPath: from || (hash ? '/' + hash : location.pathname || '/???')
-    };
-  }
+<header class="top">
+  <div class="wrap">
+    <!-- Links are root-relative so they work from any missing URL. Change "/" if the site lives in a sub-folder. -->
+    <a class="seal" href="/#home" aria-label="Home">
+      <span class="seal-mark" aria-hidden="true"><svg viewBox="0 0 75.9 100"><path fill-rule="evenodd" d="M5.2 25.7 4.2 28.6 4.4 29.7 4.9 30.2 7.5 30.2 14.1 28.4 19.0 28.4 24.8 30.1 27.7 31.8 29.4 33.2 30.0 34.4 29.7 35.8 23.4 42.8 22.3 45.4 22.3 47.7 23.2 49.7 24.8 51.4 34.3 58.3 36.0 60.7 35.8 61.8 34.9 63.2 31.2 65.0 27.7 65.6 14.7 64.3 13.4 65.1 13.6 65.9 14.4 66.9 19.9 70.1 26.8 71.9 30.9 71.9 34.3 71.2 37.5 70.0 40.7 67.8 42.3 65.6 43.2 63.3 43.5 60.7 42.6 56.9 41.5 55.2 39.5 53.3 31.5 48.2 30.5 47.1 30.2 46.0 31.2 44.5 34.6 41.1 41.0 36.5 47.1 33.9 50.0 33.3 52.0 33.4 54.3 34.1 56.3 35.8 57.5 37.9 58.0 40.5 57.6 43.4 53.8 54.6 52.9 59.2 53.0 61.3 54.1 65.0 57.0 69.9 60.6 73.2 64.1 75.3 68.2 77.2 69.9 77.6 71.6 77.2 71.5 76.0 70.7 74.6 62.8 66.5 61.5 64.2 60.8 62.1 60.8 56.9 65.4 43.1 65.8 39.9 65.7 37.3 64.9 34.4 63.5 31.8 60.9 29.3 58.3 27.9 55.4 27.0 49.4 26.6 43.6 27.6 37.5 29.9 33.2 26.4 29.7 24.4 24.8 22.7 20.2 22.0 16.1 22.0 10.4 22.7 7.2 24.0Z"/></svg></span>
+      <span class="seal-name">Gabe&nbsp;Barrera</span>
+    </a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="/#home">Home</a></li>
+        <li><a href="/#about">About</a></li>
+        <li><a href="/#projects">Projects</a></li>
+        <li><a href="/#blog">Blog</a></li>
+        <li><a href="/#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="scene" role="img" aria-label="An empty bangka drifting on a misty lake, its laptop still on. The boatman's salakot floats nearby.">
+    <div class="sky"></div>
+    <canvas aria-hidden="true"></canvas>
+
+    <div class="code">
+      <h1 id="code" aria-label="404">404</h1>
+      <p>wala dito <b>·</b> page not found</p>
+    </div>
+
+    <!-- the boat, empty: laptop left open on the crate, pole still planted -->
+    <div class="boat" aria-hidden="true">
+      <svg viewBox="0 0 300 200">
+        <defs>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#d63f29" stop-opacity=".32"/><stop offset="1" stop-color="#d63f29" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="fade" x1="0" y1="95" x2="0" y2="178" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <mask id="reflMask" maskUnits="userSpaceOnUse" x="-10" y="95" width="320" height="105"><rect x="-10" y="95" width="320" height="105" fill="url(#fade)"/></mask>
+          <filter id="ripple" x="-5%" y="-2%" width="110%" height="104%">
+            <feTurbulence type="fractalNoise" baseFrequency=".008 .32" numOctaves="2" seed="7" result="n"/>
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+            <feGaussianBlur stdDeviation=".5 1"/>
+          </filter>
+          <clipPath id="scr"><path d="M140.6 51.6 L159 50 L162.8 69.2 L144.3 69.8 Z"/></clipPath>
+          <symbol id="empty" viewBox="0 0 300 130">
+            <ellipse cx="156" cy="64" rx="40" ry="26" fill="url(#glow)"/>
+            <path d="M256 22 L252.6 95" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M5 80.5 Q9 81.5 18 83.2 L250 83.2 Q272 82.4 285 74 Q291 69.5 297 64 Q294 75 284 85 Q272 94.6 236 95 L44 95 Q22 94.4 13 89 Q7 85.5 5 80.5 Z" fill="currentColor"/>
+            <path d="M144 83.2 L144 73.7 L167 73.7 L167 83.2 Z" fill="currentColor"/>
+            <path d="M140.5 73.8 L171 73.8 L169 71.2 L143 71.2 Z" fill="currentColor"/>
+            <path d="M138.4 49.6 L160.6 47.6 L165.2 71.4 L142.9 72 Z" fill="currentColor"/>
+            <path d="M140.6 51.6 L159 50 L162.8 69.2 L144.3 69.8 Z" fill="#100d0a"/>
+            <g clip-path="url(#scr)"><g id="term" transform="matrix(.184 -.016 .037 .182 140.6 51.6)"></g></g>
+          </symbol>
+        </defs>
+        <g class="drift">
+          <g mask="url(#reflMask)"><g filter="url(#ripple)" opacity=".36"><use href="#empty" width="300" height="130" transform="translate(0 190) scale(1 -1)"/></g></g>
+          <g style="stroke:var(--streak)" stroke-linecap="round" fill="none">
+            <path d="M58 104 H120 M160 103.6 H222" stroke-width=".8" opacity=".6"/>
+            <path d="M70 108 H190 M214 108.5 H262" stroke-width="1.2" opacity=".85"/>
+            <path d="M30 117 H96 M128 116.5 H230" stroke-width="1.4" opacity=".9"/>
+          </g>
+          <use href="#empty" width="300" height="130"/>
+          <path d="M40 95.6 Q150 96.6 240 95.6" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45" fill="none"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- the salakot, all that came back up -->
+    <div class="hat" aria-hidden="true">
+      <svg viewBox="0 0 60 40">
+        <ellipse class="ring" cx="30" cy="27" rx="28" ry="6"/>
+        <ellipse class="ring" cx="30" cy="27" rx="28" ry="6"/>
+        <ellipse class="ring" cx="30" cy="27" rx="28" ry="6"/>
+        <g class="bob">
+          <path d="M8 26 Q18 15 30 11 Q42 15 52 26 Q30 30 8 26 Z" fill="currentColor"/>
+          <circle cx="30" cy="10.4" r="1.9" fill="currentColor"/>
+        </g>
+        <path d="M10 28.4 Q30 31 50 28.4" stroke="currentColor" stroke-width=".9" stroke-opacity=".4" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <section class="msg wrap">
+    <p>The boatman went offline mid-session. Only his salakot made it back up, and it isn't talking.</p>
+    <a class="home" href="/">Return to shore</a>
+  </section>
+</main>
+
+<script>
+(function(){
+"use strict";
+var reduce=false; try{ reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+function $(s){ return document.querySelector(s); }
+
+/* ---------- ink-wash landscape (same painter as the main site) ---------- */
+function rng(seed){ return function(){ seed=(seed*16807)%2147483647; return (seed-1)/2147483646; }; }
+function ridge(rand,n,rough){ var p=new Array(n+1); p[0]=rand()*2-1; p[n]=rand()*2-1; var step=n,amp=1;
+  while(step>1){ var h=step/2; for(var i=h;i<n;i+=step){ p[i]=(p[i-h]+p[i+h])/2+(rand()*2-1)*amp; } amp*=rough; step=h; } return p; }
+var INK="36,32,27", K=1;
+function layer(ctx,W,H,o){
+  var A=Math.min(.95,o.alpha*K), rand=rng(o.seed), n=128, pts=ridge(rand,n,o.rough);
+  function yAt(i){ var e=o.env?o.env(i/n):1; return o.base*H-(pts[i]*.5+.5)*o.amp*H*e; }
+  ctx.beginPath(); ctx.moveTo(0,H); for(var i=0;i<=n;i++) ctx.lineTo(i/n*W,yAt(i)); ctx.lineTo(W,H); ctx.closePath();
+  var g=ctx.createLinearGradient(0,(o.base-o.amp)*H,0,o.fadeTo*H);
+  g.addColorStop(0,"rgba("+INK+","+A+")"); g.addColorStop(.55,"rgba("+INK+","+A*.55+")"); g.addColorStop(1,"rgba("+INK+",0)");
+  ctx.fillStyle=g; ctx.fill();
+  if(o.trees){ rand=rng(o.seed+7); for(var t=0;t<o.trees.count;t++){ var tx=(o.trees.from+(o.trees.to-o.trees.from)*rand())*W, ty=yAt(Math.round(tx/W*n)),
+    th=(8+rand()*14)*(H/700), tw=th*.32; ctx.beginPath(); ctx.moveTo(tx,ty-th); ctx.lineTo(tx-tw,ty+2); ctx.lineTo(tx+tw,ty+2); ctx.closePath();
+    ctx.fillStyle="rgba("+INK+","+A*.95+")"; ctx.fill(); } }
 }
+function soft(ctx,W,H,o,s){ var c=document.createElement("canvas"); c.width=Math.max(1,Math.round(W*s)); c.height=Math.max(1,Math.round(H*s));
+  layer(c.getContext("2d"),c.width,c.height,o); ctx.drawImage(c,0,0,W,H); }
+function paint(){
+  var cv=$(".scene canvas"), r=cv.getBoundingClientRect(); if(!r.width) return;
+  var dpr=Math.min(devicePixelRatio||1,2), W=Math.round(r.width*dpr), H=Math.round(r.height*dpr);
+  cv.width=W; cv.height=H; var ctx=cv.getContext("2d");
+  var cs=getComputedStyle(document.documentElement), night=document.documentElement.classList.contains("night");
+  INK=cs.getPropertyValue("--scene-ink").trim()||INK; K=night?2.3:1;
+  var hor=cs.getPropertyValue("--sky-hor").trim(), paper=cs.getPropertyValue("--paper-rgb").trim(), water=.70, narrow=r.width<600;
+  soft(ctx,W,H,{seed:11,base:.50,amp:.22,rough:.56,alpha:.16,fadeTo:.66},.18);
+  soft(ctx,W,H,{seed:29,base:.56,amp:.17,rough:.55,alpha:.24,fadeTo:.69},.3);
+  soft(ctx,W,H,{seed:5,base:.63,amp:.13,rough:.5,alpha:.32,fadeTo:.71,env:function(t){return .35+.65*Math.pow(t,1.4);},trees:{count:narrow?28:70,from:.74,to:1}},.6);
+  layer(ctx,W,H,{seed:3,base:.66,amp:.2,rough:.52,alpha:.78,fadeTo:.72,env:function(t){return Math.max(0,1-t*1.55);}});
+  var m=ctx.createLinearGradient(0,(water-.09)*H,0,(water+.03)*H);
+  m.addColorStop(0,"rgba("+hor+",0)"); m.addColorStop(.7,"rgba("+hor+",.92)"); m.addColorStop(1,"rgb("+hor+")");
+  ctx.fillStyle=m; ctx.fillRect(0,(water-.09)*H,W,.12*H);
+  var lk=ctx.createLinearGradient(0,(water+.03)*H,0,H); lk.addColorStop(0,"rgb("+hor+")"); lk.addColorStop(.55,"rgb("+paper+")"); lk.addColorStop(1,"rgb("+paper+")");
+  ctx.fillStyle=lk; ctx.fillRect(0,(water+.03)*H,W,H);
+  ctx.save(); ctx.globalAlpha=.1; ctx.translate(0,2*water*H); ctx.scale(1,-1);
+  soft(ctx,W,H,{seed:3,base:.66,amp:.2,rough:.52,alpha:.9,fadeTo:.7,env:function(t){return Math.max(0,1-t*1.55);}},.25); ctx.restore();
+  var R=rng(41); for(var k=0;k<26;k++){ var y=(water+.04+R()*.24)*H, x=R()*W, len=(30+R()*160)*dpr;
+    ctx.strokeStyle= night? "rgba(255,244,214,"+(.03+R()*.05)+")" : "rgba("+INK+","+(.04+R()*.05)+")"; ctx.lineWidth=dpr;
+    ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+len,y); ctx.stroke(); }
+}
+var rt; addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(paint,150); });
+
+/* ---------- the laptop, still on: a terminal that keeps pinging, no one answering ---------- */
+(function(){
+  var g=document.getElementById("term"), NS="http://www.w3.org/2000/svg", LH=10.5, MAX=9, on=true;
+  var C={red:"#e2553c",cream:"#f0e6cc",dim:"#8c826f"};
+  // ping … no reply, over and over
+  var script=[[4,C.red,14,C.cream,30,C.dim],[46,C.dim],[4,C.red,14,C.cream,30,C.dim],[46,C.dim],[6,C.red,40,C.red]];
+  var lines=[], li=0;
+  function draw(){
+    while(g.firstChild) g.removeChild(g.firstChild);
+    lines.forEach(function(L,i){ var x=6, y=5+i*LH;
+      for(var j=0;j<L.length;j+=2){ var e=document.createElementNS(NS,"rect"); e.setAttribute("x",x); e.setAttribute("y",y); e.setAttribute("width",L[j]);
+        e.setAttribute("height",5.6); e.setAttribute("rx",1); e.setAttribute("fill",L[j+1]); g.appendChild(e); x+=L[j]+2.4; }
+      if(i===lines.length-1 && on){ var c=document.createElementNS(NS,"rect"); c.setAttribute("x",x); c.setAttribute("y",y-.6); c.setAttribute("width",3.4); c.setAttribute("height",7); c.setAttribute("fill",C.cream); g.appendChild(c); }
+    });
+  }
+  function next(){ lines.push(script[li%script.length]); li++; if(lines.length>MAX) lines.shift(); draw(); }
+  for(var i=0;i<6;i++) next();
+  if(!reduce){ setInterval(next,1600); setInterval(function(){ on=!on; draw(); },520); }
+})();
+
+/* ---------- 404 decrypts into place, like the main site ---------- */
+(function(){
+  var el=$("#code"), text="404"; if(reduce) return;
+  var SYM="#%&*+=<>/\\|{}[]$@!?0123456789ABCDEFGHJKLMNPRSTUVWXYZ";
+  el.innerHTML=""; var spans=[];
+  for(var i=0;i<text.length;i++){ var s=document.createElement("span"); s.className="ch"; s.setAttribute("aria-hidden","true"); s.textContent=text[i]; el.appendChild(s); spans.push(s); }
+  function start(){
+    spans.forEach(function(s){ s.style.width=s.getBoundingClientRect().width+"px"; });
+    var total=2200, t0=performance.now(), last=0, locks=[total*.35,total*.6,total*.9];
+    (function f(now){ var t=now-t0;
+      if(now-last>70){ last=now; spans.forEach(function(s,k){ if(t>=locks[k]){ s.textContent=text[k]; s.className="ch"; } else { s.textContent=SYM[Math.floor(Math.random()*SYM.length)]; s.className="ch off"; } }); }
+      if(t<total+80) requestAnimationFrame(f); else el.textContent=text; })(t0);
+  }
+  if(document.fonts && document.fonts.ready){ var done=false; document.fonts.ready.then(function(){ if(!done){done=true;start();} }); setTimeout(function(){ if(!done){done=true;start();} },1500); } else start();
+})();
+
+paint();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
+})();
 </script>
 </body>
 </html>
