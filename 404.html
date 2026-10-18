@@ -71,6 +71,25 @@ nav a:hover{color:var(--ink)}
 .hat .ring:nth-of-type(2){animation-delay:1.4s}.hat .ring:nth-of-type(3){animation-delay:2.8s}
 @keyframes ring{0%{opacity:.5;transform:scale(.35)}100%{opacity:0;transform:scale(1.25)}}
 
+/* scene extras */
+.boat .x{display:none}
+.scene[data-v="sleep"] .x-sleep,.scene[data-v="fish"] .x-fish,.scene[data-v="capsized"] .x-capsized{display:inline}
+.boat .z{opacity:0;animation:zz 3.6s ease-out infinite}
+.boat .z:nth-of-type(2){animation-delay:1.2s}.boat .z:nth-of-type(3){animation-delay:2.4s}
+@keyframes zz{0%{opacity:0;transform:translate(0,6px)}25%{opacity:.85}100%{opacity:0;transform:translate(6px,-10px)}}
+.boat .ring{opacity:0;transform-box:fill-box;transform-origin:50% 50%;animation:ring 3.6s ease-out infinite}
+.boat .ring:nth-of-type(2){animation-delay:1.8s}
+.boat .bub{opacity:0;transform-box:fill-box;animation:bub 2.8s ease-in infinite}
+.boat .bub:nth-of-type(2){animation-delay:.7s}.boat .bub:nth-of-type(3){animation-delay:1.4s}.boat .bub:nth-of-type(4){animation-delay:2.1s}
+@keyframes bub{0%{opacity:0;transform:translateY(4px)}20%{opacity:.8}100%{opacity:0;transform:translateY(-14px)}}
+.hat{display:none}
+.scene[data-v="offline"] .hat,.scene[data-v="capsized"] .hat{display:block}
+.scene[data-v="capsized"] .hat{left:calc(50% + var(--bw,30vw) * .62);top:calc(80% - var(--hw) * .5)}
+.far{display:none;position:absolute;left:72%;top:calc(69.4% - 2.2vw * .73);width:clamp(30px,3.4vw,46px);color:var(--boat);opacity:.6}
+.far svg{display:block;width:100%;height:auto}
+.scene[data-v="sailed"] .far{display:block;animation:sail 40s linear infinite alternate}
+@keyframes sail{from{transform:translateX(0)}to{transform:translateX(26px)}}
+
 /* message + button */
 main{flex:1}
 .msg{text-align:center;padding-block:clamp(22px,4vw,40px) 64px}
@@ -86,7 +105,7 @@ main{flex:1}
   .boat{left:calc(50% - var(--bw) * .66)}
   .hat{left:auto;right:6%}
 }
-@media (prefers-reduced-motion:reduce){ .boat .drift,.hat .bob,.hat .ring{animation:none} }
+@media (prefers-reduced-motion:reduce){ .boat .drift,.hat .bob,.hat .ring,.boat .z,.boat .ring,.boat .bub,.far{animation:none!important} .boat .z{opacity:.7} }
 </style>
 </head>
 <body>
@@ -121,7 +140,7 @@ main{flex:1}
       <p>wala dito <b>·</b> page not found</p>
     </div>
 
-    <!-- the boat, empty: laptop left open on the crate, pole still planted -->
+    <!-- One of five scenes is picked at random on each visit (see SCENES in the script below). -->
     <div class="boat" aria-hidden="true">
       <svg viewBox="0 0 300 200">
         <defs>
@@ -131,38 +150,104 @@ main{flex:1}
           <linearGradient id="fade" x1="0" y1="95" x2="0" y2="178" gradientUnits="userSpaceOnUse">
             <stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
           </linearGradient>
-          <mask id="reflMask" maskUnits="userSpaceOnUse" x="-10" y="95" width="320" height="105"><rect x="-10" y="95" width="320" height="105" fill="url(#fade)"/></mask>
-          <filter id="ripple" x="-5%" y="-2%" width="110%" height="104%">
+          <mask id="reflMask" maskUnits="userSpaceOnUse" x="-40" y="95" width="400" height="105"><rect x="-40" y="95" width="400" height="105" fill="url(#fade)"/></mask>
+          <filter id="ripple" x="-15%" y="-2%" width="130%" height="104%">
             <feTurbulence type="fractalNoise" baseFrequency=".008 .32" numOctaves="2" seed="7" result="n"/>
             <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/>
             <feGaussianBlur stdDeviation=".5 1"/>
           </filter>
           <clipPath id="scr"><path d="M140.6 51.6 L159 50 L162.8 69.2 L144.3 69.8 Z"/></clipPath>
-          <symbol id="empty" viewBox="0 0 300 130">
+          <clipPath id="aboveWater"><rect x="-40" y="-60" width="400" height="155"/></clipPath>
+
+          <!-- shared parts -->
+          <path id="hull" d="M5 80.5 Q9 81.5 18 83.2 L250 83.2 Q272 82.4 285 74 Q291 69.5 297 64 Q294 75 284 85 Q272 94.6 236 95 L44 95 Q22 94.4 13 89 Q7 85.5 5 80.5 Z"/>
+          <g id="laptop">
             <ellipse cx="156" cy="64" rx="40" ry="26" fill="url(#glow)"/>
-            <path d="M256 22 L252.6 95" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M5 80.5 Q9 81.5 18 83.2 L250 83.2 Q272 82.4 285 74 Q291 69.5 297 64 Q294 75 284 85 Q272 94.6 236 95 L44 95 Q22 94.4 13 89 Q7 85.5 5 80.5 Z" fill="currentColor"/>
             <path d="M144 83.2 L144 73.7 L167 73.7 L167 83.2 Z" fill="currentColor"/>
             <path d="M140.5 73.8 L171 73.8 L169 71.2 L143 71.2 Z" fill="currentColor"/>
             <path d="M138.4 49.6 L160.6 47.6 L165.2 71.4 L142.9 72 Z" fill="currentColor"/>
             <path d="M140.6 51.6 L159 50 L162.8 69.2 L144.3 69.8 Z" fill="#100d0a"/>
             <g clip-path="url(#scr)"><g id="term" transform="matrix(.184 -.016 .037 .182 140.6 51.6)"></g></g>
+          </g>
+          <g id="salakot"><path d="M-15.5 4 Q-8.5 -4.1 0 -7 Q8.5 -4.1 15.5 4 Q0 6.8 -15.5 4 Z"/><circle cy="-7.4" r="1.4"/></g>
+
+          <!-- 1. offline: empty boat, laptop still on -->
+          <symbol id="v-offline" viewBox="0 0 300 130">
+            <use href="#laptop"/>
+            <path d="M256 22 L252.6 95" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <use href="#hull" fill="currentColor"/>
+          </symbol>
+
+          <!-- 2. asleep: lying back, hat over his face, laptop shut -->
+          <symbol id="v-sleep" viewBox="0 0 300 130">
+            <path d="M256 22 L252.6 95" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <use href="#hull" fill="currentColor"/>
+            <g fill="currentColor">
+              <path d="M196 83.4 L196 75.6 L218 75.6 L218 83.4 Z"/>
+              <path d="M194.5 75.8 L219.5 75.8 L218.6 73.6 L195.4 73.6 Z"/>
+              <path d="M112 83.4 Q113 76.5 121 75.6 L160 75.4 Q167 75.8 169 79 L170 83.4 Z"/>
+              <path d="M160 83.4 L172 70.5 Q174.5 68.8 176.5 71 L186 83.4 Z"/>
+              <circle cx="111" cy="76.4" r="4.6"/>
+              <path d="M128 76 Q138 71.6 147 75.4" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+              <use href="#salakot" transform="translate(110 72.5) rotate(-24) scale(.95)"/>
+            </g>
+          </symbol>
+
+          <!-- 3. fishing off the bow, laptop still searching behind him -->
+          <symbol id="v-fish" viewBox="0 0 300 130">
+            <use href="#laptop"/>
+            <use href="#hull" fill="currentColor"/>
+            <g fill="currentColor" transform="translate(372 2.2) scale(-1 1)">
+              <path d="M170 81 Q174 75 184 75.5 L200 81 Z"/>
+              <path d="M180 79 Q178 67 182 59 Q186 52.5 192 53.5 Q198 56 199 64 Q200 72 199 80 Z"/>
+              <circle cx="184.6" cy="47.6" r="5"/>
+              <use href="#salakot" transform="translate(185 41.6)"/>
+              <path d="M190 58 Q181 62 173 63" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+            </g>
+            <path d="M198 66 L292 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M292 20 Q314 44 316 92.6" stroke="currentColor" stroke-width="1" fill="none"/>
+            <circle cx="316" cy="92.6" r="2.8" fill="#d63f29"/>
+          </symbol>
+
+          <!-- 4. capsized: only the keel shows above the water -->
+          <symbol id="v-capsized" viewBox="0 0 300 130">
+            <g clip-path="url(#aboveWater)"><g transform="rotate(-11 150 95)"><use href="#hull" fill="currentColor" transform="translate(0 186) scale(1 -1)"/></g></g>
+          </symbol>
+
+          <!-- 5. sailed: just the mooring pole and a snapped rope -->
+          <symbol id="v-sailed" viewBox="0 0 300 130">
+            <path d="M152 18 L149.4 95" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M151.4 46 Q158 56 156.5 66 Q155.5 74 160 80 M160 80 l3.2 2.2 M160 80 l.9 3.6 M160 80 l3.6 .6" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+            <path d="M149.8 44 q2.4 -1.2 3.4 1.4 q-.6 2.6 -3.6 2" stroke="currentColor" stroke-width="1.6" fill="none"/>
           </symbol>
         </defs>
         <g class="drift">
-          <g mask="url(#reflMask)"><g filter="url(#ripple)" opacity=".36"><use href="#empty" width="300" height="130" transform="translate(0 190) scale(1 -1)"/></g></g>
-          <g style="stroke:var(--streak)" stroke-linecap="round" fill="none">
+          <g mask="url(#reflMask)"><g filter="url(#ripple)" opacity=".36"><use class="vuse" href="#v-offline" width="300" height="130" transform="translate(0 190) scale(1 -1)"/></g></g>
+          <g class="streaks" style="stroke:var(--streak)" stroke-linecap="round" fill="none">
             <path d="M58 104 H120 M160 103.6 H222" stroke-width=".8" opacity=".6"/>
             <path d="M70 108 H190 M214 108.5 H262" stroke-width="1.2" opacity=".85"/>
             <path d="M30 117 H96 M128 116.5 H230" stroke-width="1.4" opacity=".9"/>
           </g>
-          <use href="#empty" width="300" height="130"/>
-          <path d="M40 95.6 Q150 96.6 240 95.6" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45" fill="none"/>
+          <use class="vuse" href="#v-offline" width="300" height="130"/>
+          <path class="contact" d="M40 95.6 Q150 96.6 240 95.6" stroke="currentColor" stroke-width="1.1" stroke-opacity=".45" fill="none"/>
+        </g>
+        <!-- scene extras (only the current scene's are shown) -->
+        <g class="x x-sleep" fill="currentColor" font-family="IBM Plex Mono, monospace" font-weight="500">
+          <text class="z" x="122" y="64" font-size="7">z</text>
+          <text class="z" x="128" y="56" font-size="9">z</text>
+          <text class="z" x="136" y="46" font-size="11">Z</text>
+        </g>
+        <g class="x x-fish" fill="none" stroke="currentColor" stroke-width=".7">
+          <ellipse class="ring" cx="316" cy="95.4" rx="14" ry="3"/><ellipse class="ring" cx="316" cy="95.4" rx="14" ry="3"/>
+        </g>
+        <g class="x x-capsized" fill="none" stroke="currentColor" stroke-width=".8">
+          <circle class="bub" cx="128" cy="92" r="1.6"/><circle class="bub" cx="146" cy="92" r="1.1"/><circle class="bub" cx="166" cy="92" r="2"/><circle class="bub" cx="186" cy="92" r="1.3"/>
+          <ellipse class="ring" cx="150" cy="96" rx="40" ry="4"/>
         </g>
       </svg>
     </div>
 
-    <!-- the salakot, all that came back up -->
+    <!-- the salakot, adrift (scenes 1 and 4) -->
     <div class="hat" aria-hidden="true">
       <svg viewBox="0 0 60 40">
         <ellipse class="ring" cx="30" cy="27" rx="28" ry="6"/>
@@ -175,10 +260,20 @@ main{flex:1}
         <path d="M10 28.4 Q30 31 50 28.4" stroke="currentColor" stroke-width=".9" stroke-opacity=".4" fill="none"/>
       </svg>
     </div>
+
+    <!-- the bangka, far away on the horizon (scene 5) -->
+    <div class="far" aria-hidden="true">
+      <svg viewBox="0 0 300 130">
+        <use href="#hull" fill="currentColor"/>
+        <g fill="currentColor"><path d="M170 81 Q174 75 184 75.5 L200 81 Z"/><path d="M180 79 Q178 67 182 59 Q186 52.5 192 53.5 Q198 56 199 64 Q200 72 199 80 Z"/>
+        <circle cx="184.6" cy="47.6" r="5"/><use href="#salakot" transform="translate(185 41.6)"/></g>
+        <path d="M206 32 L228 95" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+    </div>
   </div>
 
   <section class="msg wrap">
-    <p>The boatman went offline mid-session. Only his salakot made it back up, and it isn't talking.</p>
+    <p id="joke">The boatman went offline mid-session. Only his salakot made it back up, and it isn't talking.</p>
     <a class="home" href="/">Return to shore</a>
   </section>
 </main>
@@ -189,11 +284,82 @@ main{flex:1}
 var reduce=false; try{ reduce=matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
 function $(s){ return document.querySelector(s); }
 
+/* ---------- five scenes, one picked at random (never the same one twice in a row) ---------- */
+var SCENES=[
+  {id:"offline",  text:"The boatman went offline mid-session. Only his salakot made it back up, and it isn't talking.", alt:"An empty bangka drifting on a misty lake, its laptop still on. The boatman's salakot floats nearby."},
+  {id:"sleep",    text:"Request timed out. The boatman fell asleep waiting for this page to load.", alt:"The boatman asleep in his bangka, hat over his face, laptop closed, Zs drifting up."},
+  {id:"fish",     text:"He's been fishing for this page all night. Not a single bite.", alt:"The boatman fishing off the bow of his bangka, his laptop glowing behind him."},
+  {id:"capsized", text:"Capsized. Whatever lived at this address is at the bottom of the lake now.", alt:"A capsized bangka, only its keel above the water, bubbles rising and a salakot adrift."},
+  {id:"sailed",   text:"That ship has sailed. Well, bangka. You missed this page by a few packets.", alt:"Only a mooring pole and a snapped rope remain; the bangka is a speck on the horizon."}
+];
+(function(){
+  var last=-1; try{ last=parseInt(localStorage.getItem("bantay-404")||"-1",10); }catch(e){}
+  var i=Math.floor(Math.random()*SCENES.length); if(i===last) i=(i+1+Math.floor(Math.random()*(SCENES.length-1)))%SCENES.length;
+  try{ localStorage.setItem("bantay-404",String(i)); }catch(e){}
+  var sc=SCENES[i], el=$(".scene");
+  el.setAttribute("data-v",sc.id); el.setAttribute("aria-label",sc.alt);
+  Array.prototype.forEach.call(document.querySelectorAll(".vuse"),function(u){ u.setAttribute("href","#v-"+sc.id); });
+  $("#joke").textContent=sc.text;
+  var hide = sc.id==="capsized" || sc.id==="sailed";
+  $(".boat .contact").style.display = hide? "none":"";
+})();
+
 /* ---------- ink-wash landscape (same painter as the main site) ---------- */
 function rng(seed){ return function(){ seed=(seed*16807)%2147483647; return (seed-1)/2147483646; }; }
 function ridge(rand,n,rough){ var p=new Array(n+1); p[0]=rand()*2-1; p[n]=rand()*2-1; var step=n,amp=1;
   while(step>1){ var h=step/2; for(var i=h;i<n;i+=step){ p[i]=(p[i-h]+p[i+h])/2+(rand()*2-1)*amp; } amp*=rough; step=h; } return p; }
 var INK="36,32,27", K=1;
+/* Philippine lowland jungle along a ridge: a dense canopy of overlapping rounded crowns,
+   a few taller emergent trees, and scattered coconut palms leaning over it.
+   Same overall height as the old pine row (about 8-24px on a 700px-tall scene). */
+function drawJungle(ctx,W,H,o,yAt,n,A){
+  var rand=rng(o.seed+7), u=H/700, x0=o.trees.from*W, x1=o.trees.to*W, span=x1-x0;
+  var col="rgba("+INK+","+(A*.95)+")";
+  function ridgeY(x){ return yAt(Math.max(0,Math.min(n,Math.round(x/W*n)))); }
+  // only grow upward from the ridge: clip to the sky above the ridgeline
+  ctx.save(); ctx.beginPath(); ctx.moveTo(0,0);
+  for(var ci=0;ci<=n;ci++) ctx.lineTo(ci/n*W, yAt(ci)+.5);
+  ctx.lineTo(W,0); ctx.closePath(); ctx.clip();
+  // 1. canopy: crowns laid edge to edge so the forest reads as one dense mass
+  ctx.beginPath();
+  var x=x0;
+  while(x<x1){
+    var r=(3.2+rand()*4.2)*u, y=ridgeY(x)-r*.35;
+    ctx.moveTo(x+r*1.25,y); ctx.ellipse(x,y,r*1.25,r,0,0,Math.PI*2);
+    // a second, smaller crown tucked behind for depth
+    if(rand()<.6){ var r2=r*(.6+rand()*.3), xo=x+(rand()-.5)*r*1.6, yo=y-r*.55; ctx.moveTo(xo+r2*1.2,yo); ctx.ellipse(xo,yo,r2*1.2,r2,0,0,Math.PI*2); }
+    x+=r*(1.1+rand()*.6);
+  }
+  // 2. emergent trees: a trunk rising above the canopy with a broad, flat crown
+  var em=Math.max(2,Math.round(o.trees.count/14));
+  for(var e=0;e<em;e++){
+    var ex=x0+span*(.05+rand()*.9), ey=ridgeY(ex), eh=(13+rand()*8)*u, cw=(5+rand()*3)*u;
+    ctx.moveTo(ex-.7*u,ey); ctx.lineTo(ex-.5*u,ey-eh+cw*.3); ctx.lineTo(ex+.5*u,ey-eh+cw*.3); ctx.lineTo(ex+.7*u,ey); ctx.closePath();
+    ctx.moveTo(ex+cw*1.3,ey-eh); ctx.ellipse(ex,ey-eh,cw*1.3,cw*.6,0,0,Math.PI*2);
+    ctx.moveTo(ex+cw*.9-cw*.5,ey-eh-cw*.35); ctx.ellipse(ex-cw*.5,ey-eh-cw*.35,cw*.9,cw*.5,0,0,Math.PI*2);
+  }
+  ctx.fillStyle=col; ctx.fill();
+  // 3. coconut palms: slim curved trunks, drooping fronds
+  var palms=Math.max(3,Math.round(o.trees.count/7));
+  ctx.strokeStyle=col; ctx.lineCap="round"; ctx.lineJoin="round";
+  for(var p=0;p<palms;p++){
+    var px=x0+span*(.03+rand()*.94), py=ridgeY(px)-1*u, ph=(15+rand()*9)*u, lean=(rand()-.5)*ph*.55;
+    var tx=px+lean, ty=py-ph;
+    ctx.beginPath(); ctx.lineWidth=Math.max(.8,1.25*u);
+    ctx.moveTo(px,py); ctx.quadraticCurveTo(px+lean*.15,py-ph*.55,tx,ty); ctx.stroke();
+    ctx.lineWidth=Math.max(.7,1.05*u); ctx.beginPath();
+    var fronds=6+Math.floor(rand()*3);
+    for(var f=0;f<fronds;f++){
+      var ang=-Math.PI*.95+(Math.PI*.9)*(f/(fronds-1))+(rand()-.5)*.2, len=(6.5+rand()*3.5)*u;
+      var ex2=tx+Math.cos(ang)*len, ey2=ty+Math.sin(ang)*len*.55+len*.45;   // tips droop below the crown
+      var cx=tx+Math.cos(ang)*len*.55, cy=ty+Math.sin(ang)*len*.7-len*.18;
+      ctx.moveTo(tx,ty); ctx.quadraticCurveTo(cx,cy,ex2,ey2);
+    }
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(tx,ty+.6*u,1.2*u,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();   // coconuts
+  }
+  ctx.restore();
+}
 function layer(ctx,W,H,o){
   var A=Math.min(.95,o.alpha*K), rand=rng(o.seed), n=128, pts=ridge(rand,n,o.rough);
   function yAt(i){ var e=o.env?o.env(i/n):1; return o.base*H-(pts[i]*.5+.5)*o.amp*H*e; }
@@ -201,9 +367,7 @@ function layer(ctx,W,H,o){
   var g=ctx.createLinearGradient(0,(o.base-o.amp)*H,0,o.fadeTo*H);
   g.addColorStop(0,"rgba("+INK+","+A+")"); g.addColorStop(.55,"rgba("+INK+","+A*.55+")"); g.addColorStop(1,"rgba("+INK+",0)");
   ctx.fillStyle=g; ctx.fill();
-  if(o.trees){ rand=rng(o.seed+7); for(var t=0;t<o.trees.count;t++){ var tx=(o.trees.from+(o.trees.to-o.trees.from)*rand())*W, ty=yAt(Math.round(tx/W*n)),
-    th=(8+rand()*14)*(H/700), tw=th*.32; ctx.beginPath(); ctx.moveTo(tx,ty-th); ctx.lineTo(tx-tw,ty+2); ctx.lineTo(tx+tw,ty+2); ctx.closePath();
-    ctx.fillStyle="rgba("+INK+","+A*.95+")"; ctx.fill(); } }
+  if(o.trees) drawJungle(ctx,W,H,o,yAt,n,A);
 }
 function soft(ctx,W,H,o,s){ var c=document.createElement("canvas"); c.width=Math.max(1,Math.round(W*s)); c.height=Math.max(1,Math.round(H*s));
   layer(c.getContext("2d"),c.width,c.height,o); ctx.drawImage(c,0,0,W,H); }
