@@ -8,7 +8,7 @@
 <meta name="description" content="Gabe Barrera — cybersecurity, systems, and quiet builds.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;600&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@400;500;600&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
 <style>
 /* Baybayin font built from the traced alphabet chart (45 glyphs: base syllables at U+1700, e/i and o/u forms in U+E000+).
    Used only for the decrypt scramble; unicode-range keeps it off all normal text. */
@@ -222,6 +222,7 @@ h1.name .ch svg.bg,.band-title h2 .ch svg.bg{height:.62em;vertical-align:.02em}
 .role{margin:14px 0 0;font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
 .status{margin:10px 0 0;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.2em;color:var(--ink-faint);text-transform:uppercase;min-height:1.6em}
 .status .ok{color:var(--sun)}
+.status .dots{display:inline-block;width:3ch;text-align:left}   /* fixed width so the line never shifts as dots appear */
 
 /* ---------- home intro ---------- */
 .intro{padding-block:clamp(48px,8vw,96px) 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:clamp(28px,6vw,90px);align-items:start}
@@ -245,7 +246,7 @@ h1.name .ch svg.bg,.band-title h2 .ch svg.bg{height:.62em;vertical-align:.02em}
 .band .vert{font-size:clamp(32px,4vw,54px);top:10%}
 .band .vert-cap{top:10%;right:calc(max(20px,4.5vw) + clamp(38px,4.6vw,62px))}
 .band-title{position:absolute;left:0;right:0;bottom:12%}
-.band-title h2{margin:0;font-family:var(--font-display);font-weight:500;color:var(--ink);font-size:clamp(40px,6.4vw,80px);line-height:1;letter-spacing:.02em}
+.band-title h2{margin:0;font-family:var(--font-name);font-weight:600;text-transform:uppercase;color:var(--ink);font-size:clamp(34px,5.6vw,72px);line-height:1;letter-spacing:.015em}  /* same face as the name on Home */
 .band-title h2 .ch{display:inline-block;text-align:center}
 .band-title h2 .ch.off{color:var(--sun);opacity:.85}
 
@@ -365,6 +366,19 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
 footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 
 .vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+
+/* ---------- subheadings: Orbitron regular, mixed case (the garryhall.me tagline face) ---------- */
+:root{--font-sub:"BantayBaybayin","Orbitron","Eurostile","Bank Gothic",system-ui,sans-serif}
+.role,.intro h2,.lead,.proj h3,.post-title,.skills dt,.sealed h3,.sub{font-family:var(--font-sub);font-weight:400;letter-spacing:.01em}
+.role{text-transform:none;font-size:clamp(15px,1.55vw,19px);letter-spacing:.02em;color:var(--ink-soft)}
+.intro h2{font-size:clamp(21px,2.6vw,30px);line-height:1.35}
+.lead{font-size:clamp(16px,1.55vw,19px);line-height:1.65}
+.proj h3{font-size:clamp(17px,1.8vw,21px);line-height:1.35}
+.post-title{font-size:clamp(16px,1.75vw,20px);line-height:1.4}
+.skills dt{font-size:15px;padding-top:2px}
+.sealed h3{font-size:19px}
+.sub{font-size:12.5px;letter-spacing:.16em;color:var(--ink-faint)}
 
 /* ---------- responsive ---------- */
 @media (max-width:860px){
@@ -803,8 +817,8 @@ var CONFIG = {
   email:    "",                                        // left blank on purpose: no email on the public site (blank = hidden)
   github:   "https://github.com/GabeBarrera",
   linkedin: "https://www.linkedin.com/in/gbinfosec",
-  nameDecryptMs: 3600,                 // how long the big name takes to resolve
-  titleDecryptMs: 2400,                // page titles (About, Projects…)
+  nameDecryptMs: 1000,                 // how long the big name takes to resolve
+  titleDecryptMs: 500,                // page titles (About, Projects…)
   bodyDecryptMs: 1900                  // paragraphs and labels
 };
 
@@ -1167,9 +1181,22 @@ function runPage(page){
   blocks.forEach(function(b,i){ runs.push(decryptBlock(b, CONFIG.bodyDecryptMs, 350+Math.min(i,10)*110)); });
   var st=$("[data-status]",page);
   if(st){
-    st.textContent = reduceMotion? "" : "decrypting identity…";
-    var tid=setTimeout(function(){ st.innerHTML='identity // <span class="ok">The Hacker Poet</span>'; }, reduceMotion?0:nameMs+120);
-    runs.push({cancel:function(){ clearTimeout(tid); st.innerHTML='identity // <span class="ok">The Hacker Poet</span>'; }});
+    // "IDENTITY // DECRYPTING" with dots stepping  · . .. ...  twice, then "THE HACKER POET" decrypts in
+    var FINAL='identity // <span class="ok">The Hacker Poet</span>';
+    st.setAttribute("aria-label","Identity: The Hacker Poet");
+    if(reduceMotion){ st.innerHTML=FINAL; }
+    else{
+      st.innerHTML='identity // decrypting<span class="dots" aria-hidden="true"></span>';
+      var dots=st.querySelector(".dots"), step=0, DOT_MS=380, STEPS=8;   // 2 full sequences of 4
+      var iv=setInterval(function(){
+        step++;
+        if(step<STEPS){ dots.textContent=".".repeat(step%4); return; }
+        clearInterval(iv);
+        st.innerHTML=FINAL;
+        runs.push(decryptBlock(st.querySelector(".ok"),1500,0));
+      },DOT_MS);
+      runs.push({cancel:function(){ clearInterval(iv); st.innerHTML=FINAL; }});
+    }
   }
 }
 

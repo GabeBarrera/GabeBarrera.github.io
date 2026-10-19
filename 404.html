@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
 <style>
 /* Same paper, ink and sun as the main site; follows the visitor's saved day/night choice. */
 :root{
@@ -90,10 +90,43 @@ nav a:hover{color:var(--ink)}
 .scene[data-v="sailed"] .far{display:block;animation:sail 40s linear infinite alternate}
 @keyframes sail{from{transform:translateX(0)}to{transform:translateX(26px)}}
 
+/* ---------- black & white cyber glitch on page titles ----------
+   Two ghost copies of the title (from data-text): one in ink, one in paper colour.
+   During a burst they are sliced into horizontal bands and jolted sideways,
+   tearing the letters. Bursts are short and occasional (see glitch script). */
+.glitch{position:relative}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;height:100%;
+  white-space:pre-line;pointer-events:none;opacity:0;clip-path:inset(0 0 100% 0);-webkit-clip-path:inset(0 0 100% 0)}
+.glitch::before{color:var(--ink)}
+.glitch::after{color:var(--paper);text-shadow:.03em 0 0 var(--ink)}
+.glitch.is-glitching{animation:gl-jolt .5s steps(1,end) both}
+.glitch.is-glitching::before{opacity:1;animation:gl-a .5s steps(1,end) both}
+.glitch.is-glitching::after{opacity:1;animation:gl-b .5s steps(1,end) both}
+@keyframes gl-a{
+  0%  {clip-path:inset(8% 0 74% 0);-webkit-clip-path:inset(8% 0 74% 0);transform:translateX(-.05em)}
+  15% {clip-path:inset(58% 0 22% 0);-webkit-clip-path:inset(58% 0 22% 0);transform:translateX(.07em)}
+  30% {clip-path:inset(30% 0 55% 0);-webkit-clip-path:inset(30% 0 55% 0);transform:translateX(-.03em)}
+  45% {clip-path:inset(80% 0 6% 0);-webkit-clip-path:inset(80% 0 6% 0);transform:translateX(.05em)}
+  60% {clip-path:inset(4% 0 88% 0);-webkit-clip-path:inset(4% 0 88% 0);transform:translateX(-.08em)}
+  75% {clip-path:inset(44% 0 40% 0);-webkit-clip-path:inset(44% 0 40% 0);transform:translateX(.03em)}
+  90% {clip-path:inset(66% 0 18% 0);-webkit-clip-path:inset(66% 0 18% 0);transform:translateX(-.02em)}
+  100%{clip-path:inset(0 0 100% 0);-webkit-clip-path:inset(0 0 100% 0);transform:none}}
+@keyframes gl-b{
+  0%  {clip-path:inset(62% 0 26% 0);-webkit-clip-path:inset(62% 0 26% 0);transform:translateX(.06em)}
+  15% {clip-path:inset(14% 0 72% 0);-webkit-clip-path:inset(14% 0 72% 0);transform:translateX(-.06em)}
+  30% {clip-path:inset(84% 0 4% 0);-webkit-clip-path:inset(84% 0 4% 0);transform:translateX(.04em)}
+  45% {clip-path:inset(36% 0 50% 0);-webkit-clip-path:inset(36% 0 50% 0);transform:translateX(-.09em)}
+  60% {clip-path:inset(70% 0 12% 0);-webkit-clip-path:inset(70% 0 12% 0);transform:translateX(.05em)}
+  75% {clip-path:inset(20% 0 66% 0);-webkit-clip-path:inset(20% 0 66% 0);transform:translateX(-.04em)}
+  90% {clip-path:inset(50% 0 38% 0);-webkit-clip-path:inset(50% 0 38% 0);transform:translateX(.02em)}
+  100%{clip-path:inset(0 0 100% 0);-webkit-clip-path:inset(0 0 100% 0);transform:none}}
+@keyframes gl-jolt{0%{transform:none}20%{transform:translateX(.012em) skewX(-2deg)}40%{transform:translateX(-.015em)}60%{transform:none}80%{transform:translateX(.01em) skewX(1deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){ .glitch.is-glitching,.glitch.is-glitching::before,.glitch.is-glitching::after{animation:none;opacity:0} }
+
 /* message + button */
 main{flex:1}
 .msg{text-align:center;padding-block:clamp(22px,4vw,40px) 64px}
-.msg p{margin:0 auto;max-width:34ch;font-size:clamp(17px,1.7vw,20px);line-height:1.6;color:var(--ink)}
+.msg p{margin:0 auto;max-width:36ch;font-family:"Orbitron","Eurostile","Bank Gothic",system-ui,sans-serif;font-weight:400;letter-spacing:.01em;font-size:clamp(15px,1.55vw,18px);line-height:1.65;color:var(--ink)}
 .home{display:inline-block;margin-top:28px;font-family:var(--font-mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
   text-decoration:none;background:var(--ink);color:var(--paper);border-radius:2px;padding:14px 26px;transition:background .3s}
 .home:hover{background:var(--sun)}
@@ -136,7 +169,7 @@ main{flex:1}
     <canvas aria-hidden="true"></canvas>
 
     <div class="code">
-      <h1 id="code" aria-label="404">404</h1>
+      <h1 id="code" class="glitch" data-text="404" aria-label="404">404</h1>
       <p>wala dito <b>·</b> page not found</p>
     </div>
 
@@ -419,19 +452,33 @@ var rt; addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(pa
 (function(){
   var el=$("#code"), text="404"; if(reduce) return;
   var SYM="#%&*+=<>/\\|{}[]$@!?0123456789ABCDEFGHJKLMNPRSTUVWXYZ";
-  el.innerHTML=""; var spans=[];
+  el._decrypting=true; el.innerHTML=""; var spans=[];
   for(var i=0;i<text.length;i++){ var s=document.createElement("span"); s.className="ch"; s.setAttribute("aria-hidden","true"); s.textContent=text[i]; el.appendChild(s); spans.push(s); }
   function start(){
     spans.forEach(function(s){ s.style.width=s.getBoundingClientRect().width+"px"; });
     var total=2200, t0=performance.now(), last=0, locks=[total*.35,total*.6,total*.9];
     (function f(now){ var t=now-t0;
       if(now-last>70){ last=now; spans.forEach(function(s,k){ if(t>=locks[k]){ s.textContent=text[k]; s.className="ch"; } else { s.textContent=SYM[Math.floor(Math.random()*SYM.length)]; s.className="ch off"; } }); }
-      if(t<total+80) requestAnimationFrame(f); else el.textContent=text; })(t0);
+      if(t<total+80) requestAnimationFrame(f); else { el.textContent=text; el._decrypting=false; setTimeout(function(){ glitchBurst(el); },120); } })(t0);
   }
   if(document.fonts && document.fonts.ready){ var done=false; document.fonts.ready.then(function(){ if(!done){done=true;start();} }); setTimeout(function(){ if(!done){done=true;start();} },1500); } else start();
 })();
 
 paint();
+/* ---------- title glitch: a burst right after a title resolves, then at random every few seconds ---------- */
+var glitchReduce=false; try{ glitchReduce=matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+function glitchBurst(el){
+  if(glitchReduce || !el || el.offsetParent===null || el.getAttribute("aria-busy")==="true") return;
+  el.classList.remove("is-glitching"); void el.offsetWidth; el.classList.add("is-glitching");
+  clearTimeout(el._gt); el._gt=setTimeout(function(){ el.classList.remove("is-glitching"); },520);
+}
+(function loop(){
+  setTimeout(function(){
+    var vis=Array.prototype.filter.call(document.querySelectorAll(".glitch"),function(e){ return e.offsetParent!==null && !e._decrypting; });
+    if(vis.length && !document.hidden) glitchBurst(vis[Math.floor(Math.random()*vis.length)]);
+    loop();
+  }, 3800+Math.random()*4200);
+})();
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(paint);
 })();
 </script>
