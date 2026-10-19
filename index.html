@@ -380,6 +380,14 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 .sealed h3{font-size:19px}
 .sub{font-size:12.5px;letter-spacing:.16em;color:var(--ink-faint)}
 
+/* ---------- rich text from the editor ---------- */
+.rt ul,.rt ol{margin:0 0 1.1em;padding-left:1.4em;max-width:var(--measure)}
+.rt li{margin:.25em 0}
+.rt blockquote{margin:0 0 1.1em 1.6em;padding:0}
+.rt a,.lead a,[data-edit] a,[data-part] a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--sun);text-underline-offset:3px}
+.fs-1{font-size:.7em}.fs-2{font-size:.85em}.fs-3{font-size:1em}.fs-4{font-size:1.15em}.fs-5{font-size:1.35em}.fs-6{font-size:1.6em}.fs-7{font-size:2em}
+.post-btn:focus-visible{outline:2px solid var(--sun);outline-offset:4px}
+
 /* ---------- responsive ---------- */
 @media (max-width:860px){
   .intro,.about,.contact{grid-template-columns:minmax(0,1fr)}
@@ -567,10 +575,10 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
         <div class="ident-text">
           <div class="name-row">
             <div class="cartouche" lang="tl" role="img" aria-label="Gabe, in Baybayin" data-bay="ga bi" data-stack></div>
-            <h1 class="name glitch" data-name="Gabe Barrera" data-text="Gabe&#10;Barrera" data-break>Gabe<br>Barrera</h1>
+            <h1 class="name glitch" data-name="Gabe Barrera" data-text="Gabe&#10;Barrera" data-break data-edit="home.name" data-type="plain">Gabe<br>Barrera</h1>
           </div>
-          <p class="role" data-decrypt>Cybersecurity &nbsp;·&nbsp; Systems &nbsp;·&nbsp; Builder</p>
-          <p class="status" data-status aria-live="polite"></p>
+          <p class="role" data-decrypt data-edit="home.tagline" data-type="inline">Cybersecurity &nbsp;·&nbsp; Systems &nbsp;·&nbsp; Builder</p>
+          <p class="status" data-status data-identity="The Hacker Poet" aria-live="polite"></p>
         </div>
       </div>
     </div>
@@ -578,14 +586,14 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 
   <div class="wrap">
     <div class="intro">
-      <h2 data-decrypt>Quiet water shows what moves beneath it.</h2>
+      <h2 data-decrypt data-edit="home.introTitle" data-type="inline">Quiet water shows what moves beneath it.</h2>
       <div>
-        <p data-decrypt>I'm Gabe, a Filipino security practitioner working in Microsoft cloud and identity environments. I like the slow parts of defense: reading packets, tuning detections, and building small machines that watch the network so I don't have to guess.</p>
-        <p data-decrypt>Off the clock I build Raspberry Pi rigs, run language models with the cable unplugged, and make games where the defenders are as fun to play as the attackers.</p>
-        <dl class="now">
-          <div><dt>Watching</dt><dd data-decrypt>Packet captures from a two-adapter Pi lab</dd></div>
-          <div><dt>Building</dt><dd data-decrypt>An offline assistant on a Raspberry Pi 5</dd></div>
-          <div><dt>Playing</dt><dd data-decrypt>An attacker-versus-defender heist game</dd></div>
+        <div class="rt" data-decrypt data-edit="home.intro" data-type="rich"><p>I'm Gabe, a Filipino security practitioner working in Microsoft cloud and identity environments. I like the slow parts of defense: reading packets, tuning detections, and building small machines that watch the network so I don't have to guess.</p>
+        <p>Off the clock I build Raspberry Pi rigs, run language models with the cable unplugged, and make games where the defenders are as fun to play as the attackers.</p></div>
+        <dl class="now" data-list="home.now">
+          <div><dt data-part="plain">Watching</dt><dd data-decrypt data-part="inline">Packet captures from a two-adapter Pi lab</dd></div>
+          <div><dt data-part="plain">Building</dt><dd data-decrypt data-part="inline">An offline assistant on a Raspberry Pi 5</dd></div>
+          <div><dt data-part="plain">Playing</dt><dd data-decrypt data-part="inline">An attacker-versus-defender heist game</dd></div>
         </dl>
         <div class="go">
           <a href="#projects">See projects</a>
@@ -604,7 +612,7 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
     <canvas data-scene="band" aria-hidden="true"></canvas>
     <button class="sun" type="button" aria-label="Switch to night mode" aria-pressed="false"><span class="orb orb-sun" aria-hidden="true"><svg><use href="#araw"/></svg></span><span class="orb orb-moon" aria-hidden="true"><svg><use href="#bulan"/></svg></span></button>
     <div class="vert" lang="tl" role="img" aria-label="Tungkol (about), written in Baybayin" data-bay="tu ku" data-stack></div>
-    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="About" data-text="About">About</h2></div></div>
+    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="About" data-text="About" data-edit="about.title" data-type="plain">About</h2></div></div>
   </div>
   <div class="wrap body">
     <div class="about">
@@ -617,39 +625,39 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
           <div class="fb fb-right" lang="tl" aria-hidden="true"><span data-bay="di" data-stack></span><span data-bay="ha ka" data-stack></span><span data-bay="pu i" data-stack></span></div>
           <div class="fb fb-bottom" lang="tl" aria-hidden="true"><span data-bay="ga bi"></span><span data-bay="ba di da"></span></div>
         </div>
-        <figcaption><i aria-hidden="true"></i>Gabe Barrera · The Hacker Poet</figcaption>
+        <figcaption><i aria-hidden="true"></i><span data-edit="about.caption" data-type="plain">Gabe Barrera · The Hacker Poet</span></figcaption>
       </figure>
       <div class="prose">
-        <p class="lead" data-decrypt>I'm an Information Security Analyst II at the Port of San Diego. I hunt threats, harden identity, and automate the busywork out of incident response.</p>
-        <p data-decrypt>I studied computer science at San Diego State University and joined the Port as a software developer intern in 2018. That's where I helped the incident response team bring systems back after a company-wide ransomware attack, and it's why I moved to security in 2019.</p>
-        <p data-decrypt>Most days I'm in Microsoft Defender XDR and Sentinel, Palo Alto traffic and InfoBlox logs, hunting for anything that looks like compromise, then containing and cleaning it up within SLA. I write KQL detections from research on new threats and critical vulnerabilities. Before we had a SIEM, I built a central event collection and alerting system in Azure that cut our time to detect by about 70% and our time to respond by about 30%.</p>
-        <p data-decrypt>On the identity side, I rolled out Okta MFA and certificate-based authentication, audit Active Directory access, and harden machines to CIS benchmarks. I automate what I can with PowerShell, Logic Apps and the Graph API. I also review third-party SOC 2 and ISO 27001 reports, assess risk on new apps and vulnerabilities, and take apart suspicious executables in Ghidra.</p>
-        <p data-decrypt>Off the clock it's the same habit in a different shape: a Raspberry Pi packet lab, an offline AI assistant, and games where defenders get the good tools.</p>
+        <p class="lead" data-decrypt data-edit="about.lead" data-type="inline">I'm an Information Security Analyst II at the Port of San Diego. I hunt threats, harden identity, and automate the busywork out of incident response.</p>
+        <div class="rt" data-decrypt data-edit="about.body" data-type="rich"><p>I studied computer science at San Diego State University and joined the Port as a software developer intern in 2018. That's where I helped the incident response team bring systems back after a company-wide ransomware attack, and it's why I moved to security in 2019.</p>
+        <p>Most days I'm in Microsoft Defender XDR and Sentinel, Palo Alto traffic and InfoBlox logs, hunting for anything that looks like compromise, then containing and cleaning it up within SLA. I write KQL detections from research on new threats and critical vulnerabilities. Before we had a SIEM, I built a central event collection and alerting system in Azure that cut our time to detect by about 70% and our time to respond by about 30%.</p>
+        <p>On the identity side, I rolled out Okta MFA and certificate-based authentication, audit Active Directory access, and harden machines to CIS benchmarks. I automate what I can with PowerShell, Logic Apps and the Graph API. I also review third-party SOC 2 and ISO 27001 reports, assess risk on new apps and vulnerabilities, and take apart suspicious executables in Ghidra.</p>
+        <p>Off the clock it's the same habit in a different shape: a Raspberry Pi packet lab, an offline AI assistant, and games where defenders get the good tools.</p></div>
 
-        <h3 class="sub">Experience</h3>
-        <dl class="cv">
-          <div><dt>2019 – now</dt><dd><strong data-decrypt>Information Security Analyst → IS Analyst II</strong><span data-decrypt>Port of San Diego</span></dd></div>
-          <div><dt>2018 – 2019</dt><dd><strong data-decrypt>Software Developer Intern</strong><span data-decrypt>Port of San Diego · scripted deployments in PowerShell and Python, helped restore operations after a ransomware attack</span></dd></div>
-          <div><dt>2015 – 2019</dt><dd><strong data-decrypt>B.S. Computer Science</strong><span data-decrypt>San Diego State University · Cyber Security, Machine Learning, Systems Programming, Data Structures</span></dd></div>
+        <h3 class="sub" data-edit="about.sub1" data-type="plain">Experience</h3>
+        <dl class="cv" data-list="about.experience">
+          <div><dt data-part="plain">2019 – now</dt><dd><strong data-decrypt data-part="plain">Information Security Analyst → IS Analyst II</strong><span data-decrypt data-part="inline">Port of San Diego</span></dd></div>
+          <div><dt data-part="plain">2018 – 2019</dt><dd><strong data-decrypt data-part="plain">Software Developer Intern</strong><span data-decrypt data-part="inline">Port of San Diego · scripted deployments in PowerShell and Python, helped restore operations after a ransomware attack</span></dd></div>
+          <div><dt data-part="plain">2015 – 2019</dt><dd><strong data-decrypt data-part="plain">B.S. Computer Science</strong><span data-decrypt data-part="inline">San Diego State University · Cyber Security, Machine Learning, Systems Programming, Data Structures</span></dd></div>
         </dl>
 
-        <h3 class="sub">Notable work</h3>
-        <dl class="cv">
-          <div><dt>The Hunt</dt><dd><span data-decrypt>Built detection alerts, learned to read and write Russian, and traced a chain of command to decide whether a highly suspicious user was legitimate.</span></dd></div>
-          <div><dt>Sentinel Unified System</dt><dd><span data-decrypt>Tied SolarWinds Service Desk, custom KQL analytics rules, Teams and Logic Apps into one pipeline for detecting and tracking security events from alert to close.</span></dd></div>
+        <h3 class="sub" data-edit="about.sub2" data-type="plain">Notable work</h3>
+        <dl class="cv" data-list="about.notable">
+          <div><dt data-part="plain">The Hunt</dt><dd><span data-decrypt data-part="inline">Built detection alerts, learned to read and write Russian, and traced a chain of command to decide whether a highly suspicious user was legitimate.</span></dd></div>
+          <div><dt data-part="plain">Sentinel Unified System</dt><dd><span data-decrypt data-part="inline">Tied SolarWinds Service Desk, custom KQL analytics rules, Teams and Logic Apps into one pipeline for detecting and tracking security events from alert to close.</span></dd></div>
         </dl>
 
-        <h3 class="sub">Tools</h3>
-        <dl class="skills">
-          <div><dt>Defend</dt><dd data-decrypt>Microsoft Defender XDR, Azure Sentinel, Palo Alto, InfoBlox, Rapid7, Okta</dd></div>
-          <div><dt>Hunt</dt><dd data-decrypt>KQL, Ghidra, Any.Run, VirusTotal, ClamAV</dd></div>
-          <div><dt>Build</dt><dd data-decrypt>PowerShell, Python, JavaScript, PHP, SQL, Bash, Git, Postman</dd></div>
-          <div><dt>Cloud</dt><dd data-decrypt>Microsoft Azure, Intune, Microsoft 365, Logic Apps, Power Automate, Power BI, SolarWinds, Twilio</dd></div>
+        <h3 class="sub" data-edit="about.sub3" data-type="plain">Tools</h3>
+        <dl class="skills" data-list="about.tools">
+          <div><dt data-part="plain">Defend</dt><dd data-decrypt data-part="inline">Microsoft Defender XDR, Azure Sentinel, Palo Alto, InfoBlox, Rapid7, Okta</dd></div>
+          <div><dt data-part="plain">Hunt</dt><dd data-decrypt data-part="inline">KQL, Ghidra, Any.Run, VirusTotal, ClamAV</dd></div>
+          <div><dt data-part="plain">Build</dt><dd data-decrypt data-part="inline">PowerShell, Python, JavaScript, PHP, SQL, Bash, Git, Postman</dd></div>
+          <div><dt data-part="plain">Cloud</dt><dd data-decrypt data-part="inline">Microsoft Azure, Intune, Microsoft 365, Logic Apps, Power Automate, Power BI, SolarWinds, Twilio</dd></div>
         </dl>
 
         <div class="word">
           <span class="bay" lang="tl" aria-hidden="true" data-bay="ba ta"></span>
-          <p data-decrypt><strong>Bantay</strong> is Tagalog for guard, or the one who keeps watch. It is written here in Baybayin, the script of the Philippines before Spanish rule. It's the closest word I have for the job.</p>
+          <p data-decrypt data-edit="about.word" data-type="inline"><strong>Bantay</strong> is Tagalog for guard, or the one who keeps watch. It is written here in Baybayin, the script of the Philippines before Spanish rule. It's the closest word I have for the job.</p>
         </div>
       </div>
     </div>
@@ -663,10 +671,10 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
     <canvas data-scene="band" aria-hidden="true"></canvas>
     <button class="sun" type="button" aria-label="Switch to night mode" aria-pressed="false"><span class="orb orb-sun" aria-hidden="true"><svg><use href="#araw"/></svg></span><span class="orb orb-moon" aria-hidden="true"><svg><use href="#bulan"/></svg></span></button>
     <div class="vert" lang="tl" role="img" aria-label="Gawa, Baybayin for work" data-bay="ga wa" data-stack></div>
-    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Projects" data-text="Projects">Projects</h2></div></div>
+    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Projects" data-text="Projects" data-edit="projects.title" data-type="plain">Projects</h2></div></div>
   </div>
   <div class="wrap body">
-    <p class="lead" data-decrypt>Things I've built to learn how systems behave. Each one taught me something I couldn't have read.</p>
+    <p class="lead" data-decrypt data-edit="projects.lead" data-type="inline">Things I've built to learn how systems behave. Each one taught me something I couldn't have read.</p>
     <div class="filters" role="group" aria-label="Filter projects">
       <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
       <button class="chip" type="button" data-filter="work" aria-pressed="false">Work</button>
@@ -675,54 +683,54 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
       <button class="chip" type="button" data-filter="ai" aria-pressed="false">AI</button>
       <button class="chip" type="button" data-filter="games" aria-pressed="false">Games</button>
     </div>
-    <ul class="plist">
+    <ul class="plist" data-list="projects.items">
       <li class="proj" data-tags="work">
         <span class="glyph" lang="tl" aria-hidden="true" data-bay="ba"></span>
         <div>
-          <h3 data-decrypt>Sentinel Unified System</h3>
-          <p data-decrypt>One pipeline for security events at work: custom KQL analytics rules in Sentinel feed Logic Apps that open and update SolarWinds Service Desk tickets and post to Teams, so every detection is tracked from alert to close.</p>
+          <h3 data-decrypt data-part="plain">Sentinel Unified System</h3>
+          <p data-decrypt data-part="inline">One pipeline for security events at work: custom KQL analytics rules in Sentinel feed Logic Apps that open and update SolarWinds Service Desk tickets and post to Teams, so every detection is tracked from alert to close.</p>
         </div>
-        <div class="meta"><span class="st live">In production</span><div class="tags"><span>Sentinel</span><span>KQL</span><span>Logic Apps</span></div></div>
+        <div class="meta"><span class="st live" data-part="plain">In production</span><div class="tags" data-part="tags"><span>Sentinel</span><span>KQL</span><span>Logic Apps</span></div></div>
       </li>
       <li class="proj" data-tags="work">
         <span class="glyph" lang="tl" aria-hidden="true" data-bay="ha"></span>
         <div>
-          <h3 data-decrypt>The Hunt</h3>
-          <p data-decrypt>An investigation into a highly suspicious user. I built detection alerts around the account, learned to read and write Russian to follow the trail, and traced the chain of command to settle whether the account was legitimate.</p>
+          <h3 data-decrypt data-part="plain">The Hunt</h3>
+          <p data-decrypt data-part="inline">An investigation into a highly suspicious user. I built detection alerts around the account, learned to read and write Russian to follow the trail, and traced the chain of command to settle whether the account was legitimate.</p>
         </div>
-        <div class="meta"><span class="st">Closed</span><div class="tags"><span>Threat hunting</span><span>OSINT</span></div></div>
+        <div class="meta"><span class="st" data-part="plain">Closed</span><div class="tags" data-part="tags"><span>Threat hunting</span><span>OSINT</span></div></div>
       </li>
       <li class="proj" data-tags="network hardware">
         <span class="glyph" lang="tl" aria-hidden="true" data-bay="ma"></span>
         <div>
-          <h3 data-decrypt>Pi Packet Lab</h3>
-          <p data-decrypt>A Raspberry Pi with two Wi-Fi adapters: one keeps the management link up while an ALFA adapter sits in monitor mode capturing frames. Captures go into Wireshark to baseline my own network and spot devices that talk more than they should.</p>
+          <h3 data-decrypt data-part="plain">Pi Packet Lab</h3>
+          <p data-decrypt data-part="inline">A Raspberry Pi with two Wi-Fi adapters: one keeps the management link up while an ALFA adapter sits in monitor mode capturing frames. Captures go into Wireshark to baseline my own network and spot devices that talk more than they should.</p>
         </div>
-        <div class="meta"><span class="st live">Ongoing</span><div class="tags"><span>Wireshark</span><span>Kali</span><span>802.11</span></div></div>
+        <div class="meta"><span class="st live" data-part="plain">Ongoing</span><div class="tags" data-part="tags"><span>Wireshark</span><span>Kali</span><span>802.11</span></div></div>
       </li>
       <li class="proj" data-tags="ai hardware">
         <span class="glyph" lang="tl" aria-hidden="true" data-bay="la"></span>
         <div>
-          <h3 data-decrypt>Offline Assistant</h3>
-          <p data-decrypt>A local language model on a Raspberry Pi 5 that runs its own Wi-Fi access point and serves a plain HTML chat page. Nothing leaves the device, so it works in a cabin, on a plane, or on a network you don't trust.</p>
+          <h3 data-decrypt data-part="plain">Offline Assistant</h3>
+          <p data-decrypt data-part="inline">A local language model on a Raspberry Pi 5 that runs its own Wi-Fi access point and serves a plain HTML chat page. Nothing leaves the device, so it works in a cabin, on a plane, or on a network you don't trust.</p>
         </div>
-        <div class="meta"><span class="st live">Building</span><div class="tags"><span>Pi 5</span><span>Local LLM</span><span>hostapd</span></div></div>
+        <div class="meta"><span class="st live" data-part="plain">Building</span><div class="tags" data-part="tags"><span>Pi 5</span><span>Local LLM</span><span>hostapd</span></div></div>
       </li>
       <li class="proj" data-tags="games network">
         <span class="glyph" lang="tl" aria-hidden="true" data-bay="na"></span>
         <div>
-          <h3 data-decrypt>The Heist</h3>
-          <p data-decrypt>A capture-the-flag game set inside a company building. Attackers work to lift the flag while defenders patrol, patch, and watch logs, all within a 30-minute in-game workday. It's built to make blue-team play feel as tense as red.</p>
+          <h3 data-decrypt data-part="plain">The Heist</h3>
+          <p data-decrypt data-part="inline">A capture-the-flag game set inside a company building. Attackers work to lift the flag while defenders patrol, patch, and watch logs, all within a 30-minute in-game workday. It's built to make blue-team play feel as tense as red.</p>
         </div>
-        <div class="meta"><span class="st live">In development</span><div class="tags"><span>Game design</span><span>Red vs blue</span></div></div>
+        <div class="meta"><span class="st live" data-part="plain">In development</span><div class="tags" data-part="tags"><span>Game design</span><span>Red vs blue</span></div></div>
       </li>
       <li class="proj" data-tags="hardware">
         <span class="glyph" lang="tl" aria-hidden="true" data-bay="ta"></span>
         <div>
-          <h3 data-decrypt>Slow Screen</h3>
-          <p data-decrypt>A Raspberry Pi 3B+ driving a Waveshare e-Paper display over GPIO. It draws almost no power and only changes when something worth seeing changes, which suits a status board you glance at, not stare at.</p>
+          <h3 data-decrypt data-part="plain">Slow Screen</h3>
+          <p data-decrypt data-part="inline">A Raspberry Pi 3B+ driving a Waveshare e-Paper display over GPIO. It draws almost no power and only changes when something worth seeing changes, which suits a status board you glance at, not stare at.</p>
         </div>
-        <div class="meta"><span class="st">Prototype</span><div class="tags"><span>Pi 3B+</span><span>e-Paper</span><span>GPIO</span></div></div>
+        <div class="meta"><span class="st" data-part="plain">Prototype</span><div class="tags" data-part="tags"><span>Pi 3B+</span><span>e-Paper</span><span>GPIO</span></div></div>
       </li>
     </ul>
   </div>
@@ -735,11 +743,11 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
     <canvas data-scene="band" aria-hidden="true"></canvas>
     <button class="sun" type="button" aria-label="Switch to night mode" aria-pressed="false"><span class="orb orb-sun" aria-hidden="true"><svg><use href="#araw"/></svg></span><span class="orb orb-moon" aria-hidden="true"><svg><use href="#bulan"/></svg></span></button>
     <div class="vert" lang="tl" role="img" aria-label="Tala, Baybayin for notes" data-bay="ta la" data-stack></div>
-    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Blog" data-text="Blog">Blog</h2></div></div>
+    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Blog" data-text="Blog" data-edit="blog.title" data-type="plain">Blog</h2></div></div>
   </div>
   <div class="wrap body">
-    <p class="lead" data-decrypt>Field notes from the lab. Written slowly, revised rarely.</p>
-    <ul class="posts" id="posts"></ul>
+    <p class="lead" data-decrypt data-edit="blog.lead" data-type="inline">Field notes from the lab. Written slowly, revised rarely.</p>
+    <ul class="posts" id="posts" data-list="blog.posts"></ul>
   </div>
 </section>
 
@@ -750,17 +758,17 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
     <canvas data-scene="band" aria-hidden="true"></canvas>
     <button class="sun" type="button" aria-label="Switch to night mode" aria-pressed="false"><span class="orb orb-sun" aria-hidden="true"><svg><use href="#araw"/></svg></span><span class="orb orb-moon" aria-hidden="true"><svg><use href="#bulan"/></svg></span></button>
     <div class="vert" lang="tl" role="img" aria-label="Sulat (letter), written in Baybayin" data-bay="su la" data-stack></div>
-    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Contact" data-text="Contact">Contact</h2></div></div>
+    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Contact" data-text="Contact" data-edit="contact.title" data-type="plain">Contact</h2></div></div>
   </div>
   <div class="wrap body">
     <div class="contact">
       <div>
-        <p class="lead" data-decrypt>Send a letter. I read everything and reply to most.</p>
-        <p data-decrypt>Good reasons to write: collaborating on a build, a question about home-lab security, feedback on a game, or just to say kumusta.</p>
+        <p class="lead" data-decrypt data-edit="contact.lead" data-type="inline">Send a letter. I read everything and reply to most.</p>
+        <div class="rt" data-decrypt data-edit="contact.body" data-type="rich"><p>Good reasons to write: collaborating on a build, a question about home-lab security, feedback on a game, or just to say kumusta.</p></div>
         <dl class="addr" id="addr"></dl>
         <div class="note">
-          <strong>Found a security issue in something I made?</strong>
-          <span data-decrypt>Pick "Security report" below and describe the impact first. Leave out working exploit details until we've agreed on a channel.</span>
+          <strong data-edit="contact.noteTitle" data-type="plain">Found a security issue in something I made?</strong>
+          <span data-decrypt data-edit="contact.note" data-type="inline">Pick "Security report" below and describe the impact first. Leave out working exploit details until we've agreed on a channel.</span>
         </div>
       </div>
       <div>
@@ -801,8 +809,8 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 
 <footer>
   <div class="wrap">
-    <span><span class="bay" lang="tl" aria-hidden="true" data-bay="ga bi"></span>&nbsp; Gabe Barrera</span>
-    <span>Ink, paper, packets · <span id="year">2026</span></span>
+    <span><span class="bay" lang="tl" aria-hidden="true" data-bay="ga bi"></span>&nbsp; <span data-edit="footer.name" data-type="plain">Gabe Barrera</span></span>
+    <span><span data-edit="footer.tagline" data-type="plain">Ink, paper, packets</span> · <span id="year">2026</span></span>
   </div>
 </footer>
 
@@ -853,6 +861,9 @@ var POSTS = [
    ============================================================ */
 var reduceMotion = false;
 try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){}
+// admin.html opens this page as index.html?edit=1 : no animations, and content is supplied by the editor
+var EDIT_MODE = /[?&]edit=1(&|$)/.test(location.search);
+if(EDIT_MODE) reduceMotion = true;
 function $(s,r){return (r||document).querySelector(s);}
 function $all(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
@@ -1182,7 +1193,7 @@ function runPage(page){
   var st=$("[data-status]",page);
   if(st){
     // "IDENTITY // DECRYPTING" with dots stepping  · . .. ...  twice, then "THE HACKER POET" decrypts in
-    var FINAL='identity // <span class="ok">The Hacker Poet</span>';
+    var FINAL='identity // <span class="ok" data-edit="home.identity" data-type="plain">'+esc(st.getAttribute("data-identity")||"The Hacker Poet")+'</span>';
     st.setAttribute("aria-label","Identity: The Hacker Poet");
     if(reduceMotion){ st.innerHTML=FINAL; }
     else{
@@ -1246,43 +1257,59 @@ $all(".chip").forEach(function(btn){
 /* ============================================================
    Blog
    ============================================================ */
+function fmtPostDate(d){ var p=String(d).split("-"); if(p.length!==3) return String(d); var m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+p[1]-1]; return p[2]+" "+m+" "+p[0]; }
+function postMarkup(p){
+  return '<li class="post">'+
+    '<div class="post-btn" role="button" tabindex="0" aria-expanded="false">'+
+      '<span class="post-date" data-part="plain">'+esc(fmtPostDate(p.date))+'</span>'+
+      '<span><span class="post-title" data-decrypt data-part="plain">'+esc(p.title)+'</span><span class="post-sum" data-decrypt data-part="inline">'+esc(p.sum)+'</span></span>'+
+      '<span class="post-ico" aria-hidden="true">+</span>'+
+    '</div>'+
+    '<div class="post-body" role="region" hidden>'+
+      '<div class="rt" data-part="rich">'+p.body.map(function(t){return '<p>'+esc(t)+'</p>';}).join("")+'</div>'+
+      '<div class="tags" data-part="tags">'+p.tags.map(function(t){return '<span>'+esc(t)+'</span>';}).join("")+'</div>'+
+    '</div></li>';
+}
+// ids and accordion state are rebuilt after any change to the list (new posts, reordering, live content)
+function fixPosts(){
+  $all("#posts > li.post").forEach(function(li,i){
+    var btn=$(".post-btn",li), body=$(".post-body",li); if(!btn||!body) return;
+    btn.id="pb-"+i; btn.setAttribute("aria-controls","post-"+i); btn.setAttribute("role","button"); btn.setAttribute("tabindex","0");
+    body.id="post-"+i; body.setAttribute("aria-labelledby","pb-"+i);
+    if(btn.getAttribute("aria-expanded")!=="true"){ body.hidden=true; btn.setAttribute("aria-expanded","false"); }
+  });
+}
 (function(){
   var ul=$("#posts"); if(!ul) return;
-  var fmt=function(d){ var p=d.split("-"); var m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+p[1]-1]; return p[2]+" "+m+" "+p[0]; };
-  ul.innerHTML=POSTS.map(function(p,i){
-    return '<li class="post">'+
-      '<button class="post-btn" type="button" aria-expanded="false" aria-controls="post-'+i+'" id="pb-'+i+'">'+
-        '<span class="post-date">'+fmt(p.date)+'</span>'+
-        '<span><span class="post-title" data-decrypt>'+esc(p.title)+'</span><span class="post-sum" data-decrypt>'+esc(p.sum)+'</span></span>'+
-        '<span class="post-ico" aria-hidden="true">+</span>'+
-      '</button>'+
-      '<div class="post-body" id="post-'+i+'" role="region" aria-labelledby="pb-'+i+'" hidden>'+
-        p.body.map(function(t){return '<p>'+esc(t)+'</p>';}).join("")+
-        '<div class="tags">'+p.tags.map(function(t){return '<span>'+esc(t)+'</span>';}).join("")+'</div>'+
-      '</div></li>';
-  }).join("");
-  $all(".post-btn",ul).forEach(function(b){
-    b.addEventListener("click",function(){
-      var body=document.getElementById(b.getAttribute("aria-controls"));
-      var open=b.getAttribute("aria-expanded")==="true";
-      b.setAttribute("aria-expanded",String(!open)); body.hidden=open;
-      if(!open){ $all("p",body).forEach(function(pp,i){ runs.push(decryptBlock(pp,1500,i*160)); }); }
-    });
-  });
+  if(!ul.children.length) ul.innerHTML=POSTS.map(postMarkup).join("");
+  fixPosts();
+  function toggle(btn){
+    if(EDIT_MODE) return;
+    var body=document.getElementById(btn.getAttribute("aria-controls")); if(!body) return;
+    var open=btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded",String(!open)); body.hidden=open;
+    if(!open){ $all("p",body).forEach(function(pp,i){ runs.push(decryptBlock(pp,1500,i*160)); }); }
+  }
+  ul.addEventListener("click",function(e){ var b=e.target.closest(".post-btn"); if(b) toggle(b); });
+  ul.addEventListener("keydown",function(e){ var b=e.target.closest(".post-btn"); if(b && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); toggle(b); } });
 })();
 
 /* ============================================================
    Contact
    ============================================================ */
-(function(){
+function renderAddr(){
   var dl=$("#addr"); if(!dl) return;
-  var rows=[]; if(CONFIG.email) rows.push(["Email",CONFIG.email,null]);
-  if(CONFIG.github) rows.push(["GitHub",CONFIG.github.replace(/^https?:\/\//,""),CONFIG.github]);
-  if(CONFIG.linkedin) rows.push(["LinkedIn",CONFIG.linkedin.replace(/^https?:\/\/(www\.)?/,""),CONFIG.linkedin]);
+  var rows=[]; if(CONFIG.email) rows.push(["Email",CONFIG.email,null,""]);
+  if(CONFIG.github || EDIT_MODE) rows.push(["GitHub",(CONFIG.github||"").replace(/^https?:\/\//,""),CONFIG.github||"","contact.github"]);
+  if(CONFIG.linkedin || EDIT_MODE) rows.push(["LinkedIn",(CONFIG.linkedin||"").replace(/^https?:\/\/(www\.)?/,""),CONFIG.linkedin||"","contact.linkedin"]);
   dl.innerHTML=rows.map(function(r){
-    var val = r[2]? '<a href="'+esc(r[2])+'" target="_blank" rel="noopener">'+esc(r[1])+'</a>' : '<span class="mono-sel">'+esc(r[1])+'</span>';
+    var ed = r[3]? ' data-edit="'+r[3]+'" data-type="plain"' : '';
+    var val = r[2]!==null? '<a href="'+esc(r[2]||"#")+'" target="_blank" rel="noopener noreferrer"'+ed+'>'+esc(r[1]||"(add link)")+'</a>' : '<span class="mono-sel">'+esc(r[1])+'</span>';
     return '<div><dt>'+r[0]+'</dt><dd>'+val+'<button class="copy" type="button" data-copy="'+esc(r[2]||r[1])+'">Copy</button></dd></div>';
   }).join("");
+}
+(function(){
+  renderAddr();
 
   function copyText(text, btn, sourceEl){
     function ok(){ var o=btn.textContent; btn.textContent="Copied"; setTimeout(function(){btn.textContent=o;},1600); }
@@ -1604,6 +1631,7 @@ makeStars();
 
 /* ---------- title glitch: a burst right after a title resolves, then at random every few seconds ---------- */
 var glitchReduce=false; try{ glitchReduce=matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+if(EDIT_MODE) glitchReduce=true;
 function glitchBurst(el){
   if(glitchReduce || !el || el.offsetParent===null || el.getAttribute("aria-busy")==="true") return;
   el.classList.remove("is-glitching"); void el.offsetWidth; el.classList.add("is-glitching");
@@ -1618,6 +1646,176 @@ function glitchBurst(el){
 })();
 
 /* ============================================================
+   Live content (Firebase / Firestore)
+   Text marked data-edit="page.key" (single fields) or data-list="page.key"
+   (repeating items) can be replaced by content saved from admin.html.
+   Firestore layout:  site_pages/{home|about|projects|blog|contact|global}  ->  { fields: { "page.key": "<html or text>" } }
+   Everything coming from the database is passed through sanitize() before it touches the page.
+   ============================================================ */
+// Public web config: safe to ship in the page. Security comes from the Firestore rules (see instructions.html).
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCp2kbZAtQLS4yyW5Cr13CKfOUbIghwPPo",
+  authDomain: "appdata-fb288.firebaseapp.com",
+  databaseURL: "https://appdata-fb288-default-rtdb.firebaseio.com",
+  projectId: "appdata-fb288",
+  storageBucket: "appdata-fb288.firebasestorage.app",
+  messagingSenderId: "184193421563",
+  appId: "1:184193421563:web:ee9effb47e5481d512605e"
+};
+var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+var CONTENT_DOCS = ["home","about","projects","blog","contact","global"];
+function docOfKey(k){ var p=String(k).split(".")[0]; return p==="footer" ? "global" : p; }
+
+/* ---------- sanitizer: whitelist of tags and attributes ----------
+   mode "plain"  -> text only
+   mode "inline" -> bold/italic/underline/strike/size/links/line breaks
+   mode "rich"   -> inline + paragraphs, bullet and numbered lists, indents
+   mode "list"   -> rich + the structural markup the repeating lists use        */
+var SAN_LEVEL = {B:1,STRONG:1,I:1,EM:1,U:1,S:1,STRIKE:1,DEL:1,SUB:1,SUP:1,CODE:1,A:1,SPAN:1,BR:1,FONT:1,
+                 P:2,DIV:2,UL:2,OL:2,LI:2,BLOCKQUOTE:2,H3:2,H4:2,
+                 DL:3,DT:3,DD:3};
+var SAN_DROP = /^(SCRIPT|STYLE|IFRAME|FRAME|OBJECT|EMBED|SVG|MATH|TEMPLATE|NOSCRIPT|LINK|META|BASE|FORM|INPUT|TEXTAREA|SELECT|BUTTON|IMG|PICTURE|VIDEO|AUDIO|SOURCE|CANVAS|TITLE|HEAD)$/;
+var SAN_DATA = {"data-tags":1,"data-bay":1,"data-decrypt":1,"data-part":1,"data-type":1,"data-stack":1};
+var SAN_ARIA = {"aria-expanded":1,"aria-controls":1,"aria-hidden":1,"aria-labelledby":1,"aria-label":1};
+function sanitize(html, mode){
+  var src = new DOMParser().parseFromString("<!doctype html><body>"+String(html==null?"":html)+"</body>","text/html").body;
+  if(mode==="plain") return (src.textContent||"").replace(/\s+/g," ").trim();
+  var out = document.createElement("div");
+  (function walk(from, to){
+    Array.prototype.forEach.call(from.childNodes, function(n){
+      if(n.nodeType===3){ to.appendChild(document.createTextNode(n.nodeValue)); return; }
+      if(n.nodeType!==1) return;
+      var tag = n.tagName.toUpperCase();
+      if(SAN_DROP.test(tag)) return;
+      var lvl = SAN_LEVEL[tag];
+      var ok = lvl===1 || (lvl===2 && mode!=="inline") || (lvl===3 && mode==="list");
+      if(!ok){ walk(n,to); if(lvl===2 && mode==="inline" && to.lastChild && to.lastChild.nodeType===3) to.appendChild(document.createTextNode(" ")); return; }
+      var name = tag==="FONT" ? "span" : (tag==="STRIKE"||tag==="DEL") ? "s" : tag.toLowerCase();
+      var el = document.createElement(name), cls = [];
+      Array.prototype.forEach.call(n.attributes, function(a){
+        var k = a.name.toLowerCase(), v = String(a.value);
+        if(k==="class"){ v.split(/\s+/).forEach(function(c){ if(/^[a-z][a-z0-9-]{0,40}$/.test(c)) cls.push(c); }); }
+        else if(k==="size" && tag==="FONT"){ var z=parseInt(v,10); if(z>=1&&z<=7) cls.push("fs-"+z); }
+        else if(k==="href" && tag==="A"){ v=v.trim(); if(/^(https?:\/\/|mailto:)[^\s<>"'`]+$/i.test(v) || /^#[a-z0-9-]*$/i.test(v)) el.setAttribute("href",v); }
+        else if(SAN_DATA[k] || SAN_ARIA[k]){ el.setAttribute(k, v.replace(/[<>"'`]/g,"").slice(0,200)); }
+        else if(k==="id" && /^[a-z][a-z0-9-]{0,40}$/.test(v)) el.setAttribute("id",v);
+        else if(k==="role" && /^(region|button)$/.test(v)) el.setAttribute("role",v);
+        else if(k==="tabindex" && v==="0") el.setAttribute("tabindex","0");
+        else if(k==="hidden") el.setAttribute("hidden","");
+        else if(k==="lang" && /^[a-z]{2,3}$/.test(v)) el.setAttribute("lang",v);
+      });
+      if(cls.length) el.setAttribute("class", cls.join(" "));
+      if(name==="a" && /^https?:/i.test(el.getAttribute("href")||"")){ el.setAttribute("target","_blank"); el.setAttribute("rel","noopener noreferrer"); }
+      if(!el.hasAttribute("data-bay")) walk(n, el);   // Baybayin glyph holders are redrawn, never stored
+      to.appendChild(el);
+    });
+  })(src, out);
+  return out.innerHTML;
+}
+
+function elOfKey(key){
+  return document.querySelector('[data-list="'+key+'"]') || document.querySelector('[data-edit="'+key+'"]');
+}
+// put one saved value into the page
+function applyField(key, val){
+  if(typeof val!=="string") return;
+  var list = document.querySelector('[data-list="'+key+'"]');
+  if(list){ list.innerHTML = sanitize(val,"list"); renderBay(list); if(list.id==="posts") fixPosts(); return; }
+  if(key==="home.identity"){
+    var st=$("[data-status]"); if(!st) return;
+    st.setAttribute("data-identity", sanitize(val,"plain") || "The Hacker Poet");
+    var ok=st.querySelector(".ok"); if(ok) ok.textContent=st.getAttribute("data-identity");
+    return;
+  }
+  if(key==="contact.github" || key==="contact.linkedin"){
+    var u = sanitize(val,"plain").replace(/\s+/g,"");
+    if(u && !/^https?:\/\//i.test(u)) u = "https://"+u;
+    if(u && !/^https:\/\/[^\s<>"'`]+$/i.test(u)) return;
+    CONFIG[key.split(".")[1]] = u; renderAddr(); return;
+  }
+  var el = document.querySelector('[data-edit="'+key+'"]'); if(!el) return;
+  var type = el.getAttribute("data-type") || "rich";
+  if(el.hasAttribute("data-name")){
+    var t = sanitize(val,"plain"); if(!t) return;
+    el.setAttribute("data-name", t);
+    var brk = el.hasAttribute("data-break");
+    if(el.classList.contains("glitch")) el.setAttribute("data-text", brk ? t.replace(/ /g,"\n") : t);
+    if(brk) el.innerHTML = esc(t).replace(/ /g,"<br>"); else el.textContent = t;
+    if(el.matches("h1.name")) setTimeout(alignCartouche,0);
+    return;
+  }
+  if(type==="plain") el.textContent = sanitize(val,"plain");
+  else el.innerHTML = sanitize(val,type);
+}
+function applyAll(all){
+  if(!all) return;
+  Object.keys(all).forEach(function(d){
+    var f = all[d] || {};
+    Object.keys(f).forEach(function(k){ try{ applyField(k, f[k]); }catch(e){} });
+  });
+}
+// read the current value of a key back out of the page (used by the editor when saving)
+function serialize(key){
+  var list = document.querySelector('[data-list="'+key+'"]');
+  if(list){
+    var c = list.cloneNode(true);
+    $all("[data-bay]",c).forEach(function(b){ b.innerHTML=""; });
+    if(c.id==="posts") $all(".post-btn",c).forEach(function(b){ b.setAttribute("aria-expanded","false"); });
+    return sanitize(c.innerHTML,"list");
+  }
+  if(key==="home.identity"){ var st=$("[data-status]"); return st ? (st.getAttribute("data-identity")||"") : null; }
+  if(key==="contact.github" || key==="contact.linkedin") return CONFIG[key.split(".")[1]] || "";
+  var el = document.querySelector('[data-edit="'+key+'"]'); if(!el) return null;
+  if(el.hasAttribute("data-name")) return el.getAttribute("data-name");
+  var type = el.getAttribute("data-type") || "rich";
+  return type==="plain" ? sanitize(el.innerText||el.textContent,"plain") : sanitize(el.innerHTML,type);
+}
+// after an in-place edit: clean the element and run any side effects (name attributes, links, glyphs)
+function commit(key){
+  var list = document.querySelector('[data-list="'+key+'"]');
+  if(list){ applyField(key, serialize(key)); return; }
+  var el = document.querySelector('[data-edit="'+key+'"]'); if(!el) return;
+  var type = el.getAttribute("data-type") || "rich";
+  var raw = (type==="plain") ? (el.innerText||el.textContent) : el.innerHTML;
+  if(key==="home.identity" || key==="contact.github" || key==="contact.linkedin" || el.hasAttribute("data-name")) applyField(key, String(raw).replace(/\s+/g," ").trim());
+  else applyField(key, raw);
+}
+function allKeys(){
+  var ks = $all("[data-edit]").map(function(e){ return e.getAttribute("data-edit"); }).concat($all("[data-list]").map(function(e){ return e.getAttribute("data-list"); }));
+  ["home.identity","contact.github","contact.linkedin"].forEach(function(k){ if(ks.indexOf(k)<0) ks.push(k); });
+  return ks.filter(function(k,i){ return ks.indexOf(k)===i; });
+}
+
+// public site: show the last saved copy instantly, then refresh from Firestore
+function loadContent(){
+  var cached = null;
+  try{ cached = JSON.parse(localStorage.getItem("bantay-content")||"null"); }catch(e){}
+  if(cached){ try{ applyAll(cached); }catch(e){} }
+  if(!FIREBASE_CONFIG.projectId) return Promise.resolve();
+  return Promise.all([ import(FIREBASE_SDK+"firebase-app.js"), import(FIREBASE_SDK+"firebase-firestore-lite.js") ]).then(function(m){
+    var appMod=m[0], fs=m[1];
+    var app = appMod.getApps().filter(function(a){ return a.name==="bantay-public"; })[0] || appMod.initializeApp(FIREBASE_CONFIG,"bantay-public");
+    var db = fs.getFirestore(app);
+    return Promise.all(CONTENT_DOCS.map(function(d){
+      return fs.getDoc(fs.doc(db,"site_pages",d)).then(function(s){ return s.exists() ? (s.data().fields||{}) : null; }, function(){ return null; });
+    }));
+  }).then(function(res){
+    var all = {}; CONTENT_DOCS.forEach(function(d,i){ if(res[i]) all[d]=res[i]; });
+    var js = JSON.stringify(all);
+    try{ localStorage.setItem("bantay-content", js); }catch(e){}
+    if(!cached || JSON.stringify(cached)!==js) applyAll(all);
+  }).catch(function(){ /* offline or blocked: the built-in text stays */ });
+}
+
+// the editor (admin.html) drives the page through this small API
+window.Bantay = {
+  EDIT_MODE: EDIT_MODE, sanitize: sanitize, applyField: applyField, applyAll: applyAll, serialize: serialize,
+  commit: commit, allKeys: allKeys, docOfKey: docOfKey, renderBay: renderBay, fixPosts: fixPosts, elOfKey: elOfKey,
+  refresh: function(){ var t=currentHash(); show(TABS.indexOf(t)<0?"home":t,false); alignCartouche(); },
+  docs: CONTENT_DOCS, config: FIREBASE_CONFIG, sdk: FIREBASE_SDK
+};
+
+/* ============================================================
    Boot
    ============================================================ */
 $("#year").textContent = String(new Date().getFullYear());
@@ -1627,12 +1825,14 @@ function boot(){
   show(tab,false);
   alignCartouche();
 }
-// wait for web fonts so the name's letter widths are measured correctly
-if(document.fonts && document.fonts.ready){
+// wait for live content (up to 1.5s) and web fonts, so the name is measured and decrypted in its final form
+(function(){
   var booted=false;
-  document.fonts.ready.then(function(){ if(!booted){booted=true;boot();} });
-  setTimeout(function(){ if(!booted){booted=true;boot();} },1500);
-} else boot();
+  function go(){ if(!booted){ booted=true; boot(); } }
+  var content = EDIT_MODE? Promise.resolve() : Promise.race([loadContent(), new Promise(function(r){ setTimeout(r,1500); })]);
+  content.then(function(){ return document.fonts && document.fonts.ready ? document.fonts.ready : null; }).then(go,go);
+  setTimeout(go,3000);
+})();
 })();
 </script>
 

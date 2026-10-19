@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Bantay · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#f0e6cc; --paper-deep:#e5d7b6; --ink:#24201b; --ink-soft:#544b3f; --ink-faint:#8c826f; --sun:#d63f29;
+  --rule:rgba(36,32,27,.18); --field:rgba(255,250,236,.55); --ok:#3f7a4a;
+  --font-name:"Orbitron","Eurostile","Bank Gothic","Arial Black",sans-serif;
+  --font-body:"Zen Kaku Gothic New","Hiragino Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace;
+  color-scheme:light;
+}
+html.night{ --paper:#262a35; --paper-deep:#313644; --ink:#efe6cf; --ink-soft:#cbc2ac; --ink-faint:#8f8b80; --sun:#e0583f;
+  --rule:rgba(239,230,207,.16); --field:rgba(70,76,92,.5); --ok:#7fbf8a; color-scheme:dark; }
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink-soft);font-family:var(--font-body);font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.38;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .47  0 0 0 0 .33  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--sun);outline-offset:3px}
+button,input{font:inherit;color:inherit}
+.mono{font-family:var(--font-mono)}
+
+/* ---------- login / access screens ---------- */
+.screen{min-height:100%;display:grid;place-items:center;padding-block:40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.card{width:100%;max-width:400px;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin-bottom:6px}
+.brand svg{width:64px;height:64px;display:block}
+.brand h1{margin:0;font-family:var(--font-name);font-weight:600;font-size:34px;letter-spacing:.04em;color:var(--ink);line-height:1}
+.brand p{margin:0;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint)}
+.brand p b{color:var(--sun);font-weight:500}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:3px;padding:13px 18px;cursor:pointer;
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--ink);background:transparent;color:var(--ink);transition:background .25s,color .25s,border-color .25s}
+.btn:hover{border-color:var(--sun);color:var(--sun)}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.btn.solid:hover{background:var(--sun);border-color:var(--sun);color:#fff}
+.btn:disabled{opacity:.5;cursor:wait}
+.btn .g{font-family:var(--font-name);font-weight:600;font-size:15px;letter-spacing:0}
+.or{display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--rule)}
+form{display:grid;gap:14px}
+.field{display:grid;gap:5px}
+.field label{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint)}
+.field input{border:0;border-bottom:1px solid var(--ink-faint);background:var(--field);padding:10px 4px;border-radius:0;width:100%}
+.field input:focus{outline:none;border-color:var(--sun)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;cursor:pointer;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--sun)}
+.msg{min-height:1.4em;font-size:14px;color:var(--sun)}
+.msg.good{color:var(--ok)}
+.fine{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--ink-faint);line-height:1.6}
+.idbox{border:1px solid var(--rule);padding:12px 14px;display:grid;gap:8px;background:var(--field)}
+.idbox div{display:flex;gap:10px;align-items:center;justify-content:space-between;min-width:0}
+.idbox code{font-family:var(--font-mono);font-size:12.5px;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.mini{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--rule);background:transparent;border-radius:3px;padding:3px 8px;cursor:pointer;flex:none}
+.mini:hover{border-color:var(--ink)}
+ol.steps{margin:0;padding-left:1.2em;display:grid;gap:6px;font-size:14.5px}
+ol.steps code{font-family:var(--font-mono);font-size:.9em;background:var(--paper-deep);padding:1px 5px;border-radius:3px;color:var(--ink)}
+
+/* ---------- editor ---------- */
+#editor{position:fixed;inset:0;display:flex;flex-direction:column}
+.bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding-block:10px;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px));
+  padding-top:calc(10px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--rule);background:var(--paper);position:relative;z-index:60}
+.bar .who{display:flex;align-items:center;gap:12px;min-width:0}
+.bar .who svg{width:28px;height:28px;flex:none}
+.bar .who b{font-family:var(--font-name);font-weight:600;color:var(--ink);letter-spacing:.04em;font-size:14px}
+.bar .who span{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .state{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+.bar .state.dirty{color:var(--sun)}
+.bar .acts{display:flex;gap:8px;flex-wrap:wrap}
+.bar .btn{padding:8px 12px;font-size:11px}
+.stage{flex:1;position:relative;min-height:0}
+#site{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--paper)}
+.hint{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:5;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:8px 14px;border-radius:999px;pointer-events:none;opacity:.92;max-width:calc(100% - 32px);text-align:center}
+/* history drawer */
+#history{position:absolute;top:0;right:0;bottom:0;width:min(380px,100%);background:var(--paper);border-left:1px solid var(--rule);z-index:10;display:flex;flex-direction:column;box-shadow:-12px 0 30px rgba(0,0,0,.12)}
+#history header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--rule)}
+#history h2{margin:0;font-family:var(--font-name);font-weight:500;font-size:15px;color:var(--ink);letter-spacing:.04em}
+#history .list{overflow:auto;padding:8px 16px 20px;display:grid;gap:10px}
+.hitem{border:1px solid var(--rule);padding:10px 12px;display:grid;gap:6px}
+.hitem .t{font-family:var(--font-mono);font-size:12px;color:var(--ink)}
+.hitem .k{font-size:13px;color:var(--ink-faint)}
+#toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:100;background:var(--ink);color:var(--paper);
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;padding:10px 16px;border-radius:3px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:calc(100% - 32px)}
+#toast.show{opacity:1}
+#toast.bad{background:var(--sun);color:#fff}
+@media (max-width:640px){ .hint{display:none} .bar .who span{display:none} .bar .btn{padding:7px 9px;letter-spacing:.1em} }
+</style>
+</head>
+<body>
+<script>try{ if(localStorage.getItem("bantay-night")==="1") document.documentElement.classList.add("night"); }catch(e){}</script>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="araw" viewBox="-50 -50 100 100">
+      <!-- Geometric Philippine sun: one ray group (pointed main ray + two narrow rays), mirrored for exact symmetry,
+           rotated 8 times around a perfect circle. Proportions measured from filipino_sun.svg. -->
+      <g fill="#d63f29" shape-rendering="geometricPrecision">
+        <g id="rayGroup"><polygon points="0.00,-47.83 4.62,-42.92 2.14,-19.00 -2.14,-19.00 -4.62,-42.92"/><polygon points="7.46,-39.92 9.96,-37.00 5.39,-19.00 3.74,-19.00"/><polygon points="-7.46,-39.92 -9.96,-37.00 -5.39,-19.00 -3.74,-19.00"/></g>
+        <use href="#rayGroup" transform="rotate(45)"/><use href="#rayGroup" transform="rotate(90)"/><use href="#rayGroup" transform="rotate(135)"/>
+        <use href="#rayGroup" transform="rotate(180)"/><use href="#rayGroup" transform="rotate(225)"/><use href="#rayGroup" transform="rotate(270)"/>
+        <use href="#rayGroup" transform="rotate(315)"/>
+        <circle r="22.32"/>
+      </g>
+    </symbol></defs></svg>
+
+<!-- ======================= LOGIN ======================= -->
+<main class="screen" id="login">
+  <div class="card">
+    <div class="brand">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#araw" width="100" height="100"/></svg>
+      <h1>BANTAY</h1>
+      <p>admin <b>·</b> restricted access</p>
+    </div>
+    <button class="btn" id="googleBtn" type="button"><span class="g" aria-hidden="true">G</span>Continue with Google</button>
+    <div class="or">or</div>
+    <form id="emailForm" novalidate>
+      <div class="field"><label for="em">Email</label><input id="em" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required></div>
+      <button class="btn solid" id="emailBtn" type="submit">Sign in</button>
+    </form>
+    <div class="row">
+      <button class="link" id="forgot" type="button">Forgot password?</button>
+      <a class="link" href="index.html">Back to the site</a>
+    </div>
+    <p class="msg" id="loginMsg" role="alert"></p>
+    <p class="fine">Only accounts on the admin list can save changes. Your session ends when you close the browser.</p>
+  </div>
+</main>
+
+<!-- ======================= NOT AUTHORIZED ======================= -->
+<main class="screen" id="denied" hidden>
+  <div class="card">
+    <div class="brand">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#araw" width="100" height="100"/></svg>
+      <h1>ACCESS PENDING</h1>
+      <p>signed in <b>·</b> not on the admin list</p>
+    </div>
+    <p>You're signed in, but this account can't edit the site yet. To make it an admin, add it to the <code class="mono">site_admins</code> list in Firebase. This replaces a separate set-admin script; it's a one-time step.</p>
+    <div class="idbox">
+      <div><code id="uidText">—</code><button class="mini" type="button" data-copy-from="uidText">Copy UID</button></div>
+      <div><code id="emailText">—</code></div>
+    </div>
+    <ol class="steps">
+      <li>Open the Firebase console, then <b>Firestore Database → Data</b>.</li>
+      <li>Click <b>Start collection</b> (or open <code>site_admins</code> if it exists). Collection ID: <code>site_admins</code>.</li>
+      <li>Document ID: paste the UID above.</li>
+      <li>Add a field <code>role</code>, type <code>string</code>, value <code>owner</code>. Save.</li>
+      <li>Come back and press <b>Check again</b>.</li>
+    </ol>
+    <div class="row">
+      <button class="btn solid" id="recheck" type="button">Check again</button>
+      <button class="btn" id="signOut2" type="button">Sign out</button>
+    </div>
+    <p class="msg" id="deniedMsg" role="alert"></p>
+  </div>
+</main>
+
+<!-- ======================= EDITOR ======================= -->
+<div id="editor" hidden>
+  <header class="bar">
+    <div class="who">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#araw" width="100" height="100"/></svg>
+      <b>BANTAY</b>
+      <span id="whoText">Editing</span>
+    </div>
+    <div class="state" id="state" aria-live="polite">All changes published</div>
+    <div class="acts">
+      <button class="btn" id="historyBtn" type="button">History</button>
+      <button class="btn" id="discardBtn" type="button">Discard</button>
+      <button class="btn solid" id="publishBtn" type="button">Publish</button>
+      <button class="btn" id="signOut" type="button">Sign out</button>
+    </div>
+  </header>
+  <div class="stage">
+    <iframe id="site" title="Your site in edit mode"></iframe>
+    <div class="hint" id="hint">Hover any text and press Edit · double-click to edit directly</div>
+    <aside id="history" hidden aria-label="Version history">
+      <header><h2 id="historyTitle">History</h2><button class="mini" id="historyClose" type="button">Close</button></header>
+      <div class="list" id="historyList"></div>
+    </aside>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- If Firebase can't load (offline, blocked), say so instead of leaving dead buttons -->
+<script>
+setTimeout(function(){
+  if(!window.__bantayAdminReady){
+    var m=document.getElementById("loginMsg");
+    if(m) m.textContent="Couldn't load Firebase. Check your connection, or open this page from your hosted site (not as a local file).";
+  }
+},7000);
+</script>
+
+<script type="module">
+/* ============================================================
+   Bantay admin
+   Firebase config is the same public web config used by index.html.
+   What protects the site is the Firestore rules (see instructions.html):
+   anyone can read site_pages/*, only UIDs listed in site_admins/* can write.
+   ============================================================ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, setPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+         getRedirectResult, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, orderBy, limit, getDocs, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-lite.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCp2kbZAtQLS4yyW5Cr13CKfOUbIghwPPo",
+  authDomain: "appdata-fb288.firebaseapp.com",
+  databaseURL: "https://appdata-fb288-default-rtdb.firebaseio.com",
+  projectId: "appdata-fb288",
+  storageBucket: "appdata-fb288.firebasestorage.app",
+  messagingSenderId: "184193421563",
+  appId: "1:184193421563:web:ee9effb47e5481d512605e"
+};
+const SITE_URL = "index.html?edit=1";          // the page being edited (same folder)
+const DOCS = ["home","about","projects","blog","contact","global"];
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+window.__bantayAdminReady = true;
+setPersistence(auth, browserSessionPersistence).catch(()=>{});
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------------- small UI helpers ---------------- */
+let toastT;
+function toast(msg, bad){ const t=$("#toast"); t.textContent=msg; t.classList.toggle("bad",!!bad); t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"), bad?5200:2600); }
+function screen(id){ ["login","denied","editor"].forEach(s => $("#"+s).hidden = (s!==id)); }
+function friendly(e){
+  const c = (e && e.code) || "";
+  const map = {
+    "auth/invalid-credential":"That email and password don't match an account.",
+    "auth/wrong-password":"That email and password don't match an account.",
+    "auth/user-not-found":"That email and password don't match an account.",
+    "auth/invalid-email":"Enter a valid email address.",
+    "auth/missing-password":"Enter your password.",
+    "auth/too-many-requests":"Too many attempts. Wait a few minutes, or reset your password.",
+    "auth/user-disabled":"This account has been disabled.",
+    "auth/popup-closed-by-user":"Google sign-in was closed before it finished.",
+    "auth/cancelled-popup-request":"Google sign-in was closed before it finished.",
+    "auth/unauthorized-domain":"This domain isn't allowed to sign in yet. Add it under Firebase → Authentication → Settings → Authorized domains.",
+    "auth/operation-not-allowed":"That sign-in method isn't turned on. Enable it under Firebase → Authentication → Sign-in method.",
+    "auth/network-request-failed":"Network error. Check your connection and try again.",
+    "permission-denied":"Firestore refused the request. Check that the rules are published and your UID is in the site_admins collection."
+  };
+  return map[c] || (e && e.message ? e.message.replace(/^Firebase:\s*/,"") : "Something went wrong.");
+}
+async function copyText(text, btn){
+  try{ await navigator.clipboard.writeText(text); const o=btn.textContent; btn.textContent="Copied"; setTimeout(()=>btn.textContent=o,1500); }
+  catch(e){ const r=document.createRange(); r.selectNodeContents(btn.previousElementSibling||btn); const s=getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent="Press Ctrl/⌘+C"; }
+}
+document.addEventListener("click", e => { const b=e.target.closest("[data-copy-from]"); if(b) copyText($("#"+b.dataset.copyFrom).textContent.trim(), b); });
+
+/* ---------------- sign in ---------------- */
+const loginMsg = $("#loginMsg");
+$("#googleBtn").addEventListener("click", async () => {
+  loginMsg.textContent=""; loginMsg.classList.remove("good");
+  const provider = new GoogleAuthProvider(); provider.setCustomParameters({ prompt:"select_account" });
+  try{ await signInWithPopup(auth, provider); }
+  catch(e){
+    if(e.code==="auth/popup-blocked" || e.code==="auth/operation-not-supported-in-this-environment"){ try{ await signInWithRedirect(auth, provider); }catch(e2){ loginMsg.textContent=friendly(e2); } }
+    else loginMsg.textContent = friendly(e);
+  }
+});
+getRedirectResult(auth).catch(e => { loginMsg.textContent = friendly(e); });
+$("#emailForm").addEventListener("submit", async e => {
+  e.preventDefault(); loginMsg.textContent=""; loginMsg.classList.remove("good");
+  const btn=$("#emailBtn"); btn.disabled=true;
+  try{ await signInWithEmailAndPassword(auth, $("#em").value.trim(), $("#pw").value); }
+  catch(err){ loginMsg.textContent = friendly(err); }
+  finally{ btn.disabled=false; $("#pw").value=""; }
+});
+$("#forgot").addEventListener("click", async () => {
+  const em=$("#em").value.trim();
+  if(!em){ loginMsg.textContent="Type your email above first, then press Forgot password."; return; }
+  try{ await sendPasswordResetEmail(auth, em); }catch(e){ /* same message either way, so this can't be used to probe for accounts */ }
+  loginMsg.classList.add("good"); loginMsg.textContent="If that email has an account, a reset link is on its way.";
+});
+
+/* ---------------- authorization: is this UID on the admin list? ---------------- */
+async function isAdmin(user){
+  try{ const s = await getDoc(doc(db,"site_admins",user.uid)); return s.exists(); }
+  catch(e){ return false; }
+}
+onAuthStateChanged(auth, async user => {
+  if(!user){ screen("login"); return; }
+  if(await isAdmin(user)){ startEditor(user); }
+  else{
+    $("#uidText").textContent = user.uid; $("#emailText").textContent = user.email || "(no email)";
+    screen("denied");
+  }
+});
+$("#recheck").addEventListener("click", async () => {
+  const u=auth.currentUser; if(!u) return;
+  $("#deniedMsg").textContent="Checking…";
+  if(await isAdmin(u)){ $("#deniedMsg").textContent=""; startEditor(u); }
+  else $("#deniedMsg").textContent="Still not on the list. Check the document ID matches the UID exactly.";
+});
+async function doSignOut(){ await signOut(auth); location.reload(); }
+$("#signOut2").addEventListener("click", doSignOut);
+
+/* ============================================================
+   EDITOR
+   ============================================================ */
+const S = { user:null, live:{}, dirty:new Set(), win:null, doc:null, B:null, sel:null, item:null, editing:null, ui:null };
+const frame = $("#site");
+
+async function loadLive(){
+  const out = {};
+  await Promise.all(DOCS.map(async d => {
+    try{ const s = await getDoc(doc(db,"site_pages",d)); if(s.exists()) out[d] = s.data().fields || {}; }catch(e){}
+  }));
+  return out;
+}
+let started=false;
+async function startEditor(user){
+  S.user = user;
+  $("#whoText").textContent = "Editing as " + (user.email || user.uid);
+  screen("editor");
+  if(started) return; started=true;
+  S.live = await loadLive();
+  frame.addEventListener("load", onFrameLoad);
+  frame.src = SITE_URL + "#home";
+}
+function onFrameLoad(){
+  S.win = frame.contentWindow; S.doc = frame.contentDocument; S.B = S.win && S.win.Bantay;
+  if(!S.B || !S.B.EDIT_MODE){ toast("Couldn't open index.html in edit mode. Make sure admin.html sits next to index.html on the same site.", true); return; }
+  S.B.applyAll(S.live);
+  S.B.refresh();
+  S.dirty.forEach(k => {}); // nothing to re-apply on a fresh load
+  setupFrame();
+  updateState();
+  S.win.addEventListener("hashchange", updateState);
+}
+
+/* ---------------- dirty tracking ---------------- */
+function markDirty(key){ if(key){ S.dirty.add(key); updateState(); } }
+function pageName(){ const h=(S.win && S.win.location.hash || "#home").slice(1) || "home"; return h.charAt(0).toUpperCase()+h.slice(1); }
+function updateState(){
+  const n=S.dirty.size, st=$("#state");
+  st.textContent = n ? (n===1?"1 unpublished change":n+" unpublished changes") : "All changes published";
+  st.classList.toggle("dirty", !!n);
+  $("#publishBtn").disabled = !n; $("#discardBtn").disabled = !n;
+  if(S.win) $("#whoText").textContent = pageName()+" · "+(S.user.email||S.user.uid);
+}
+window.addEventListener("beforeunload", e => { if(S.dirty.size){ e.preventDefault(); e.returnValue=""; } });
+
+/* ---------------- publish (with a history snapshot first) ---------------- */
+$("#publishBtn").addEventListener("click", publish);
+async function publish(){
+  if(S.editing) finishEdit(true);
+  if(!S.dirty.size) return;
+  const btn=$("#publishBtn"); btn.disabled=true; btn.textContent="Publishing…";
+  const byDoc = {};
+  S.dirty.forEach(k => { const v=S.B.serialize(k); if(v===null || v===undefined) return; const d=S.B.docOfKey(k); (byDoc[d] ||= {})[k]=v; });
+  try{
+    for(const d of Object.keys(byDoc)){
+      const ref = doc(db,"site_pages",d);
+      const prev = await getDoc(ref);
+      if(prev.exists()) await addDoc(collection(db,"site_pages",d,"site_history"), { fields: prev.data().fields || {}, savedAt: serverTimestamp(), savedBy: S.user.uid });
+      await setDoc(ref, { fields: byDoc[d], updatedAt: serverTimestamp(), updatedBy: S.user.uid }, { merge:true });
+      S.live[d] = Object.assign({}, S.live[d]||{}, byDoc[d]);
+    }
+    try{ localStorage.setItem("bantay-content", JSON.stringify(S.live)); }catch(e){}
+    S.dirty.clear(); updateState(); toast("Published. The live site now shows your changes.");
+  }catch(e){ toast("Couldn't publish: "+friendly(e), true); }
+  finally{ btn.textContent="Publish"; updateState(); }
+}
+
+/* ---------------- discard ---------------- */
+let discardArm=0;
+$("#discardBtn").addEventListener("click", () => {
+  const b=$("#discardBtn");
+  if(Date.now()-discardArm > 3000){ discardArm=Date.now(); b.textContent="Discard all?"; setTimeout(()=>{ b.textContent="Discard"; },3000); return; }
+  b.textContent="Discard"; S.dirty.clear(); S.editing=null; updateState();
+  const h=S.win.location.hash; frame.src = SITE_URL + (h||"#home");
+});
+let outArm=0;
+$("#signOut").addEventListener("click", () => {
+  const b=$("#signOut");
+  if(S.dirty.size && Date.now()-outArm>3000){ outArm=Date.now(); b.textContent="Lose changes?"; setTimeout(()=>{ b.textContent="Sign out"; },3000); return; }
+  S.dirty.clear(); doSignOut();
+});
+
+/* ---------------- history ---------------- */
+$("#historyBtn").addEventListener("click", openHistory);
+$("#historyClose").addEventListener("click", () => $("#history").hidden=true);
+async function openHistory(){
+  const page = ((S.win.location.hash||"#home").slice(1)||"home");
+  const docs = page==="home" ? ["home","global"] : [page];
+  $("#historyTitle").textContent = "History · " + pageName();
+  const list=$("#historyList"); list.innerHTML='<p class="fine">Loading…</p>'; $("#history").hidden=false;
+  try{
+    const rows=[];
+    for(const d of docs){
+      const snap = await getDocs(query(collection(db,"site_pages",d,"site_history"), orderBy("savedAt","desc"), limit(15)));
+      snap.forEach(s => rows.push({ d, id:s.id, data:s.data() }));
+    }
+    rows.sort((a,b) => (b.data.savedAt?.seconds||0)-(a.data.savedAt?.seconds||0));
+    if(!rows.length){ list.innerHTML='<p class="fine">No earlier versions yet. Each time you publish, the version it replaces is kept here.</p>'; return; }
+    list.innerHTML = rows.map((r,i) => {
+      const t = r.data.savedAt ? new Date(r.data.savedAt.seconds*1000).toLocaleString() : "just now";
+      const n = Object.keys(r.data.fields||{}).length;
+      return '<div class="hitem"><span class="t">'+esc(t)+'</span><span class="k">'+esc(r.d)+' · '+n+' saved field'+(n===1?'':'s')+'</span>'+
+             '<div class="row"><button class="mini" type="button" data-restore="'+i+'">Load this version</button></div></div>';
+    }).join("");
+    list.onclick = e => {
+      const b=e.target.closest("[data-restore]"); if(!b) return;
+      const r=rows[+b.dataset.restore], f=r.data.fields||{};
+      S.B.applyAll({ [r.d]: f }); Object.keys(f).forEach(markDirty); S.B.refresh(); setupFrame();
+      toast("Loaded into the editor. Review it, then Publish to make it live.");
+    };
+  }catch(e){ list.innerHTML='<p class="msg">'+esc(friendly(e))+'</p>'; }
+}
+
+/* ============================================================
+   In-page editing (inside the iframe)
+   ============================================================ */
+const FRAME_CSS = `
+html.adm [data-edit],html.adm [data-part]{outline:1px dashed rgba(214,63,41,.28);outline-offset:3px;cursor:pointer;transition:outline-color .2s}
+html.adm [data-adm-sel]{outline:1.5px solid var(--sun)!important}
+html.adm [data-adm-item]{box-shadow:0 0 0 1px var(--ink-faint),0 0 0 6px rgba(214,63,41,.06)}
+html.adm [contenteditable]{outline:2px solid var(--sun)!important;outline-offset:5px;background:rgba(var(--paper-rgb),.75);cursor:text;border-radius:2px}
+html.adm .post-body[hidden]{display:block!important}
+html.adm .post-ico{opacity:.25}
+#adm-layer{position:absolute;left:0;top:0;width:0;height:0;z-index:9000;font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+#adm-layer button,#adm-layer input,#adm-layer label{font:inherit;font-size:11px;letter-spacing:.06em}
+.adm-edit{position:absolute;display:none;align-items:center;gap:6px;padding:5px 10px;border:0;border-radius:999px;background:var(--sun);color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18);text-transform:uppercase;letter-spacing:.14em!important;white-space:nowrap}
+.adm-edit:hover{filter:brightness(1.08)}
+.adm-tools{position:fixed;left:50%;top:10px;transform:translateX(-50%);display:none;flex-wrap:wrap;justify-content:center;gap:4px;padding:6px;max-width:calc(100% - 20px);
+  background:var(--ink);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.adm-tools button{min-width:32px;height:32px;padding:0 8px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--paper);cursor:pointer;font-size:13px!important;letter-spacing:0!important}
+.adm-tools button:hover{border-color:rgba(255,255,255,.25)}
+.adm-tools button[aria-pressed="true"]{background:var(--sun);color:#fff}
+.adm-tools .sep{width:1px;background:rgba(255,255,255,.18);margin:4px 2px}
+.adm-tools .done{background:var(--sun);color:#fff;text-transform:uppercase;font-size:11px!important;letter-spacing:.12em!important;padding:0 12px}
+.adm-tools .cancel{text-transform:uppercase;font-size:11px!important;letter-spacing:.12em!important}
+.adm-link{position:fixed;left:50%;top:58px;transform:translateX(-50%);display:none;gap:6px;padding:8px;background:var(--ink);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.25);width:min(440px,calc(100% - 20px))}
+.adm-link input{flex:1;min-width:0;border:0;border-radius:3px;padding:7px 9px;background:var(--paper);color:var(--ink)}
+.adm-link button{border:0;border-radius:3px;padding:0 12px;background:var(--sun);color:#fff;cursor:pointer;text-transform:uppercase}
+.adm-item{position:absolute;display:none;width:max-content;max-width:calc(100vw - 20px);font-size:11px;line-height:1.3;flex-wrap:wrap;align-items:center;gap:4px;padding:5px;background:var(--paper);border:1px solid var(--ink);border-radius:5px;box-shadow:0 6px 18px rgba(0,0,0,.15);color:var(--ink)}
+.adm-item button{border:1px solid var(--rule);background:transparent;color:var(--ink);border-radius:3px;padding:4px 8px;cursor:pointer;text-transform:uppercase}
+.adm-item button:hover{border-color:var(--ink)}
+.adm-item button.warn{border-color:var(--sun);color:var(--sun)}
+.adm-item label{display:inline-flex;align-items:center;gap:4px;text-transform:uppercase;color:var(--ink-faint);padding:0 4px}
+.adm-item input[type=text]{width:9em;border:1px solid var(--rule);border-radius:3px;padding:3px 6px;background:rgba(var(--paper-rgb),.9);color:var(--ink)}
+.adm-item *{font-size:11px!important}
+.adm-item .lbl{color:var(--ink-faint);text-transform:uppercase;padding:0 4px}
+`;
+
+function setupFrame(){
+  const d=S.doc, w=S.win; if(!d) return;
+  d.documentElement.classList.add("adm");
+  if(!d.getElementById("adm-style")){ const st=d.createElement("style"); st.id="adm-style"; st.textContent=FRAME_CSS; d.head.appendChild(st); }
+  try{ d.execCommand("styleWithCSS", false, false); d.execCommand("defaultParagraphSeparator", false, "p"); }catch(e){}
+  if(d.getElementById("adm-layer")) return;
+  const L=d.createElement("div"); L.id="adm-layer"; L.setAttribute("aria-hidden","false");
+  L.innerHTML = `
+    <button type="button" class="adm-edit" data-adm="edit">✎ Edit</button>
+    <div class="adm-tools" role="toolbar" aria-label="Text formatting">
+      <button type="button" data-cmd="bold" title="Bold (Ctrl/⌘+B)" aria-label="Bold"><b>B</b></button>
+      <button type="button" data-cmd="italic" title="Italic (Ctrl/⌘+I)" aria-label="Italic"><i>I</i></button>
+      <button type="button" data-cmd="underline" title="Underline (Ctrl/⌘+U)" aria-label="Underline"><u>U</u></button>
+      <button type="button" data-cmd="strikeThrough" title="Strikethrough" aria-label="Strikethrough"><s>S</s></button>
+      <span class="sep"></span>
+      <button type="button" data-cmd="fontDown" title="Smaller text" aria-label="Smaller text">A−</button>
+      <button type="button" data-cmd="fontUp" title="Larger text" aria-label="Larger text">A+</button>
+      <span class="sep" data-rich></span>
+      <button type="button" data-cmd="insertUnorderedList" data-rich title="Bulleted list" aria-label="Bulleted list">• ≡</button>
+      <button type="button" data-cmd="insertOrderedList" data-rich title="Numbered list" aria-label="Numbered list">1.≡</button>
+      <button type="button" data-cmd="outdent" data-rich title="Decrease indent" aria-label="Decrease indent">⇤</button>
+      <button type="button" data-cmd="indent" data-rich title="Increase indent" aria-label="Increase indent">⇥</button>
+      <span class="sep"></span>
+      <button type="button" data-cmd="link" title="Add link (Ctrl/⌘+K)" aria-label="Add link">🔗</button>
+      <button type="button" data-cmd="unlink" title="Remove link" aria-label="Remove link">⛓︎̸</button>
+      <button type="button" data-cmd="removeFormat" title="Clear formatting" aria-label="Clear formatting">T̸</button>
+      <span class="sep"></span>
+      <button type="button" data-cmd="undo" title="Undo" aria-label="Undo">↶</button>
+      <button type="button" data-cmd="redo" title="Redo" aria-label="Redo">↷</button>
+      <span class="sep"></span>
+      <button type="button" class="cancel" data-cmd="cancel" title="Cancel (Esc)">Cancel</button>
+      <button type="button" class="done" data-cmd="done" title="Done (Ctrl/⌘+Enter)">Done</button>
+    </div>
+    <div class="adm-link"><input type="text" placeholder="https://example.com" aria-label="Link address"><button type="button" data-adm="linkok">Add link</button></div>
+    <div class="adm-item" role="group" aria-label="Item"></div>`;
+  d.body.appendChild(L);
+  S.ui = { layer:L, edit:L.querySelector(".adm-edit"), tools:L.querySelector(".adm-tools"), link:L.querySelector(".adm-link"), item:L.querySelector(".adm-item") };
+  wireFrame();
+}
+
+function typeOf(el){ return el.getAttribute("data-type") || el.getAttribute("data-part") || "rich"; }
+function keyOf(el){ if(el.hasAttribute("data-edit")) return el.getAttribute("data-edit"); const l=el.closest("[data-list]"); return l? l.getAttribute("data-list") : null; }
+function itemOf(el){ const l=el.closest("[data-list]"); if(!l) return null; let n=el; while(n && n.parentElement!==l) n=n.parentElement; return n; }
+function label(el){
+  const t=typeOf(el);
+  return t==="plain" ? "✎ Edit text" : t==="tags" ? "✎ Edit tags" : "✎ Edit";
+}
+function place(node, el, where){
+  const r=el.getBoundingClientRect(), w=S.win, sx=w.scrollX, sy=w.scrollY, vw=S.doc.documentElement.clientWidth;
+  node.style.display="flex";
+  const nw=node.offsetWidth, nh=node.offsetHeight;
+  let x = where==="left" ? r.left+sx : r.right+sx-nw, y = r.top+sy-nh-8;
+  if(y < sy+4) y = r.bottom+sy+8;
+  x = Math.max(sx+6, Math.min(x, sx+vw-nw-6));
+  node.style.left=x+"px"; node.style.top=y+"px";
+}
+function select(el){
+  if(S.editing) return;
+  if(S.sel && S.sel!==el) S.sel.removeAttribute("data-adm-sel");
+  S.sel=el; el.setAttribute("data-adm-sel","");
+  S.ui.edit.textContent=label(el); place(S.ui.edit, el, "right");
+  const it=itemOf(el); showItem(it);
+}
+function clearSel(){ if(S.sel) S.sel.removeAttribute("data-adm-sel"); S.sel=null; if(S.ui) S.ui.edit.style.display="none"; }
+
+/* ----- list item controls (move, duplicate, delete, plus project settings) ----- */
+function showItem(it){
+  if(S.item && S.item!==it) S.item.removeAttribute("data-adm-item");
+  S.item=it;
+  const box=S.ui.item;
+  if(!it || S.editing){ box.style.display="none"; return; }
+  it.setAttribute("data-adm-item","");
+  const list=it.parentElement, isProj=list.matches("[data-list='projects.items']"), count=list.children.length;
+  let h='<span class="lbl">Item</span><button type="button" data-it="up" title="Move up">↑</button><button type="button" data-it="down" title="Move down">↓</button>'+
+        '<button type="button" data-it="dup">Duplicate</button><button type="button" data-it="del"'+(count<2?' disabled title="Keep at least one item"':'')+'>Delete</button>';
+  if(isProj){
+    const st=it.querySelector(".st"), glyph=it.querySelector(".glyph");
+    h+='<label>Filters <input type="text" data-it="tags" value="'+esc(it.getAttribute("data-tags")||"")+'" title="Space-separated: work network hardware ai games"></label>'+
+       '<label><input type="checkbox" data-it="live"'+(st&&st.classList.contains("live")?' checked':'')+'> Red dot</label>'+
+       '<label>Glyph <input type="text" data-it="glyph" value="'+esc(glyph?glyph.getAttribute("data-bay"):"")+'" style="width:4.5em" title="Baybayin syllable, e.g. ba, ka, ma"></label>';
+  }
+  box.innerHTML=h; place(box, it, "left");
+}
+
+function wireFrame(){
+  const d=S.doc, ui=S.ui;
+  const EDITABLE='[data-edit],[data-list] [data-part]';
+  d.addEventListener("mouseover", e => { if(S.editing) return; if(e.target.closest("#adm-layer")) return; const el=e.target.closest(EDITABLE); if(el) select(el); else { const it=e.target.closest("[data-list] > *"); if(it && it!==S.item) showItem(it); } }, true);
+  d.addEventListener("click", e => {
+    if(e.target.closest("#adm-layer")) return;
+    const ed=e.target.closest("[contenteditable]");
+    if(ed){ if(e.target.closest("a")) e.preventDefault(); return; }
+    if(S.editing){ finishEdit(true); }
+    const el=e.target.closest(EDITABLE);
+    if(el){ e.preventDefault(); e.stopPropagation(); select(el); return; }
+    if(e.target.closest(".post-btn")){ e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  d.addEventListener("dblclick", e => { const el=e.target.closest(EDITABLE); if(el && !S.editing){ e.preventDefault(); startEdit(el); } }, true);
+  ui.edit.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); if(S.sel) startEdit(S.sel); });
+  // keep the selection in the text when pressing toolbar buttons
+  ui.tools.addEventListener("mousedown", e => { if(e.target.closest("button")) e.preventDefault(); });
+  ui.tools.addEventListener("click", e => { const b=e.target.closest("button[data-cmd]"); if(b) command(b.dataset.cmd); });
+  ui.link.querySelector("button").addEventListener("click", applyLink);
+  ui.link.querySelector("input").addEventListener("keydown", e => { if(e.key==="Enter"){ e.preventDefault(); applyLink(); } if(e.key==="Escape"){ ui.link.style.display="none"; S.editing && S.editing.focus(); } });
+  d.addEventListener("keydown", e => {
+    if(!S.editing) return;
+    const mod=e.metaKey||e.ctrlKey, t=typeOf(S.editing);
+    if(e.key==="Escape"){ e.preventDefault(); finishEdit(false); }
+    else if(e.key==="Enter" && mod){ e.preventDefault(); finishEdit(true); }
+    else if(e.key==="Enter" && (t==="plain"||t==="tags")){ e.preventDefault(); finishEdit(true); }
+    else if(e.key==="Enter" && t==="inline" && !e.shiftKey){ e.preventDefault(); d.execCommand("insertLineBreak"); }
+    else if(mod && (e.key==="k"||e.key==="K") && t!=="plain" && t!=="tags"){ e.preventDefault(); command("link"); }
+  }, true);
+  // paste as plain text, so outside styles never sneak in
+  d.addEventListener("paste", e => {
+    if(!S.editing) return; e.preventDefault();
+    const text=(e.clipboardData||S.win.clipboardData).getData("text/plain");
+    d.execCommand("insertText", false, text);
+  }, true);
+  d.addEventListener("selectionchange", syncTools);
+  // item controls
+  ui.item.addEventListener("click", e => {
+    const b=e.target.closest("button[data-it]"); if(!b || !S.item) return;
+    const it=S.item, list=it.parentElement, key=list.getAttribute("data-list");
+    if(b.dataset.it==="up" && it.previousElementSibling) list.insertBefore(it, it.previousElementSibling);
+    else if(b.dataset.it==="down" && it.nextElementSibling) list.insertBefore(it.nextElementSibling, it);
+    else if(b.dataset.it==="dup"){ const c=it.cloneNode(true); c.removeAttribute("data-adm-item"); $$("[data-adm-sel]",c).forEach(n=>n.removeAttribute("data-adm-sel")); list.insertBefore(c, it.nextSibling); }
+    else if(b.dataset.it==="del"){
+      if(!b.classList.contains("warn")){ b.classList.add("warn"); b.textContent="Confirm delete"; return; }
+      clearSel(); it.remove(); S.item=null; ui.item.style.display="none";
+    } else return;
+    S.B.commit(key); S.B.refresh && 0; markDirty(key);
+    if(it.isConnected) showItem(it); else ui.item.style.display="none";
+  });
+  ui.item.addEventListener("change", e => {
+    const inp=e.target.closest("[data-it]"); if(!inp || !S.item) return;
+    const it=S.item, key=it.parentElement.getAttribute("data-list");
+    if(inp.dataset.it==="tags") it.setAttribute("data-tags", inp.value.toLowerCase().replace(/[^a-z0-9 -]/g,"").replace(/\s+/g," ").trim());
+    if(inp.dataset.it==="live"){ const st=it.querySelector(".st"); if(st) st.classList.toggle("live", inp.checked); }
+    if(inp.dataset.it==="glyph"){ const g=it.querySelector(".glyph"); if(g){ g.setAttribute("data-bay", inp.value.toLowerCase().replace(/[^a-z+ ]/g,"").trim()); S.B.renderBay(it); } }
+    S.B.commit(key); markDirty(key); showItem(it);
+  });
+  S.win.addEventListener("scroll", () => { if(S.sel && !S.editing) place(ui.edit,S.sel,"right"); if(S.item && !S.editing) place(ui.item,S.item,"left"); }, {passive:true});
+  S.win.addEventListener("hashchange", () => { if(S.editing) finishEdit(true); clearSel(); showItem(null); });
+}
+
+/* ----- start / finish editing one element ----- */
+function startEdit(el){
+  if(S.editing) finishEdit(true);
+  const t=typeOf(el), d=S.doc;
+  S.editing=el; el._admBefore=el.innerHTML;
+  if(t==="tags") el.textContent = Array.from(el.children).map(s=>s.textContent.trim()).filter(Boolean).join(", ");
+  const plain = (t==="plain"||t==="tags");
+  el.setAttribute("contenteditable", plain ? "plaintext-only" : "true");
+  if(el.contentEditable!=="plaintext-only" && plain) el.setAttribute("contenteditable","true");
+  S.ui.edit.style.display="none"; S.ui.item.style.display="none";
+  // toolbar: formatting only for rich/inline text; lists and indents only for rich blocks
+  const tb=S.ui.tools;
+  $$("button[data-cmd]", tb).forEach(b => { const c=b.dataset.cmd; b.style.display = (plain && !/^(cancel|done|undo|redo)$/.test(c)) ? "none" : (b.hasAttribute("data-rich") && t!=="rich" ? "none" : ""); });
+  $$(".sep", tb).forEach(s => s.style.display = plain ? "none" : (s.hasAttribute("data-rich") && t!=="rich" ? "none" : ""));
+  tb.style.display="flex";
+  $("#hint").textContent = plain ? "Type your text · Enter to finish · Esc to cancel" : "Select text to format · Ctrl/⌘+Enter to finish · Esc to cancel";
+  el.focus({preventScroll:true});
+  // keep the field clear of the toolbar
+  const tbB=tb.getBoundingClientRect().bottom, er=el.getBoundingClientRect();
+  if(er.top < tbB+12) S.win.scrollBy(0, er.top-tbB-24);
+  else if(er.top > S.win.innerHeight-60) S.win.scrollBy(0, er.top-S.win.innerHeight/2);
+  try{ const r=d.createRange(); r.selectNodeContents(el); r.collapse(false); const s=S.win.getSelection(); s.removeAllRanges(); s.addRange(r); }catch(e){}
+  syncTools();
+}
+function finishEdit(keep){
+  const el=S.editing; if(!el) return;
+  const t=typeOf(el), key=keyOf(el);
+  if(!keep){ el.innerHTML = el._admBefore; }
+  else if(t==="rich"){
+    // tidy what the browser leaves behind after list/indent commands
+    $$("p", el).forEach(n => { if(n.querySelector("ul,ol,blockquote,p,div")){ while(n.firstChild) n.parentNode.insertBefore(n.firstChild, n); n.remove(); } });
+    $$("p,div,li", el).forEach(n => { if(!n.textContent.trim() && !n.querySelector("br,a")) n.remove(); });
+    if(!el.textContent.trim()) el.innerHTML = el._admBefore;   // never publish an empty block
+  }
+  else if(t==="tags"){
+    const tags=el.textContent.split(",").map(s=>s.trim()).filter(Boolean);
+    el.innerHTML = tags.map(x=>"<span>"+esc(x)+"</span>").join("");
+  }
+  else if(!el.textContent.trim()) el.innerHTML = el._admBefore;
+  el.removeAttribute("contenteditable");
+  S.editing=null; S.ui.tools.style.display="none"; S.ui.link.style.display="none";
+  $("#hint").textContent="Hover any text and press Edit · double-click to edit directly";
+  if(keep && el.innerHTML!==el._admBefore){ S.B.commit(key); markDirty(key); }
+  if(el.isConnected) select(el);
+}
+
+/* ----- formatting commands ----- */
+function command(c){
+  const d=S.doc, el=S.editing; if(!el) return;
+  if(c==="done") return finishEdit(true);
+  if(c==="cancel") return finishEdit(false);
+  if(c==="link"){
+    const s=S.win.getSelection(); S.linkRange = s.rangeCount ? s.getRangeAt(0).cloneRange() : null;
+    const a = s.anchorNode && (s.anchorNode.nodeType===1?s.anchorNode:s.anchorNode.parentElement).closest("a");
+    const inp=S.ui.link.querySelector("input"); inp.value = a ? a.getAttribute("href") : "";
+    S.ui.link.style.display="flex"; inp.focus(); return;
+  }
+  if(c==="fontUp" || c==="fontDown"){
+    const cur=parseInt(d.queryCommandValue("fontSize"),10) || 3;
+    const n=Math.max(1, Math.min(7, cur + (c==="fontUp"?1:-1)));
+    d.execCommand("fontSize", false, String(n));
+  } else d.execCommand(c, false, null);
+  el.focus(); syncTools();
+}
+function applyLink(){
+  const d=S.doc, inp=S.ui.link.querySelector("input");
+  let url=inp.value.trim();
+  S.ui.link.style.display="none";
+  if(S.linkRange){ const s=S.win.getSelection(); s.removeAllRanges(); s.addRange(S.linkRange); }
+  if(!url){ d.execCommand("unlink"); return; }
+  if(!/^(https?:\/\/|mailto:|#)/i.test(url)) url = (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(url) ? "mailto:" : "https://") + url;
+  if(!/^(https?:\/\/|mailto:)[^\s<>"'`]+$/i.test(url) && !/^#[a-z0-9-]*$/i.test(url)){ toast("That link doesn't look valid.", true); return; }
+  const s=S.win.getSelection();
+  if(s.isCollapsed){ d.execCommand("insertHTML", false, '<a href="'+esc(url)+'">'+esc(url.replace(/^mailto:|^https?:\/\//,""))+'</a>'); }
+  else d.execCommand("createLink", false, url);
+  S.editing && S.editing.focus();
+}
+function syncTools(){
+  if(!S.editing) return;
+  const d=S.doc;
+  $$("button[data-cmd]", S.ui.tools).forEach(b => {
+    const c=b.dataset.cmd;
+    if(/^(bold|italic|underline|strikeThrough|insertUnorderedList|insertOrderedList)$/.test(c)){
+      let on=false; try{ on=d.queryCommandState(c); }catch(e){}
+      b.setAttribute("aria-pressed", String(!!on));
+    }
+  });
+}
+</script>
+</body>
+</html>
