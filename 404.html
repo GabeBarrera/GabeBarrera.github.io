@@ -36,9 +36,11 @@ a{color:inherit}
 .wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* navbar, identical to the site's */
-.top{position:relative;z-index:5;padding-top:env(safe-area-inset-top,0px);   /* clear the iPhone status bar */
-  background:linear-gradient(rgb(var(--sky-top)) calc(100% - 22px),rgba(var(--sky-top),0))}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px 22px}
+/* fixed with a solid background-color so iPhone Safari colors the status-bar area from it (see index.html) */
+.top{position:fixed;top:0;left:0;right:0;z-index:40;padding-top:env(safe-area-inset-top,0px);background-color:rgb(var(--sky-top))}
+.top::after{content:"";position:absolute;left:0;right:0;top:100%;height:22px;pointer-events:none;background:linear-gradient(rgb(var(--sky-top)),rgba(var(--sky-top),0))}
+body{padding-top:var(--hdr,calc(80px + env(safe-area-inset-top,0px)))}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px 10px}
 .seal{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}
 .seal-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:4px;background:var(--sun);color:var(--paper);
   box-shadow:inset 0 0 0 2px rgba(var(--paper-rgb),.35);transform:rotate(-3deg)}
@@ -134,7 +136,8 @@ main{flex:1}
 .home:hover{background:var(--sun)}
 
 @media (max-width:600px){
-  .top .wrap{flex-direction:column;align-items:flex-start;gap:10px;padding-block:14px 16px}
+  .top .wrap{flex-direction:column;align-items:flex-start;gap:10px;padding-block:14px 8px}
+  body{padding-top:var(--hdr,calc(110px + env(safe-area-inset-top,0px)))}
   nav ul{justify-content:flex-start;gap:16px}
   nav a{font-size:11px;letter-spacing:.14em}
   .boat{left:calc(50% - var(--bw) * .66)}
@@ -146,7 +149,7 @@ main{flex:1}
 <body>
 <script>try{ if(localStorage.getItem("bantay-night")==="1"){ document.documentElement.classList.add("night"); document.querySelector('meta[name="theme-color"]').setAttribute("content","#1c1f29"); } }catch(e){}</script>
 
-<header class="top">
+<header class="top" id="topbar">
   <div class="wrap">
     <!-- Links are root-relative so they work from any missing URL. Change "/" if the site lives in a sub-folder. -->
     <a class="seal" href="/#home" aria-label="Home">
@@ -164,6 +167,11 @@ main{flex:1}
     </nav>
   </div>
 </header>
+<script>
+(function(){ var t=document.getElementById("topbar"), r=document.documentElement;
+  function set(){ r.style.setProperty("--hdr", t.offsetHeight+"px"); }
+  set(); if(window.ResizeObserver) new ResizeObserver(set).observe(t); else addEventListener("resize",set); })();
+</script>
 
 <main>
   <div class="scene" role="img" aria-label="An empty bangka drifting on a misty lake, its laptop still on. The boatman's salakot floats nearby.">
