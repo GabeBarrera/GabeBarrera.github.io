@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wala Dito · 404</title>
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#f0e6cc">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
@@ -35,7 +36,8 @@ a{color:inherit}
 .wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* navbar, identical to the site's */
-.top{position:relative;z-index:5;background:linear-gradient(rgb(var(--sky-top)) 70%,rgba(var(--sky-top),0))}
+.top{position:relative;z-index:5;padding-top:env(safe-area-inset-top,0px);   /* clear the iPhone status bar */
+  background:linear-gradient(rgb(var(--sky-top)) calc(100% - 22px),rgba(var(--sky-top),0))}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px 22px}
 .seal{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}
 .seal-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:4px;background:var(--sun);color:var(--paper);
@@ -142,7 +144,7 @@ main{flex:1}
 </style>
 </head>
 <body>
-<script>try{ if(localStorage.getItem("bantay-night")==="1") document.documentElement.classList.add("night"); }catch(e){}</script>
+<script>try{ if(localStorage.getItem("bantay-night")==="1"){ document.documentElement.classList.add("night"); document.querySelector('meta[name="theme-color"]').setAttribute("content","#1c1f29"); } }catch(e){}</script>
 
 <header class="top">
   <div class="wrap">

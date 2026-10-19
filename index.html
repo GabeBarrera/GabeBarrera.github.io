@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gabe Barrera</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#f0e6cc">
 <meta name="description" content="Gabe Barrera — cybersecurity, systems, and quiet builds.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,7 +71,6 @@ body::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.38;  /* plain overlay (no blend mode) so colour changes stay cheap */
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .47  0 0 0 0 .33  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:rgb(var(--sky-top))}
 a{color:inherit}
 ::selection{background:var(--sun);color:var(--paper)}
 :focus-visible{outline:2px solid var(--sun);outline-offset:3px;border-radius:2px}
@@ -86,12 +86,57 @@ svg.bg{display:inline-block;height:1em;overflow:visible;fill:currentColor;vertic
    Sized from the poster height so all 8 glyphs fit in the sky at every screen size. */
 .vert.vert-cols{flex-direction:column;align-items:center;gap:.55em;font-size:calc(clamp(560px,82vh,840px) * .045);top:5%}
 .vert.vert-cols > div{gap:.1em}
+/* Hover (or tap / keyboard focus) the motto to read it in English. The English sits in the same box as the
+   Baybayin: each word is a column of upright letters, with a wider gap between words.
+   fitMotto() picks a font size so it never runs past the Baybayin's height or width. */
+.vert.vert-cols{cursor:help;-webkit-tap-highlight-color:transparent}
+.vert.vert-cols > [data-stack]{transition:opacity .45s ease,filter .45s ease}
+.vert.vert-cols > .motto-en{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;opacity:0;pointer-events:none;transition:opacity .45s ease}
+.motto-en .w{display:block;writing-mode:vertical-rl;-webkit-writing-mode:vertical-rl;text-orientation:upright;-webkit-text-orientation:upright;
+  font-family:"Orbitron","Eurostile","Bank Gothic",system-ui,sans-serif;font-weight:500;line-height:1;letter-spacing:.06em;color:var(--ink);text-transform:uppercase}
+.motto-en .w + .w{margin-top:.6em}
+.motto-en .w.mid{color:var(--sun)}
+.vert.vert-cols.en > [data-stack]{opacity:0;filter:blur(2px)}
+.vert.vert-cols.en > .motto-en{opacity:1}
+/* black & white glitch before the English appears: both layers are cut into horizontal bands
+   that jolt sideways; ink and paper ghosts tear the letters. ~0.5s, then the English settles. */
+.vert.vert-cols.mg > *,.vert.vert-cols.mgb > *,.vert.vert-cols.snap > *{transition:none!important}
+.vert.vert-cols.mg > [data-stack]{opacity:1;filter:none;animation:mg-out .5s steps(1,end) both}
+.vert.vert-cols.mg > .motto-en{opacity:1;animation:mg-in .5s steps(1,end) both}
+/* the way back: same burst mirrored, the English breaks up and the Baybayin tears back in */
+.vert.vert-cols.mgb > [data-stack]{opacity:1;filter:none;animation:mg-in .5s steps(1,end) both}
+.vert.vert-cols.mgb > .motto-en{opacity:1;animation:mg-out .5s steps(1,end) both}
+.vert.vert-cols.mg .w,.vert.vert-cols.mgb .w{text-shadow:.12em 0 0 var(--paper),-.1em 0 0 var(--ink)}
+.vert.vert-cols.mg .w.mid,.vert.vert-cols.mgb .w.mid{color:var(--ink)}
+@keyframes mg-out{
+  0%  {clip-path:inset(0 0 0 0);transform:none}
+  10% {clip-path:inset(12% 0 58% 0);transform:translateX(-.18em)}
+  22% {clip-path:inset(46% 0 30% 0);transform:translateX(.22em) skewX(-8deg)}
+  34% {clip-path:inset(0 0 72% 0);transform:translateX(-.1em)}
+  46% {clip-path:inset(70% 0 4% 0);transform:translateX(.3em)}
+  58% {clip-path:inset(30% 0 52% 0);transform:translateX(-.24em) skewX(6deg)}
+  70% {clip-path:inset(84% 0 0 0);transform:translateX(.12em)}
+  82%,100%{clip-path:inset(0 0 100% 0);transform:none}}
+@keyframes mg-in{
+  0%  {clip-path:inset(0 0 100% 0);transform:none}
+  10% {clip-path:inset(60% 0 22% 0);transform:translateX(.24em)}
+  22% {clip-path:inset(4% 0 70% 0);transform:translateX(-.2em) skewX(8deg)}
+  34% {clip-path:inset(38% 0 36% 0);transform:translateX(.16em)}
+  46% {clip-path:inset(0 0 48% 0);transform:translateX(-.28em)}
+  58% {clip-path:inset(52% 0 0 0);transform:translateX(.1em) skewX(-6deg)}
+  70% {clip-path:inset(18% 0 10% 0);transform:translateX(-.08em)}
+  82% {clip-path:inset(0 0 0 0);transform:translateX(.05em)}
+  100%{clip-path:inset(0 0 0 0);transform:none}}
+.vert.vert-cols:focus-visible{outline-offset:6px}
 .cartouche[data-stack]{gap:.18em}
 
 /* ---------- header ---------- */
 .top{
-  position:sticky;top:env(safe-area-inset-top,0px);z-index:40;
-  background:linear-gradient(rgb(var(--sky-top)) 70%,rgba(var(--sky-top),0));
+  /* Pinned to the very top and padded down by the iPhone status-bar height, so the bar itself covers
+     the status-bar area. Solid all the way down, then a short fade at the bottom edge only. */
+  position:sticky;top:0;z-index:40;padding-top:env(safe-area-inset-top,0px);
+  background:linear-gradient(rgb(var(--sky-top)) calc(100% - 22px),rgba(var(--sky-top),0));
 }
 .top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px 22px}
 .seal{
@@ -415,6 +460,7 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 @media (prefers-reduced-motion:reduce){
   .sun .orb-sun svg,.bangka .streaks,.page{animation:none!important}
   .sun .orb{transition:none!important}
+  .vert.vert-cols > *{transition:none!important;animation:none!important}
   .sky .stars.tw{animation:none!important}
 }
 </style>
@@ -529,10 +575,11 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
     <div class="sky" aria-hidden="true"><i class="stars"></i><i class="stars tw"></i></div>
     <canvas data-scene="poster" aria-hidden="true"></canvas>
     <button class="sun" type="button" aria-label="Switch to night mode" aria-pressed="false"><span class="orb orb-sun" aria-hidden="true"><svg><use href="#araw"/></svg></span><span class="orb orb-moon" aria-hidden="true"><svg><use href="#bulan"/></svg></span></button>
-    <div class="vert vert-cols" lang="tl" role="img" aria-label="Magduda, ngunit suriin: distrust, but verify. Written in Baybayin, read top to bottom.">
+    <div class="vert vert-cols" lang="tl" role="img" tabindex="0" title="Distrust, but verify" aria-label="Magduda, ngunit suriin: distrust, but verify. Written in Baybayin, read top to bottom.">
       <div data-bay="ma du da" data-stack></div>
       <div data-bay="ngu ni" data-stack></div>
       <div data-bay="su di i" data-stack></div>
+      <div class="motto-en" lang="en" aria-hidden="true"><span class="w">Distrust</span><span class="w mid">but</span><span class="w">verify</span></div>
     </div>
     <div class="bangka" aria-hidden="true">
       <svg viewBox="0 0 300 200">
@@ -1119,7 +1166,7 @@ function decryptName(el, total){
   var text=el.getAttribute("data-name")||el.textContent;
   el.setAttribute("aria-label",text);
   var brk=el.hasAttribute("data-break"); el._decrypting=true;
-  function finalMarkup(){ if(brk) el.innerHTML=esc(text).replace(/ /g,"<br>"); else el.textContent=text; }
+  function finalMarkup(){ var t=el.getAttribute("data-name")||text; if(brk) el.innerHTML=esc(t).replace(/ /g,"<br>"); else el.textContent=t; }
   if(reduceMotion){ finalMarkup(); return {cancel:function(){}}; }
   el.innerHTML="";
   var spans=[];
@@ -1193,8 +1240,10 @@ function runPage(page){
   var st=$("[data-status]",page);
   if(st){
     // "IDENTITY // DECRYPTING" with dots stepping  · . .. ...  twice, then "THE HACKER POET" decrypts in
-    var FINAL='identity // <span class="ok" data-edit="home.identity" data-type="plain">'+esc(st.getAttribute("data-identity")||"The Hacker Poet")+'</span>';
-    st.setAttribute("aria-label","Identity: The Hacker Poet");
+    // read when shown, so text published from admin.html wins even if it arrives mid-animation
+    function FINAL_(){ var id=st.getAttribute("data-identity")||"The Hacker Poet"; st.setAttribute("aria-label","Identity: "+id);
+      return 'identity // <span class="ok" data-edit="home.identity" data-type="plain">'+esc(id)+'</span>'; }
+    var FINAL=FINAL_();
     if(reduceMotion){ st.innerHTML=FINAL; }
     else{
       st.innerHTML='identity // decrypting<span class="dots" aria-hidden="true"></span>';
@@ -1203,10 +1252,10 @@ function runPage(page){
         step++;
         if(step<STEPS){ dots.textContent=".".repeat(step%4); return; }
         clearInterval(iv);
-        st.innerHTML=FINAL;
+        st.innerHTML=FINAL_();
         runs.push(decryptBlock(st.querySelector(".ok"),1500,0));
       },DOT_MS);
-      runs.push({cancel:function(){ clearInterval(iv); st.innerHTML=FINAL; }});
+      runs.push({cancel:function(){ clearInterval(iv); st.innerHTML=FINAL_(); }});
     }
   }
 }
@@ -1439,8 +1488,11 @@ function sizeGlows(){
 }
 window.addEventListener("resize",function(){ setTimeout(sizeGlows,200); });
 
+var themeMeta=document.querySelector('meta[name="theme-color"]');
+function setThemeColor(c){ if(themeMeta && themeMeta.content!==c) themeMeta.setAttribute("content",c); }
 function applyNight(on){
   PHASE=on?1:0;
+  setThemeColor(on?"#1c1f29":"#f0e6cc");
   document.documentElement.classList.toggle("night",on);
   $all(".sun").forEach(function(b){ b.setAttribute("aria-pressed",String(on)); b.setAttribute("aria-label", on?"Switch to day mode":"Switch to night mode"); });
   try{ localStorage.setItem("bantay-night", on?"1":"0"); }catch(e){}
@@ -1547,7 +1599,8 @@ function setPhase(p){
   r.setProperty("--paper",rgbHex(s.paper));       r.setProperty("--paper-rgb",s.paper.join(","));
   r.setProperty("--paper-deep",rgbHex(s.deep));   r.setProperty("--deep-rgb",s.deep.join(","));
   r.setProperty("--field-rgb",s.field.join(","));
-  r.setProperty("--sky-top",s.top.join(","));     r.setProperty("--sky-hor",s.hor.join(","));
+  r.setProperty("--sky-top",s.top.join(","));
+  setThemeColor(rgbHex(s.top));     r.setProperty("--sky-hor",s.hor.join(","));
   r.setProperty("--scene-ink",s.mtn.join(","));   r.setProperty("--boat",rgbHex(s.boat));
   r.setProperty("--streak",rgbHex(s.streak));
   r.setProperty("--sunset-a",(s.glow*.55).toFixed(3)); r.setProperty("--stars",s.stars.toFixed(3));
@@ -1627,6 +1680,58 @@ document.addEventListener("click",function(e){
 });
 try{ if(localStorage.getItem("bantay-night")==="1"){ PHASE=1; setNight(true,true); } }catch(e){}
 makeStars();
+
+/* ---------- motto: English on hover, sized to fit inside the Baybayin's own box ---------- */
+(function(){
+  var box=document.querySelector(".poster .vert-cols"); if(!box) return;
+  var en=box.querySelector(".motto-en"); if(!en) return;
+  function fitMotto(){
+    var H=box.clientHeight, W=box.clientWidth; if(!H||!W) return;
+    var lo=6, hi=Math.max(8,W*1.5), size=lo;
+    for(var i=0;i<14;i++){            // largest size whose columns fit the motto's height and width
+      var mid=(lo+hi)/2; en.style.fontSize=mid+"px";
+      var h=0, w=0; Array.prototype.forEach.call(en.children,function(c){ var r=c.getBoundingClientRect(); h+=r.height; w=Math.max(w,r.width); });
+      h+=(en.children.length-1)*mid*.6;
+      if(h<=H && w<=W){ size=mid; lo=mid; } else hi=mid;
+    }
+    en.style.fontSize=size+"px";
+  }
+  fitMotto();
+  window.addEventListener("resize",function(){ clearTimeout(fitMotto._t); fitMotto._t=setTimeout(fitMotto,160); });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitMotto);
+  // show = glitch burst first, then the English; hide = plain fade back to Baybayin
+  // Glitch both ways: Baybayin -> English on hover, English -> Baybayin on leave.
+  // Each burst ends with an instant hand-off (no fade), so neither layer drifts back over the other.
+  var gt, noMotion=reduceMotion, cl=box.classList;
+  function shown(){ return cl.contains("en") || cl.contains("mg"); }   // English showing, or on its way
+  function settle(add, remove){ cl.add("snap"); add && cl.add(add); cl.remove.apply(cl, remove);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ cl.remove("snap"); }); }); }
+  function show(){
+    if(shown()) return;
+    clearTimeout(gt);
+    if(noMotion){ settle("en",["mgb"]); return; }
+    settle(null,["mgb"]); cl.add("mg");
+    gt=setTimeout(function(){ settle("en",["mg"]); },500);
+  }
+  function hide(instant){
+    if(!shown()) return;
+    clearTimeout(gt);
+    if(noMotion || instant===true){ settle(null,["mg","en","mgb"]); return; }
+    settle(null,["mg","en"]); cl.add("mgb");
+    gt=setTimeout(function(){ settle(null,["mgb"]); },500);
+  }
+  var touch=false;
+  box.addEventListener("touchstart",function(){ touch=true; },{passive:true});
+  box.addEventListener("mouseenter",function(){ if(!touch) show(); });
+  box.addEventListener("mouseleave",function(){ if(!touch) hide(); });
+  box.addEventListener("focus",function(){ if(!touch) show(); });
+  box.addEventListener("blur",function(){ hide(); });
+  // touch screens have no hover: a tap toggles the English, a tap anywhere else puts the Baybayin back
+  box.addEventListener("click",function(e){ e.stopPropagation(); if(!touch) return; shown() ? hide() : show(); });
+  document.addEventListener("click",function(){ if(touch) hide(); });
+  box.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); shown() ? hide() : show(); } });
+  window.addEventListener("hashchange",function(){ hide(true); setTimeout(fitMotto,60); });
+})();
 
 
 /* ---------- title glitch: a burst right after a title resolves, then at random every few seconds ---------- */
@@ -1724,6 +1829,7 @@ function applyField(key, val){
   if(key==="home.identity"){
     var st=$("[data-status]"); if(!st) return;
     st.setAttribute("data-identity", sanitize(val,"plain") || "The Hacker Poet");
+    st.setAttribute("aria-label","Identity: "+st.getAttribute("data-identity"));
     var ok=st.querySelector(".ok"); if(ok) ok.textContent=st.getAttribute("data-identity");
     return;
   }
@@ -1754,6 +1860,14 @@ function applyAll(all){
     Object.keys(f).forEach(function(k){ try{ applyField(k, f[k]); }catch(e){} });
   });
 }
+// Plain text as typed. innerText is avoided on purpose: it applies CSS text-transform,
+// so a field shown in capitals (the name, labels, footer) would be saved in capitals.
+function plainText(el){
+  var c = el.cloneNode(true);
+  $all("br",c).forEach(function(b){ b.parentNode.replaceChild(document.createTextNode("\n"), b); });
+  $all("div,p,li",c).forEach(function(b){ b.insertBefore(document.createTextNode("\n"), b.firstChild); });
+  return c.textContent;
+}
 // read the current value of a key back out of the page (used by the editor when saving)
 function serialize(key){
   var list = document.querySelector('[data-list="'+key+'"]');
@@ -1761,6 +1875,8 @@ function serialize(key){
     var c = list.cloneNode(true);
     $all("[data-bay]",c).forEach(function(b){ b.innerHTML=""; });
     if(c.id==="posts") $all(".post-btn",c).forEach(function(b){ b.setAttribute("aria-expanded","false"); });
+    // items hidden by a filter chip are view state, not content
+    Array.prototype.forEach.call(c.children,function(it){ it.removeAttribute("hidden"); });
     return sanitize(c.innerHTML,"list");
   }
   if(key==="home.identity"){ var st=$("[data-status]"); return st ? (st.getAttribute("data-identity")||"") : null; }
@@ -1768,7 +1884,7 @@ function serialize(key){
   var el = document.querySelector('[data-edit="'+key+'"]'); if(!el) return null;
   if(el.hasAttribute("data-name")) return el.getAttribute("data-name");
   var type = el.getAttribute("data-type") || "rich";
-  return type==="plain" ? sanitize(el.innerText||el.textContent,"plain") : sanitize(el.innerHTML,type);
+  return type==="plain" ? sanitize(plainText(el),"plain") : sanitize(el.innerHTML,type);
 }
 // after an in-place edit: clean the element and run any side effects (name attributes, links, glyphs)
 function commit(key){
@@ -1776,7 +1892,7 @@ function commit(key){
   if(list){ applyField(key, serialize(key)); return; }
   var el = document.querySelector('[data-edit="'+key+'"]'); if(!el) return;
   var type = el.getAttribute("data-type") || "rich";
-  var raw = (type==="plain") ? (el.innerText||el.textContent) : el.innerHTML;
+  var raw = (type==="plain") ? plainText(el) : el.innerHTML;
   if(key==="home.identity" || key==="contact.github" || key==="contact.linkedin" || el.hasAttribute("data-name")) applyField(key, String(raw).replace(/\s+/g," ").trim());
   else applyField(key, raw);
 }
