@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="no-referrer">
+<meta name="referrer" content="strict-origin">
 <title>Website Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -99,7 +99,20 @@ ol.steps code{font-family:var(--font-mono);font-size:.9em;background:var(--paper
 </style>
 </head>
 <body>
-<script>try{ if(localStorage.getItem("bantay-night")==="1") document.documentElement.classList.add("night"); }catch(e){}</script>
+<script>
+/* Day/night default: local time decides (6:00am-5:59pm day, 6:00pm-5:59am night).
+   A click on the sun/moon overrides it only until the next 6am/6pm, then the clock takes over again.
+   Stored: bantay-night ("1"/"0") + bantay-night-period (the half-day it was chosen in, e.g. "2026-10-20N"). */
+function bantayMode(){
+  var d=new Date(), h=d.getHours(), night=(h>=18||h<6), p=new Date(d.getTime());
+  if(h<6) p.setDate(p.getDate()-1);                       // 12am-6am belongs to the previous evening's night
+  var period=p.getFullYear()+"-"+(p.getMonth()+1)+"-"+p.getDate()+(night?"N":"D");
+  try{ if(localStorage.getItem("bantay-night-period")===period){ var v=localStorage.getItem("bantay-night");
+         if(v==="1"||v==="0") return {night:v==="1", period:period, manual:true}; } }catch(e){}
+  return {night:night, period:period, manual:false};
+}
+try{ if(bantayMode().night) document.documentElement.classList.add("night"); }catch(e){}
+</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><symbol id="araw" viewBox="-50 -50 100 100">
       <!-- Geometric Philippine sun: one ray group (pointed main ray + two narrow rays), mirrored for exact symmetry,
            rotated 8 times around a perfect circle. Proportions measured from filipino_sun.svg. -->
@@ -294,15 +307,23 @@ $("#forgot").addEventListener("click", async () => {
 });
 
 /* ---------------- authorization: is this UID on the admin list? ---------------- */
+let adminCheckError = "";
 async function isAdmin(user){
+  adminCheckError = "";
   try{ const s = await getDoc(doc(db,"site_admins",user.uid)); return s.exists(); }
-  catch(e){ return false; }
+  catch(e){
+    adminCheckError = e && e.code==="permission-denied"
+      ? "Firestore refused the check. Publish the security rules from instructions.html (Step 2), then press Check again."
+      : "Couldn't reach Firestore: "+friendly(e)+" Make sure the database exists (Step 1).";
+    return false;
+  }
 }
 onAuthStateChanged(auth, async user => {
   if(!user){ screen("login"); return; }
   if(await isAdmin(user)){ startEditor(user); }
   else{
     $("#uidText").textContent = user.uid; $("#emailText").textContent = user.email || "(no email)";
+    $("#deniedMsg").textContent = adminCheckError;
     screen("denied");
   }
 });
@@ -310,7 +331,7 @@ $("#recheck").addEventListener("click", async () => {
   const u=auth.currentUser; if(!u) return;
   $("#deniedMsg").textContent="Checking…";
   if(await isAdmin(u)){ $("#deniedMsg").textContent=""; startEditor(u); }
-  else $("#deniedMsg").textContent="Still not on the list. Check the document ID matches the UID exactly.";
+  else $("#deniedMsg").textContent = adminCheckError || "Still not on the list. Check the document ID matches the UID exactly.";
 });
 async function doSignOut(){ await signOut(auth); location.reload(); }
 $("#signOut2").addEventListener("click", doSignOut);
@@ -534,7 +555,7 @@ function showItem(it){
   if(S.item && S.item!==it) S.item.removeAttribute("data-adm-item");
   S.item=it;
   const box=S.ui.item;
-  if(!it || S.editing){ box.style.display="none"; return; }
+  if(!it || S.editing || !it.isConnected || !it.parentElement){ box.style.display="none"; return; }
   it.setAttribute("data-adm-item","");
   const list=it.parentElement, isProj=list.matches("[data-list='projects.items']"), count=list.children.length;
   let h='<span class="lbl">Item</span><button type="button" data-it="up" title="Move up">↑</button><button type="button" data-it="down" title="Move down">↓</button>'+
@@ -551,7 +572,11 @@ function showItem(it){
 function wireFrame(){
   const d=S.doc, ui=S.ui;
   const EDITABLE='[data-edit],[data-list] [data-part]';
-  d.addEventListener("mouseover", e => { if(S.editing) return; if(e.target.closest("#adm-layer")) return; const el=e.target.closest(EDITABLE); if(el) select(el); else { const it=e.target.closest("[data-list] > *"); if(it && it!==S.item) showItem(it); } }, true);
+  // after an item action the panel moves with the item; keep it on that item until the mouse really moves,
+  // so the hover event the browser fires for whatever is now under the cursor doesn't steal it
+  function hover(t){ if(S.editing || S.pinAt || !t.closest || t.closest("#adm-layer")) return; const el=t.closest(EDITABLE); if(el) select(el); else { const it=t.closest("[data-list] > *"); if(it && it!==S.item) showItem(it); } }
+  d.addEventListener("mousemove", e => { if(S.pinAt && Math.hypot(e.clientX-S.pinAt.x, e.clientY-S.pinAt.y) > 6){ S.pinAt=null; hover(e.target); } }, true);
+  d.addEventListener("mouseover", e => hover(e.target), true);
   d.addEventListener("click", e => {
     if(e.target.closest("#adm-layer")) return;
     const ed=e.target.closest("[contenteditable]");
@@ -585,28 +610,35 @@ function wireFrame(){
   }, true);
   d.addEventListener("selectionchange", syncTools);
   // item controls
+  // commit() re-renders the whole list, so items are found again by position afterwards
+  function itemAt(key, i){ const l=d.querySelector('[data-list="'+key+'"]'); return l ? l.children[Math.max(0,Math.min(i,l.children.length-1))] || null : null; }
   ui.item.addEventListener("click", e => {
-    const b=e.target.closest("button[data-it]"); if(!b || !S.item) return;
+    const b=e.target.closest("button[data-it]"); if(!b || !S.item || !S.item.isConnected) return;
+    S.pinAt={x:e.clientX, y:e.clientY};
     const it=S.item, list=it.parentElement, key=list.getAttribute("data-list");
-    if(b.dataset.it==="up" && it.previousElementSibling) list.insertBefore(it, it.previousElementSibling);
-    else if(b.dataset.it==="down" && it.nextElementSibling) list.insertBefore(it.nextElementSibling, it);
-    else if(b.dataset.it==="dup"){ const c=it.cloneNode(true); c.removeAttribute("data-adm-item"); $$("[data-adm-sel]",c).forEach(n=>n.removeAttribute("data-adm-sel")); list.insertBefore(c, it.nextSibling); }
+    let idx=Array.prototype.indexOf.call(list.children, it);
+    if(b.dataset.it==="up" && it.previousElementSibling){ list.insertBefore(it, it.previousElementSibling); idx--; }
+    else if(b.dataset.it==="down" && it.nextElementSibling){ list.insertBefore(it.nextElementSibling, it); idx++; }
+    else if(b.dataset.it==="dup"){ const c=it.cloneNode(true); c.removeAttribute("data-adm-item"); $$("[data-adm-sel]",c).forEach(n=>n.removeAttribute("data-adm-sel")); list.insertBefore(c, it.nextSibling); idx++; }
     else if(b.dataset.it==="del"){
       if(!b.classList.contains("warn")){ b.classList.add("warn"); b.textContent="Confirm delete"; return; }
       clearSel(); it.remove(); S.item=null; ui.item.style.display="none";
+      S.B.commit(key); markDirty(key); return;
     } else return;
-    S.B.commit(key); S.B.refresh && 0; markDirty(key);
-    if(it.isConnected) showItem(it); else ui.item.style.display="none";
+    clearSel(); S.B.commit(key); markDirty(key);
+    S.item=null; showItem(itemAt(key, idx));
   });
   ui.item.addEventListener("change", e => {
-    const inp=e.target.closest("[data-it]"); if(!inp || !S.item) return;
-    const it=S.item, key=it.parentElement.getAttribute("data-list");
+    const inp=e.target.closest("[data-it]"); if(!inp || !S.item || !S.item.isConnected) return;
+    S.pinAt=S.pinAt||{x:-1e4, y:-1e4};
+    const it=S.item, list=it.parentElement, key=list.getAttribute("data-list"), idx=Array.prototype.indexOf.call(list.children, it);
     if(inp.dataset.it==="tags") it.setAttribute("data-tags", inp.value.toLowerCase().replace(/[^a-z0-9 -]/g,"").replace(/\s+/g," ").trim());
     if(inp.dataset.it==="live"){ const st=it.querySelector(".st"); if(st) st.classList.toggle("live", inp.checked); }
     if(inp.dataset.it==="glyph"){ const g=it.querySelector(".glyph"); if(g){ g.setAttribute("data-bay", inp.value.toLowerCase().replace(/[^a-z+ ]/g,"").trim()); S.B.renderBay(it); } }
-    S.B.commit(key); markDirty(key); showItem(it);
+    clearSel(); S.B.commit(key); markDirty(key);
+    S.item=null; showItem(itemAt(key, idx));
   });
-  S.win.addEventListener("scroll", () => { if(S.sel && !S.editing) place(ui.edit,S.sel,"right"); if(S.item && !S.editing) place(ui.item,S.item,"left"); }, {passive:true});
+  S.win.addEventListener("scroll", () => { if(S.sel && S.sel.isConnected && !S.editing) place(ui.edit,S.sel,"right"); if(S.item && S.item.isConnected && !S.editing) place(ui.item,S.item,"left"); }, {passive:true});
   S.win.addEventListener("hashchange", () => { if(S.editing) finishEdit(true); clearSel(); showItem(null); });
 }
 
@@ -653,7 +685,7 @@ function finishEdit(keep){
   S.editing=null; S.ui.tools.style.display="none"; S.ui.link.style.display="none";
   $("#hint").textContent="Hover any text and press Edit · double-click to edit directly";
   if(keep && el.innerHTML!==el._admBefore){ S.B.commit(key); markDirty(key); }
-  if(el.isConnected) select(el);
+  if(el.isConnected) select(el); else { S.sel=null; S.item=null; S.ui.item.style.display="none"; }
 }
 
 /* ----- formatting commands ----- */

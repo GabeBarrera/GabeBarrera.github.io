@@ -562,6 +562,20 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
   </defs>
 </svg>
 
+<script>
+/* Day/night default: local time decides (6:00am-5:59pm day, 6:00pm-5:59am night).
+   A click on the sun/moon overrides it only until the next 6am/6pm, then the clock takes over again.
+   Stored: bantay-night ("1"/"0") + bantay-night-period (the half-day it was chosen in, e.g. "2026-10-20N"). */
+function bantayMode(){
+  var d=new Date(), h=d.getHours(), night=(h>=18||h<6), p=new Date(d.getTime());
+  if(h<6) p.setDate(p.getDate()-1);                       // 12am-6am belongs to the previous evening's night
+  var period=p.getFullYear()+"-"+(p.getMonth()+1)+"-"+p.getDate()+(night?"N":"D");
+  try{ if(localStorage.getItem("bantay-night-period")===period){ var v=localStorage.getItem("bantay-night");
+         if(v==="1"||v==="0") return {night:v==="1", period:period, manual:true}; } }catch(e){}
+  return {night:night, period:period, manual:false};
+}
+try{ if(bantayMode().night) document.documentElement.classList.add("night"); }catch(e){}
+</script>
 <header class="top" id="topbar">
   <div class="wrap">
     <a class="seal" href="#home" aria-label="Home">
@@ -653,9 +667,9 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 
   <div class="wrap">
     <div class="intro">
-      <h2 data-decrypt data-edit="home.introTitle" data-type="inline">Quiet water shows what moves beneath it.</h2>
+      <h2 data-decrypt data-edit="home.introTitle" data-type="inline">Build better nets. Don't hire more fishermen.</h2>
       <div>
-        <div class="rt" data-decrypt data-edit="home.intro" data-type="rich"><p>I'm Gabe, a Filipino security practitioner working in Microsoft cloud and identity environments. I like the slow parts of defense: reading packets, tuning detections, and building small machines that watch the network so I don't have to guess.</p>
+        <div class="rt" data-decrypt data-edit="home.intro" data-type="rich"><p>I'm Gabe, a Filipino security analyst in Microsoft cloud and identity environments, and I'd rather build the net than add another pair of hands. Before we had a SIEM, I built one: a homebrew event collection and alerting system in Azure that cut our time to detect by about 70%. Now I write KQL detections from fresh threat research, wire Sentinel, Logic Apps and Teams into one pipeline from alert to close, and automate the rest with PowerShell and the Graph API, so the hunt keeps running even when no one is watching.</p>
         <p>Off the clock I build Raspberry Pi rigs, run language models with the cable unplugged, and make games where the defenders are as fun to play as the attackers.</p></div>
         <dl class="now" data-list="home.now">
           <div><dt data-part="plain">Watching</dt><dd data-decrypt data-part="inline">Packet captures from a two-adapter Pi lab</dd></div>
@@ -703,7 +717,7 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 
         <h3 class="sub" data-edit="about.sub1" data-type="plain">Experience</h3>
         <dl class="cv" data-list="about.experience">
-          <div><dt data-part="plain">2019 – now</dt><dd><strong data-decrypt data-part="plain">Information Security Analyst → IS Analyst II</strong><span data-decrypt data-part="inline">Port of San Diego</span></dd></div>
+          <div><dt data-part="plain">2019 – now</dt><dd><strong data-decrypt data-part="plain">Information Security Analyst → Information Security Analyst II</strong><span data-decrypt data-part="inline">Port of San Diego</span></dd></div>
           <div><dt data-part="plain">2018 – 2019</dt><dd><strong data-decrypt data-part="plain">Software Developer Intern</strong><span data-decrypt data-part="inline">Port of San Diego · scripted deployments in PowerShell and Python, helped restore operations after a ransomware attack</span></dd></div>
           <div><dt data-part="plain">2015 – 2019</dt><dd><strong data-decrypt data-part="plain">B.S. Computer Science</strong><span data-decrypt data-part="inline">San Diego State University · Cyber Security, Machine Learning, Systems Programming, Data Structures</span></dd></div>
         </dl>
@@ -1515,7 +1529,6 @@ function applyNight(on){
   setThemeColor(on?"#1c1f29":"#f0e6cc");
   document.documentElement.classList.toggle("night",on);
   $all(".sun").forEach(function(b){ b.setAttribute("aria-pressed",String(on)); b.setAttribute("aria-label", on?"Switch to day mode":"Switch to night mode"); });
-  try{ localStorage.setItem("bantay-night", on?"1":"0"); }catch(e){}
 }
 function repaintScenes(fade, then){
   var canvases=$all("canvas[data-scene]");
@@ -1695,10 +1708,32 @@ function skyTransition(btn,toNight){
   requestAnimationFrame(frame);
 }
 document.addEventListener("click",function(e){
-  var b=e.target.closest && e.target.closest(".sun"); if(!b) return;
-  skyTransition(b,!document.documentElement.classList.contains("night"));
+  var b=e.target.closest && e.target.closest(".sun"); if(!b || skyBusy) return;
+  var toNight=!document.documentElement.classList.contains("night");
+  // remember the visitor's choice, but only for the current half-day
+  try{ localStorage.setItem("bantay-night", toNight?"1":"0"); localStorage.setItem("bantay-night-period", bantayMode().period); }catch(e){}
+  skyTransition(b,toNight);
 });
-try{ if(localStorage.getItem("bantay-night")==="1"){ PHASE=1; setNight(true,true); } }catch(e){}
+// start in the mode the clock (or a choice made earlier in this half-day) says
+(function(){ var m=bantayMode(); if(m.night){ PHASE=1; setNight(true,true); } else { applyNight(false); } })();
+/* At 6am / 6pm, if the page is open, play the sunrise or sunset by itself (unless the visitor already chose
+   for the new half-day). Also re-checked when the tab comes back, since phones pause timers in the background. */
+(function(){
+  var t;
+  function msToNext(){ var d=new Date(), n=new Date(d.getTime()), h=d.getHours(); n.setMinutes(0,0,0);
+    n.setHours(h<6?6:(h<18?18:30)); return Math.max(1000, n-d+500); }        // 30 = 6am tomorrow
+  function check(){
+    clearTimeout(t); t=setTimeout(check, Math.min(msToNext(), 36e5));        // at least hourly, in case the clock changes
+    if(skyBusy) return;
+    var want=bantayMode().night, isNight=document.documentElement.classList.contains("night");
+    if(want===isNight) return;
+    var btn=$all(".sun").filter(function(b){ return b.offsetParent!==null; })[0];
+    if(btn && !document.hidden) skyTransition(btn,want); else setNight(want,true);
+  }
+  t=setTimeout(check, msToNext());
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) check(); });
+  window.__bantayCheckMode=check;   // test hook
+})();
 makeStars();
 
 /* ---------- motto: English on hover, sized to fit inside the Baybayin's own box ---------- */

@@ -151,7 +151,20 @@ main{flex:1}
 </style>
 </head>
 <body>
-<script>try{ if(localStorage.getItem("bantay-night")==="1"){ document.documentElement.classList.add("night"); document.querySelector('meta[name="theme-color"]').setAttribute("content","#1c1f29"); } }catch(e){}</script>
+<script>
+/* Day/night default: local time decides (6:00am-5:59pm day, 6:00pm-5:59am night).
+   A click on the sun/moon overrides it only until the next 6am/6pm, then the clock takes over again.
+   Stored: bantay-night ("1"/"0") + bantay-night-period (the half-day it was chosen in, e.g. "2026-10-20N"). */
+function bantayMode(){
+  var d=new Date(), h=d.getHours(), night=(h>=18||h<6), p=new Date(d.getTime());
+  if(h<6) p.setDate(p.getDate()-1);                       // 12am-6am belongs to the previous evening's night
+  var period=p.getFullYear()+"-"+(p.getMonth()+1)+"-"+p.getDate()+(night?"N":"D");
+  try{ if(localStorage.getItem("bantay-night-period")===period){ var v=localStorage.getItem("bantay-night");
+         if(v==="1"||v==="0") return {night:v==="1", period:period, manual:true}; } }catch(e){}
+  return {night:night, period:period, manual:false};
+}
+try{ if(bantayMode().night){ document.documentElement.classList.add("night"); document.querySelector('meta[name="theme-color"]').setAttribute("content","#1c1f29"); } }catch(e){}
+</script>
 
 <header class="top" id="topbar">
   <div class="wrap">
