@@ -272,6 +272,8 @@ h1.name{
 }
 h1.name .ch.br{display:block;height:0;width:auto!important}
 h1.name .ch{display:inline-block;text-align:center}
+.wd{white-space:nowrap}
+.ch.sp{display:inline!important;width:auto!important}
 h1.name .ch.on{color:var(--ink)}
 h1.name .ch.off{color:var(--sun);opacity:.85}
 h1.name .ch svg.bg,.band-title h2 .ch svg.bg{height:.62em;vertical-align:.02em}
@@ -445,6 +447,26 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 .fs-1{font-size:.7em}.fs-2{font-size:.85em}.fs-3{font-size:1em}.fs-4{font-size:1.15em}.fs-5{font-size:1.35em}.fs-6{font-size:1.6em}.fs-7{font-size:2em}
 .post-btn:focus-visible{outline:2px solid var(--sun);outline-offset:4px}
 
+/* ---------- events ---------- */
+.elist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.evt{display:grid;grid-template-columns:5.2em minmax(0,1fr) minmax(0,13em);gap:clamp(14px,3vw,40px);padding:26px 0;border-bottom:1px solid var(--rule)}
+.evt-date{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;border:1px solid var(--rule);border-radius:4px;padding:8px 4px 7px;text-align:center;font-family:var(--font-mono);color:var(--ink);align-self:start}
+.evt-mon{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--sun)}
+.evt-day{font-family:var(--font-name);font-weight:600;font-size:26px;line-height:1.15}
+.evt-yr{font-size:10.5px;letter-spacing:.12em;color:var(--ink-faint)}
+.evt-format{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px}
+.evt h3{margin:0 0 6px;font-family:var(--font-sub);font-weight:400;font-size:clamp(17px,1.8vw,21px);line-height:1.35;color:var(--ink)}
+.evt-where{margin:0 0 8px;font-family:var(--font-mono);font-size:12.5px;letter-spacing:.04em;color:var(--ink-soft)}
+.evt p{margin:0;max-width:var(--measure)}
+.evt .meta{padding-top:2px}
+
+/* ---------- clickable list items (projects, events): data-link set from admin.html ---------- */
+[data-link]{cursor:pointer}
+[data-link] h3::after{content:" \2197";font-family:var(--font-mono);font-size:.8em;color:var(--ink-faint);transition:color .3s}
+[data-link]:hover h3,[data-link]:focus-visible h3{color:var(--sun)}
+[data-link]:hover h3::after,[data-link]:focus-visible h3::after{color:var(--sun)}
+[data-link]:focus-visible{outline:2px solid var(--sun);outline-offset:6px;border-radius:2px}
+
 /* ---------- responsive ---------- */
 @media (max-width:860px){
   .intro,.about,.contact{grid-template-columns:minmax(0,1fr)}
@@ -452,12 +474,20 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
   .proj{grid-template-columns:2.6em minmax(0,1fr)}
   .proj .meta{grid-column:2}
   .post-body{padding-left:0}
+  .evt{grid-template-columns:4.4em minmax(0,1fr)}
+  .evt .meta{grid-column:2}
 }
 @media (max-width:600px){
   .top .wrap{flex-direction:column;align-items:flex-start;gap:10px;padding-block:14px 8px}
   body{padding-top:var(--hdr,calc(118px + env(safe-area-inset-top,0px)))}
   nav ul{justify-content:flex-start;gap:16px}
   nav a{font-size:11px;letter-spacing:.14em}
+}
+@media (max-width:430px){
+  nav ul{gap:11px}
+  nav a{letter-spacing:.1em}
+}
+@media (max-width:600px){
   .poster{height:680px}
   .vert.vert-cols{font-size:24px;top:max(4%,56px)}
   .sun{left:7%;top:5%}
@@ -587,7 +617,7 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
         <li><a href="#home" data-tab="home">Home</a></li>
         <li><a href="#about" data-tab="about">About</a></li>
         <li><a href="#projects" data-tab="projects">Projects</a></li>
-        <li><a href="#blog" data-tab="blog">Blog</a></li>
+        <li><a href="#events" data-tab="events">Events</a></li>
         <li><a href="#contact" data-tab="contact">Contact</a></li>
       </ul>
     </nav>
@@ -678,7 +708,7 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
         </dl>
         <div class="go">
           <a href="#projects">See projects</a>
-          <a href="#blog">Read the blog</a>
+          <a href="https://blog.gabebarrera.dev" target="_blank" rel="noopener">Read The Syslog</a>
           <a href="#contact">Get in touch</a>
         </div>
       </div>
@@ -759,12 +789,21 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
     <div class="filters" role="group" aria-label="Filter projects">
       <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
       <button class="chip" type="button" data-filter="work" aria-pressed="false">Work</button>
+      <button class="chip" type="button" data-filter="writing" aria-pressed="false">Writing</button>
       <button class="chip" type="button" data-filter="network" aria-pressed="false">Network</button>
       <button class="chip" type="button" data-filter="hardware" aria-pressed="false">Hardware</button>
       <button class="chip" type="button" data-filter="ai" aria-pressed="false">AI</button>
       <button class="chip" type="button" data-filter="games" aria-pressed="false">Games</button>
     </div>
     <ul class="plist" data-list="projects.items">
+      <li class="proj" data-tags="writing" data-link="https://blog.gabebarrera.dev">
+        <span class="glyph" lang="tl" aria-hidden="true" data-bay="ta"></span>
+        <div>
+          <h3 data-decrypt data-part="plain">The Syslog</h3>
+          <p data-decrypt data-part="inline">My blog, written in the same ink as this site. Tech write-ups on detections and home-lab builds, poetry, movies, and whatever else is worth logging, newest first.</p>
+        </div>
+        <div class="meta"><span class="st live" data-part="plain">Live</span><div class="tags" data-part="tags"><span>Blog</span><span>Tech</span><span>Poetry</span></div></div>
+      </li>
       <li class="proj" data-tags="work">
         <span class="glyph" lang="tl" aria-hidden="true" data-bay="ba"></span>
         <div>
@@ -817,18 +856,85 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
   </div>
 </section>
 
-<!-- ======================= BLOG ======================= -->
-<section class="page" id="page-blog" data-page="blog" hidden>
+<!-- ======================= EVENTS ======================= -->
+<section class="page" id="page-events" data-page="events" hidden>
   <div class="band">
     <div class="sky" aria-hidden="true"><i class="stars"></i><i class="stars tw"></i></div>
     <canvas data-scene="band" aria-hidden="true"></canvas>
     <button class="sun" type="button" aria-label="Switch to night mode" aria-pressed="false"><span class="orb orb-sun" aria-hidden="true"><svg><use href="#araw"/></svg></span><span class="orb orb-moon" aria-hidden="true"><svg><use href="#bulan"/></svg></span></button>
-    <div class="vert" lang="tl" role="img" aria-label="Tala, Baybayin for notes" data-bay="ta la" data-stack></div>
-    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Blog" data-text="Blog" data-edit="blog.title" data-type="plain">Blog</h2></div></div>
+    <div class="vert" lang="tl" role="img" aria-label="Ganap (event), written in Baybayin" data-bay="ga na" data-stack></div>
+    <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Events" data-text="Events" data-edit="events.title" data-type="plain">Events</h2></div></div>
   </div>
   <div class="wrap body">
-    <p class="lead" data-decrypt data-edit="blog.lead" data-type="inline">Field notes from the lab. Written slowly, revised rarely.</p>
-    <ul class="posts" id="posts" data-list="blog.posts"></ul>
+    <p class="lead" data-decrypt data-edit="events.lead" data-type="inline">Where I'll be speaking, competing, reading, or just listening. Each entry below is a placeholder format to start from: duplicate one in admin.html, then replace the bracketed text.</p>
+    <div class="filters" role="group" aria-label="Filter events">
+      <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-filter="upcoming" aria-pressed="false">Upcoming</button>
+      <button class="chip" type="button" data-filter="recurring" aria-pressed="false">Recurring</button>
+      <button class="chip" type="button" data-filter="past" aria-pressed="false">Past</button>
+    </div>
+    <ul class="elist" data-list="events.items">
+      <li class="evt" data-tags="upcoming">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Nov</span><span class="evt-day" data-part="plain">14</span><span class="evt-yr" data-part="plain">2026</span></div>
+        <div>
+          <span class="evt-format" data-part="plain">Format · Talk</span>
+          <h3 data-decrypt data-part="plain">[Talk title: e.g. Hunting with KQL before you have a SIEM]</h3>
+          <p class="evt-where" data-part="inline">[Venue or meetup] · [City] · [6:30 pm]</p>
+          <p data-decrypt data-part="inline">[One or two sentences: who it's for and what they'll leave with. Link it to the slides or the event page with the Link field.]</p>
+        </div>
+        <div class="meta"><span class="st live" data-part="plain">Upcoming</span><div class="tags" data-part="tags"><span>Talk</span><span>Detection</span></div></div>
+      </li>
+      <li class="evt" data-tags="upcoming">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Dec</span><span class="evt-day" data-part="plain">06</span><span class="evt-yr" data-part="plain">2026</span></div>
+        <div>
+          <span class="evt-format" data-part="plain">Format · Workshop</span>
+          <h3 data-decrypt data-part="plain">[Workshop title: e.g. Build a packet-capture Pi in an afternoon]</h3>
+          <p class="evt-where" data-part="inline">[Makerspace or school] · [City] · [10 am to 1 pm] · [Seats / cost]</p>
+          <p data-decrypt data-part="inline">[What people bring, what they build, and what they take home.]</p>
+        </div>
+        <div class="meta"><span class="st live" data-part="plain">Registration open</span><div class="tags" data-part="tags"><span>Hands-on</span><span>Raspberry Pi</span></div></div>
+      </li>
+      <li class="evt" data-tags="recurring">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Every</span><span class="evt-day" data-part="plain">2nd</span><span class="evt-yr" data-part="plain">Thursday</span></div>
+        <div>
+          <span class="evt-format" data-part="plain">Format · Recurring</span>
+          <h3 data-decrypt data-part="plain">[Recurring event: e.g. a poetry open mic or a local security meetup]</h3>
+          <p class="evt-where" data-part="inline">[Venue] · [City] · [7 pm]</p>
+          <p data-decrypt data-part="inline">[What happens there and whether you read, speak, or listen. Good for open mics, meetups and study groups.]</p>
+        </div>
+        <div class="meta"><span class="st live" data-part="plain">Monthly</span><div class="tags" data-part="tags"><span>Poetry</span><span>Community</span></div></div>
+      </li>
+      <li class="evt" data-tags="upcoming">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Jan</span><span class="evt-day" data-part="plain">22</span><span class="evt-yr" data-part="plain">2027</span></div>
+        <div>
+          <span class="evt-format" data-part="plain">Format · Online</span>
+          <h3 data-decrypt data-part="plain">[Livestream, webinar or podcast guest spot]</h3>
+          <p class="evt-where" data-part="inline">[Platform] · [5 pm PT]</p>
+          <p data-decrypt data-part="inline">[The topic in one line. Point the Link field at the stream or the recording afterwards.]</p>
+        </div>
+        <div class="meta"><span class="st live" data-part="plain">Online</span><div class="tags" data-part="tags"><span>Stream</span></div></div>
+      </li>
+      <li class="evt" data-tags="past">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Sep</span><span class="evt-day" data-part="plain">20</span><span class="evt-yr" data-part="plain">2026</span></div>
+        <div>
+          <span class="evt-format" data-part="plain">Format · Competition</span>
+          <h3 data-decrypt data-part="plain">[CTF or competition name]</h3>
+          <p class="evt-where" data-part="inline">[Online or venue] · [Team name]</p>
+          <p data-decrypt data-part="inline">[Result, e.g. placed 4th of 60 teams, plus the challenge you're proudest of. Link it to a write-up on The Syslog.]</p>
+        </div>
+        <div class="meta"><span class="st" data-part="plain">Past</span><div class="tags" data-part="tags"><span>CTF</span><span>Blue team</span></div></div>
+      </li>
+      <li class="evt" data-tags="past">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Aug</span><span class="evt-day" data-part="plain">08</span><span class="evt-yr" data-part="plain">2026</span></div>
+        <div>
+          <span class="evt-format" data-part="plain">Format · Attended</span>
+          <h3 data-decrypt data-part="plain">[Conference you attended]</h3>
+          <p class="evt-where" data-part="inline">[City] · [Two or three days]</p>
+          <p data-decrypt data-part="inline">[The one talk worth repeating and what you'd change at work because of it. Link it to your notes.]</p>
+        </div>
+        <div class="meta"><span class="st" data-part="plain">Past</span><div class="tags" data-part="tags"><span>Conference</span><span>Notes</span></div></div>
+      </li>
+    </ul>
   </div>
 </section>
 
@@ -911,31 +1017,7 @@ var CONFIG = {
   bodyDecryptMs: 1900                  // paragraphs and labels
 };
 
-var POSTS = [
-  { date:"2026-10-08", title:"Designing defenders worth playing",
-    sum:"Why the blue team in my heist game gets the best tools.",
-    body:["Most capture-the-flag games make defense a waiting room. The attackers get lockpicks and exploits; the defenders get a log file and a prayer. That isn't how real security operations feel on a good day, and it makes for a bad game.",
-          "In The Heist, defenders can move cameras, rotate badge permissions, and place honeytokens in the file server. Every action costs part of a 30-minute in-game workday, so watching is a choice with a price, the same as in a real SOC.",
-          "The test I keep coming back to: would a defender ever be excited to see an alert? If not, the design isn't done."],
-    tags:["game design","blue team"] },
-  { date:"2026-09-15", title:"Monitor mode without losing your uplink",
-    sum:"Two Wi-Fi adapters on one Raspberry Pi, and why the second one matters.",
-    body:["Putting an adapter into monitor mode takes it off the network. If that adapter is also how you SSH into the Pi, you've just locked yourself out.",
-          "The fix is boring and reliable: the built-in Wi-Fi stays in managed mode for management traffic, and an ALFA USB adapter does the capturing. Name them clearly, pin the ALFA to monitor mode at boot, and keep captures on the Pi until you pull them into Wireshark.",
-          "One rule above the rest: only capture on networks you own or have written permission to test. The lab exists to understand my own traffic, not anyone else's."],
-    tags:["raspberry pi","wireshark","802.11"] },
-  { date:"2026-09-11", title:"An assistant that never phones home",
-    sum:"Running a language model on a Pi 5, served over its own access point.",
-    body:["The appeal of a local model isn't speed. It's knowing exactly where your words go. On a Raspberry Pi 5 the answer is: nowhere.",
-          "The Pi runs its own Wi-Fi access point, so a phone or laptop joins it directly and opens a plain HTML chat page. No internet, no account, no telemetry. Small quantized models answer slowly, which turns out to be fine for notes, drafts, and thinking out loud.",
-          "The security win is threat-model clarity. If the device is never online, a whole category of risk simply doesn't exist."],
-    tags:["pi 5","local llm","privacy"] },
-  { date:"2026-08-18", title:"Bantay",
-    sum:"On picking an old word for a modern job.",
-    body:["Bantay means guard in Tagalog: the one who stays awake so others can sleep. My lola used it for the dog, the neighbor, and the kid told to watch the rice.",
-          "Security work is mostly that. Not heroics, just attention kept up over time. Baybayin, the script on this site, nearly disappeared under colonial rule and came back because people kept writing it. Some things survive because someone keeps watch."],
-    tags:["notes"] }
-];
+var POSTS = [];   // the old blog posts now live on The Syslog (blog.gabebarrera.dev)
 
 /* ============================================================
    Utilities
@@ -1203,15 +1285,19 @@ function decryptName(el, total){
   function finalMarkup(){ var t=el.getAttribute("data-name")||text; if(brk) el.innerHTML=esc(t).replace(/ /g,"<br>"); else el.textContent=t; }
   if(reduceMotion){ finalMarkup(); return {cancel:function(){}}; }
   el.innerHTML="";
-  var spans=[];
+  var spans=[], word=null;
   for(var i=0;i<text.length;i++){
     var s=document.createElement("span"); s.className="ch"; s.setAttribute("aria-hidden","true");
     if(text[i]===" " && brk){ s.className="ch br"; s.textContent=""; }
-    else s.textContent=text[i]===" "?" ":text[i];
-    el.appendChild(s); spans.push(s);
+    else if(text[i]===" "){ s.className="ch sp"; s.textContent=" "; }   // a real space: shows the gap, allows wrapping
+    else s.textContent=text[i];
+    // keep each word together so multi-word titles wrap between words, never inside one
+    if(text[i]===" "){ el.appendChild(s); word=null; }
+    else { if(!word){ word=document.createElement("span"); word.className="wd"; el.appendChild(word); } word.appendChild(s); }
+    spans.push(s);
   }
   // lock widths to the final glyphs so the word never jitters
-  spans.forEach(function(s){ if(!/\bbr\b/.test(s.className)) s.style.width=s.getBoundingClientRect().width+"px"; });
+  spans.forEach(function(s){ if(!/\b(br|sp)\b/.test(s.className)) s.style.width=s.getBoundingClientRect().width+"px"; });
   var n=text.length, start=performance.now(), locks=[];
   for(var j=0;j<n;j++){ locks.push(total*.28 + (total*.66)*(j/Math.max(1,n-1)) + Math.random()*total*.06); }
   var last=0, raf, done=false;
@@ -1276,11 +1362,11 @@ function runPage(page){
     // "IDENTITY // DECRYPTING" with dots stepping  · . .. ...  twice, then "THE HACKER POET" decrypts in
     // read when shown, so text published from admin.html wins even if it arrives mid-animation
     function FINAL_(){ var id=st.getAttribute("data-identity")||"The Hacker Poet"; st.setAttribute("aria-label","Identity: "+id);
-      return 'identity // <span class="ok" data-edit="home.identity" data-type="plain">'+esc(id)+'</span>'; }
+      return esc(st.getAttribute("data-status-label")||"identity")+' // <span class="ok" data-edit="home.identity" data-type="plain">'+esc(id)+'</span>'; }
     var FINAL=FINAL_();
     if(reduceMotion){ st.innerHTML=FINAL; }
     else{
-      st.innerHTML='identity // decrypting<span class="dots" aria-hidden="true"></span>';
+      st.innerHTML=esc(st.getAttribute("data-status-label")||"identity")+' // decrypting<span class="dots" aria-hidden="true"></span>';
       var dots=st.querySelector(".dots"), step=0, DOT_MS=380, STEPS=8;   // 2 full sequences of 4
       var iv=setInterval(function(){
         step++;
@@ -1297,9 +1383,11 @@ function runPage(page){
 /* ============================================================
    Tabs (hash routing: #home #about #projects #blog #contact)
    ============================================================ */
-var TABS=["home","about","projects","blog","contact"];
+var TABS=$all(".page[data-page]").map(function(p){ return p.getAttribute("data-page"); });
+var TAB_ALIAS={blog:"projects"};
+function resolveTab(t){ t=TAB_ALIAS[t]||t; return TABS.indexOf(t)<0 ? TABS[0] : t; }
 function show(tab, scroll){
-  if(TABS.indexOf(tab)<0) tab="home";
+  tab=resolveTab(tab);
   $all(".page").forEach(function(p){ p.hidden = p.getAttribute("data-page")!==tab; });
   $all("nav a[data-tab]").forEach(function(a){
     if(a.getAttribute("data-tab")===tab) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
@@ -1320,6 +1408,7 @@ document.addEventListener("click",function(e){
   if(!a) return;
   var tab=a.getAttribute("href").slice(1);
   if(TABS.indexOf(tab)>=0 && tab===currentHash()){ e.preventDefault(); show(tab,true); }
+  if(TAB_ALIAS[tab]){ e.preventDefault(); location.hash=TAB_ALIAS[tab]; }
 });
 
 /* ============================================================
@@ -1327,15 +1416,45 @@ document.addEventListener("click",function(e){
    ============================================================ */
 $all(".chip").forEach(function(btn){
   btn.addEventListener("click",function(){
-    var f=btn.getAttribute("data-filter");
-    $all(".chip").forEach(function(b){ b.setAttribute("aria-pressed", String(b===btn)); });
-    $all(".proj").forEach(function(p){
+    var f=btn.getAttribute("data-filter"), scope=btn.closest(".body")||document;
+    $all(".chip",scope).forEach(function(b){ b.setAttribute("aria-pressed", String(b===btn)); });
+    $all(".proj,.evt",scope).forEach(function(p){
       var on = f==="all" || (" "+p.getAttribute("data-tags")+" ").indexOf(" "+f+" ")>=0;
       var was=p.hidden; p.hidden=!on;
       if(on && was){ $all("[data-decrypt]",p).forEach(function(b){ runs.push(decryptBlock(b,1200,0)); }); }
     });
   });
 });
+
+/* ============================================================
+   Clickable list items: a project or event with data-link opens it.
+   Same-site #tabs stay in this tab; other sites open in a new one.
+   ============================================================ */
+function linkify(root){
+  if(EDIT_MODE) return;
+  $all("[data-link]",root).forEach(function(it){
+    it.setAttribute("role","link"); it.setAttribute("tabindex","0");
+    var h=$("h3",it); if(h) it.setAttribute("aria-label",(h.textContent||"").trim()+" (opens link)");
+  });
+}
+function openLink(it){
+  var u=it.getAttribute("data-link")||""; if(!u) return;
+  if(u.charAt(0)==="#"){ location.hash=u; return; }
+  var w=window.open(u,"_blank","noopener"); if(w) w.opener=null;
+}
+document.addEventListener("click",function(e){
+  if(EDIT_MODE) return;
+  var it=e.target.closest && e.target.closest("[data-link]"); if(!it) return;
+  if(e.target.closest("a,button,input,select,textarea")) return;     // a real link or control inside wins
+  if(window.getSelection && String(window.getSelection())) return;     // selecting text shouldn't navigate
+  openLink(it);
+});
+document.addEventListener("keydown",function(e){
+  if(EDIT_MODE || (e.key!=="Enter" && e.key!==" ")) return;
+  var it=e.target.closest && e.target.closest("[data-link]"); if(!it || it!==e.target) return;
+  e.preventDefault(); openLink(it);
+});
+linkify(document);
 
 /* ============================================================
    Blog
@@ -1409,6 +1528,7 @@ function renderAddr(){
   });
 
   var form=$("#contactForm"), sealed=$("#sealed"), pre=$("#sealedText");
+  if(!form) return;
   form.addEventListener("submit",function(e){
     e.preventDefault();
     var name=$("#cf-name").value.trim(), email=$("#cf-email").value.trim(), topic=$("#cf-topic").value, msg=$("#cf-msg").value.trim();
@@ -1835,7 +1955,7 @@ var FIREBASE_CONFIG = {
   appId: "1:184193421563:web:ee9effb47e5481d512605e"
 };
 var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
-var CONTENT_DOCS = ["home","about","projects","blog","contact","global"];
+var CONTENT_DOCS = ["home","about","projects","events","contact","global"];
 function docOfKey(k){ var p=String(k).split(".")[0]; return p==="footer" ? "global" : p; }
 
 /* ---------- sanitizer: whitelist of tags and attributes ----------
@@ -1869,9 +1989,10 @@ function sanitize(html, mode){
         if(k==="class"){ v.split(/\s+/).forEach(function(c){ if(/^[a-z][a-z0-9-]{0,40}$/.test(c)) cls.push(c); }); }
         else if(k==="size" && tag==="FONT"){ var z=parseInt(v,10); if(z>=1&&z<=7) cls.push("fs-"+z); }
         else if(k==="href" && tag==="A"){ v=v.trim(); if(/^(https?:\/\/|mailto:)[^\s<>"'`]+$/i.test(v) || /^#[a-z0-9-]*$/i.test(v)) el.setAttribute("href",v); }
+        else if(k==="data-link"){ v=v.trim(); if(/^(https?:\/\/|mailto:)[^\s<>"'`]+$/i.test(v) || /^#[a-z0-9-]*$/i.test(v)) el.setAttribute("data-link",v.slice(0,500)); }
         else if(SAN_DATA[k] || SAN_ARIA[k]){ el.setAttribute(k, v.replace(/[<>"'`]/g,"").slice(0,200)); }
         else if(k==="id" && /^[a-z][a-z0-9-]{0,40}$/.test(v)) el.setAttribute("id",v);
-        else if(k==="role" && /^(region|button)$/.test(v)) el.setAttribute("role",v);
+        else if(k==="role" && /^(region|button|link)$/.test(v)) el.setAttribute("role",v);
         else if(k==="tabindex" && v==="0") el.setAttribute("tabindex","0");
         else if(k==="hidden") el.setAttribute("hidden","");
         else if(k==="lang" && /^[a-z]{2,3}$/.test(v)) el.setAttribute("lang",v);
@@ -1892,7 +2013,7 @@ function elOfKey(key){
 function applyField(key, val){
   if(typeof val!=="string") return;
   var list = document.querySelector('[data-list="'+key+'"]');
-  if(list){ list.innerHTML = sanitize(val,"list"); renderBay(list); if(list.id==="posts") fixPosts(); return; }
+  if(list){ list.innerHTML = sanitize(val,"list"); renderBay(list); linkify(list); if(list.id==="posts") fixPosts(); return; }
   if(key==="home.identity"){
     var st=$("[data-status]"); if(!st) return;
     st.setAttribute("data-identity", sanitize(val,"plain") || "The Hacker Poet");
@@ -1994,7 +2115,7 @@ function loadContent(){
 window.Bantay = {
   EDIT_MODE: EDIT_MODE, sanitize: sanitize, applyField: applyField, applyAll: applyAll, serialize: serialize,
   commit: commit, allKeys: allKeys, docOfKey: docOfKey, renderBay: renderBay, fixPosts: fixPosts, elOfKey: elOfKey,
-  refresh: function(){ var t=currentHash(); show(TABS.indexOf(t)<0?"home":t,false); alignCartouche(); },
+  refresh: function(){ show(currentHash(),false); alignCartouche(); },
   docs: CONTENT_DOCS, config: FIREBASE_CONFIG, sdk: FIREBASE_SDK
 };
 
@@ -2003,8 +2124,8 @@ window.Bantay = {
    ============================================================ */
 $("#year").textContent = String(new Date().getFullYear());
 function boot(){
-  var tab=currentHash();
-  if(TABS.indexOf(tab)<0){ tab="home"; }
+  var tab=resolveTab(currentHash());
+  if(TAB_ALIAS[currentHash()]) try{ history.replaceState(null,"","#"+tab); }catch(e){}
   show(tab,false);
   alignCartouche();
 }

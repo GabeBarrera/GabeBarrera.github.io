@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>@@TITLE@@ · The Syslog</title>
+<meta name="theme-color" content="#f0e6cc">
+<meta name="description" content="@@SUMMARY@@">
+<meta name="syslog:section" content="@@SECTION@@">
+<meta name="syslog:date" content="@@DATE@@">
+<meta name="syslog:tags" content="@@TAGS_CSV@@">
+<meta name="author" content="Gabe Barrera">
+<link rel="canonical" href="@@URL@@">
+<meta property="og:title" content="@@TITLE@@">
+<meta property="og:description" content="@@SUMMARY@@">
+<meta property="og:type" content="article">
+<meta property="og:url" content="@@URL@@">
+<meta property="og:site_name" content="The Syslog">
+<meta property="article:published_time" content="@@DATE@@">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Orbitron:wght@400;500;600&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
+<style>
+/* Baybayin font built from the traced alphabet chart (45 glyphs: base syllables at U+1700, e/i and o/u forms in U+E000+).
+   Used only for the decrypt scramble; unicode-range keeps it off all normal text. */
+@font-face{font-family:"BantayBaybayin";src:url(data:font/ttf;base64,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) format("truetype");unicode-range:U+1700-171F,U+E000-E03F;font-display:block}
+/* Layout: one sheet of rice paper. Home is a full ink-wash poster (sun, ridges, lake, bangka);
+   inner pages share a short ridge band with a vertical Baybayin title on the right margin. */
+:root{
+  --paper:#f0e6cc;      /* cream ground, sampled from the poster */
+  --paper-deep:#e5d7b6; /* mist, hairline fills */
+  --ink:#24201b;        /* sumi ink */
+  --ink-soft:#544b3f;   /* body text */
+  --ink-faint:#8c826f;  /* captions, rules */
+  --sun:#d63f29;        /* araw red */
+  --rule:rgba(36,32,27,.18);
+  --paper-rgb:240,230,204;   /* same colors as triplets, for rgba() */
+  --deep-rgb:229,215,182;
+  --field-rgb:255,250,236;
+  --scene-ink:36,32,27;      /* mountains, lake lines (canvas) */
+  --boat:#24201b;
+  --streak:#f0e6cc;
+  --sky-top:240,230,204;     /* sky gradient (behind the mountains) */
+  --sky-hor:240,230,204;
+  --sunset-a:0;              /* orange glow where the sun sets */
+  --stars:0;
+  --font-display:"BantayBaybayin","Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","Times New Roman",serif;
+  --font-body:"BantayBaybayin","Zen Kaku Gothic New","Hiragino Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-name:"BantayBaybayin","Orbitron","Eurostile","Bank Gothic","Arial Black",sans-serif; /* squared, rounded-corner capitals like garryhall.me */
+  --font-mono:"BantayBaybayin","IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace;
+  --measure:62ch;
+  color-scheme:light;
+}
+/* Night: switched on by clicking the sun. A class, not data-theme, so it never clashes with a host's theme switch. */
+html.night{
+  --paper:#262a35; --paper-deep:#313644; --ink:#efe6cf; --ink-soft:#cbc2ac; --ink-faint:#8f8b80; --sun:#e0583f;
+  --rule:rgba(239,230,207,.16);
+  --paper-rgb:38,42,53; --deep-rgb:49,54,68; --field-rgb:70,76,92;
+  --scene-ink:5,6,9; --boat:#08090c; --streak:#3a4050;
+  --sky-top:28,31,41; --sky-hor:47,52,66; --stars:1;
+  color-scheme:dark;
+}
+/* sky behind the mountains: gradient + sunset glow + stars, all driven by the day/night tokens */
+.sky{position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 44% 30% at var(--set-x,55%) var(--set-y,56%), rgba(255,138,78,var(--sunset-a,0)), rgba(255,138,78,0)),
+    linear-gradient(to bottom, rgb(var(--sky-top)) 0, rgb(var(--sky-top)) 46px, rgb(var(--sky-hor)) 70%, rgb(var(--sky-hor)) 100%)}
+/* ^ the sky holds the top color for its first 46px (24px tucked under the bar + its 22px fade), so the seam under the bar disappears */
+.sky .stars{position:absolute;left:0;top:0;width:1px;height:1px;border-radius:50%;opacity:var(--stars,0)}
+.sky .stars.tw{animation:twinkle 4.5s ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:var(--stars,0)}to{opacity:calc(var(--stars,0) * .3)}}
+canvas[data-scene]{transition:opacity .45s ease}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink-soft);
+  font-family:var(--font-body);font-size:16.5px;line-height:1.75;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+/* paper grain. Not position:fixed on purpose: iPhone Safari colors the strip behind the status bar
+   from the topmost fixed element at the top edge, so a fixed, transparent texture layer above the top bar
+   made Safari show the page there instead. It now lies over the page (below the bar), and the bar has the grain's average color baked in. */
+body{position:relative}
+body::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:39;opacity:.38;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .47  0 0 0 0 .33  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+a{color:inherit}
+::selection{background:var(--sun);color:var(--paper)}
+:focus-visible{outline:2px solid var(--sun);outline-offset:3px;border-radius:2px}
+
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ---------- Baybayin glyphs (vector, traced from the alphabet chart) ---------- */
+svg.bg{display:inline-block;height:1em;overflow:visible;fill:currentColor;vertical-align:-.2em}
+[data-stack]{display:flex;flex-direction:column;align-items:center}
+[data-stack] svg.bg{display:block}
+.vert[data-stack]{gap:.12em}
+/* Home motto: one vertical line, top to bottom; a wider gap marks each new word.
+   Sized from the poster height so all 8 glyphs fit in the sky at every screen size. */
+/* top: never inside the soft fade under the top bar (the poster tucks 24px under the bar, the fade reaches
+   22px below it, plus 10px of air = 56px); on tall screens the 5% wins */
+.vert.vert-cols{flex-direction:column;align-items:center;gap:.55em;font-size:calc(clamp(560px,82vh,840px) * .045);top:max(5%,56px)}
+.vert.vert-cols > div{gap:.1em}
+/* Hover (or tap / keyboard focus) the motto to read it in English. The English sits in the same box as the
+   Baybayin: each word is a column of upright letters, with a wider gap between words.
+   fitMotto() picks a font size so it never runs past the Baybayin's height or width. */
+.vert.vert-cols{cursor:help;-webkit-tap-highlight-color:transparent}
+.vert.vert-cols > [data-stack]{transition:opacity .45s ease,filter .45s ease}
+.vert.vert-cols > .motto-en{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;opacity:0;pointer-events:none;transition:opacity .45s ease}
+.motto-en .w{display:block;writing-mode:vertical-rl;-webkit-writing-mode:vertical-rl;text-orientation:upright;-webkit-text-orientation:upright;
+  font-family:"Orbitron","Eurostile","Bank Gothic",system-ui,sans-serif;font-weight:500;line-height:1;letter-spacing:.06em;color:var(--ink);text-transform:uppercase}
+.motto-en .w + .w{margin-top:.6em}
+.motto-en .w.mid{color:var(--sun)}
+.vert.vert-cols.en > [data-stack]{opacity:0;filter:blur(2px)}
+.vert.vert-cols.en > .motto-en{opacity:1}
+/* black & white glitch before the English appears: both layers are cut into horizontal bands
+   that jolt sideways; ink and paper ghosts tear the letters. ~0.5s, then the English settles. */
+.vert.vert-cols.mg > *,.vert.vert-cols.mgb > *,.vert.vert-cols.snap > *{transition:none!important}
+.vert.vert-cols.mg > [data-stack]{opacity:1;filter:none;animation:mg-out .5s steps(1,end) both}
+.vert.vert-cols.mg > .motto-en{opacity:1;animation:mg-in .5s steps(1,end) both}
+/* the way back: same burst mirrored, the English breaks up and the Baybayin tears back in */
+.vert.vert-cols.mgb > [data-stack]{opacity:1;filter:none;animation:mg-in .5s steps(1,end) both}
+.vert.vert-cols.mgb > .motto-en{opacity:1;animation:mg-out .5s steps(1,end) both}
+.vert.vert-cols.mg .w,.vert.vert-cols.mgb .w{text-shadow:.12em 0 0 var(--paper),-.1em 0 0 var(--ink)}
+.vert.vert-cols.mg .w.mid,.vert.vert-cols.mgb .w.mid{color:var(--ink)}
+@keyframes mg-out{
+  0%  {clip-path:inset(0 0 0 0);transform:none}
+  10% {clip-path:inset(12% 0 58% 0);transform:translateX(-.18em)}
+  22% {clip-path:inset(46% 0 30% 0);transform:translateX(.22em) skewX(-8deg)}
+  34% {clip-path:inset(0 0 72% 0);transform:translateX(-.1em)}
+  46% {clip-path:inset(70% 0 4% 0);transform:translateX(.3em)}
+  58% {clip-path:inset(30% 0 52% 0);transform:translateX(-.24em) skewX(6deg)}
+  70% {clip-path:inset(84% 0 0 0);transform:translateX(.12em)}
+  82%,100%{clip-path:inset(0 0 100% 0);transform:none}}
+@keyframes mg-in{
+  0%  {clip-path:inset(0 0 100% 0);transform:none}
+  10% {clip-path:inset(60% 0 22% 0);transform:translateX(.24em)}
+  22% {clip-path:inset(4% 0 70% 0);transform:translateX(-.2em) skewX(8deg)}
+  34% {clip-path:inset(38% 0 36% 0);transform:translateX(.16em)}
+  46% {clip-path:inset(0 0 48% 0);transform:translateX(-.28em)}
+  58% {clip-path:inset(52% 0 0 0);transform:translateX(.1em) skewX(-6deg)}
+  70% {clip-path:inset(18% 0 10% 0);transform:translateX(-.08em)}
+  82% {clip-path:inset(0 0 0 0);transform:translateX(.05em)}
+  100%{clip-path:inset(0 0 0 0);transform:none}}
+.vert.vert-cols:focus-visible{outline-offset:6px}
+.cartouche[data-stack]{gap:.18em}
+
+/* ---------- header ---------- */
+/* Fixed to the very top and padded down by the iPhone status-bar height, so the bar covers the area
+   behind the clock and battery. It needs a SOLID background-color: Safari 26 colors the status-bar area
+   from a full-width fixed bar's background-color (a gradient alone doesn't count, and the page shows through).
+   The soft fade under it is a separate layer (::after). --hdr (set by script) reserves its height. */
+.top{
+  position:fixed;top:0;left:0;right:0;z-index:40;padding-top:env(safe-area-inset-top,0px);
+  background-color:rgb(var(--sky-top));
+  /* the grain texture's average color, baked in: the strip Safari paints behind the clock (flat color only)
+     and the bar are then identical, and both match the grainy sky below. 4.15% of the grain tan, measured. */
+  background-color:color-mix(in srgb, rgb(var(--sky-top)) 95.85%, rgb(197,182,155));
+}
+.top::after{content:"";position:absolute;left:0;right:0;top:100%;height:22px;pointer-events:none;
+  background:linear-gradient(color-mix(in srgb, rgb(var(--sky-top)) 95.85%, rgb(197,182,155)),rgba(var(--sky-top),0))}
+body{padding-top:var(--hdr,calc(80px + env(safe-area-inset-top,0px)))}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px 10px}
+.seal{
+  display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);
+}
+.seal-mark{
+  width:34px;height:34px;display:grid;place-items:center;border-radius:4px;
+  background:var(--sun);color:var(--paper);font-size:19px;line-height:1;
+  box-shadow:inset 0 0 0 2px rgba(var(--paper-rgb),.35);transform:rotate(-3deg);
+}
+.seal-name{font-family:var(--font-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase}
+nav ul{list-style:none;margin:0;padding:0;display:flex;gap:clamp(10px,2.4vw,30px);flex-wrap:wrap;justify-content:flex-end}
+nav a{
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  text-decoration:none;color:var(--ink-faint);padding:6px 0;position:relative;transition:color .4s;
+}
+nav a:hover{color:var(--ink)}
+nav a[aria-current="page"]{color:var(--ink)}
+nav a[aria-current="page"]::after{
+  content:"";position:absolute;left:50%;bottom:-4px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--sun);
+}
+
+/* ---------- pages ---------- */
+.page{animation:fadeIn 1.4s ease both}
+@keyframes fadeIn{from{opacity:.0}to{opacity:1}}
+
+/* ---------- black & white cyber glitch on page titles ----------
+   Two ghost copies of the title (from data-text): one in ink, one in paper colour.
+   During a burst they are sliced into horizontal bands and jolted sideways,
+   tearing the letters. Bursts are short and occasional (see glitch script). */
+.glitch{position:relative}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;height:100%;
+  white-space:pre-line;pointer-events:none;opacity:0;clip-path:inset(0 0 100% 0);-webkit-clip-path:inset(0 0 100% 0)}
+.glitch::before{color:var(--ink)}
+.glitch::after{color:var(--paper);text-shadow:.03em 0 0 var(--ink)}
+.glitch.is-glitching{animation:gl-jolt .5s steps(1,end) both}
+.glitch.is-glitching::before{opacity:1;animation:gl-a .5s steps(1,end) both}
+.glitch.is-glitching::after{opacity:1;animation:gl-b .5s steps(1,end) both}
+@keyframes gl-a{
+  0%  {clip-path:inset(8% 0 74% 0);-webkit-clip-path:inset(8% 0 74% 0);transform:translateX(-.05em)}
+  15% {clip-path:inset(58% 0 22% 0);-webkit-clip-path:inset(58% 0 22% 0);transform:translateX(.07em)}
+  30% {clip-path:inset(30% 0 55% 0);-webkit-clip-path:inset(30% 0 55% 0);transform:translateX(-.03em)}
+  45% {clip-path:inset(80% 0 6% 0);-webkit-clip-path:inset(80% 0 6% 0);transform:translateX(.05em)}
+  60% {clip-path:inset(4% 0 88% 0);-webkit-clip-path:inset(4% 0 88% 0);transform:translateX(-.08em)}
+  75% {clip-path:inset(44% 0 40% 0);-webkit-clip-path:inset(44% 0 40% 0);transform:translateX(.03em)}
+  90% {clip-path:inset(66% 0 18% 0);-webkit-clip-path:inset(66% 0 18% 0);transform:translateX(-.02em)}
+  100%{clip-path:inset(0 0 100% 0);-webkit-clip-path:inset(0 0 100% 0);transform:none}}
+@keyframes gl-b{
+  0%  {clip-path:inset(62% 0 26% 0);-webkit-clip-path:inset(62% 0 26% 0);transform:translateX(.06em)}
+  15% {clip-path:inset(14% 0 72% 0);-webkit-clip-path:inset(14% 0 72% 0);transform:translateX(-.06em)}
+  30% {clip-path:inset(84% 0 4% 0);-webkit-clip-path:inset(84% 0 4% 0);transform:translateX(.04em)}
+  45% {clip-path:inset(36% 0 50% 0);-webkit-clip-path:inset(36% 0 50% 0);transform:translateX(-.09em)}
+  60% {clip-path:inset(70% 0 12% 0);-webkit-clip-path:inset(70% 0 12% 0);transform:translateX(.05em)}
+  75% {clip-path:inset(20% 0 66% 0);-webkit-clip-path:inset(20% 0 66% 0);transform:translateX(-.04em)}
+  90% {clip-path:inset(50% 0 38% 0);-webkit-clip-path:inset(50% 0 38% 0);transform:translateX(.02em)}
+  100%{clip-path:inset(0 0 100% 0);-webkit-clip-path:inset(0 0 100% 0);transform:none}}
+@keyframes gl-jolt{0%{transform:none}20%{transform:translateX(.012em) skewX(-2deg)}40%{transform:translateX(-.015em)}60%{transform:none}80%{transform:translateX(.01em) skewX(1deg)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){ .glitch.is-glitching,.glitch.is-glitching::before,.glitch.is-glitching::after{animation:none;opacity:0} }
+
+/* ---------- home poster ---------- */
+.poster{position:relative;height:clamp(560px,82vh,840px);overflow:hidden;margin-top:-24px}
+.poster canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sun{
+  position:absolute;left:12%;top:9%;width:clamp(120px,17vw,220px);aspect-ratio:1;max-width:100%;
+}
+.sun{border:0;background:none;padding:0;margin:0;cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent;border-radius:50%}
+.sun:focus-visible{outline-offset:6px;border-radius:50%}
+.sun .orb{position:absolute;inset:0;display:block;will-change:transform}
+.sun .orb svg{position:relative;width:100%;height:100%;display:block;overflow:visible}
+.sun .orb-sun svg{transform-origin:50% 50%;animation:turn 240s linear infinite}
+/* glow travels with its orb, so it is always centred on it; --glow-r is capped in JS so it never reaches the nav bar */
+.sun .orb::before{content:"";position:absolute;left:50%;top:50%;width:calc(var(--glow-r,100px) * 2);height:calc(var(--glow-r,100px) * 2);
+  transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;background:radial-gradient(closest-side,var(--glow-c),rgba(0,0,0,0))}
+.sun .orb-sun{--glow-c:rgba(214,63,41,.13)}
+.sun .orb-moon{--glow-c:rgba(255,244,214,.17);opacity:0}
+html.night .sun .orb-sun{opacity:0}
+html.night .sun .orb-moon{opacity:1}
+@media (hover:hover){ .sun:hover .orb{transform:scale(1.04)} }
+@keyframes turn{to{transform:rotate(360deg)}}
+
+.vert{
+  position:absolute;right:max(20px,4.5vw);top:6%;display:flex;flex-direction:column;align-items:center;gap:.02em;
+  color:var(--ink);font-size:clamp(40px,5.4vw,76px);line-height:1;
+}
+.vert span{display:block}
+.vert-cap{
+  position:absolute;right:max(16px,4.5vw);font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink-faint);writing-mode:vertical-rl;
+}
+.poster .vert-cap{top:6%;right:calc(max(20px,4.5vw) + clamp(46px,6vw,84px))}
+
+.bangka{
+  --bw:clamp(240px,31vw,430px);
+  position:absolute;left:57%;width:var(--bw);max-width:100%;
+  top:calc(76% - var(--bw) * .3167);   /* .3167 = 95/300: the boat's waterline sits at 76% of the poster, on the lake */
+}
+.bangka{color:var(--boat)}
+.bangka svg{display:block;width:100%;height:auto;overflow:visible}
+.bangka .streaks{animation:drift 9s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translateX(-3px)}to{transform:translateX(4px)}}
+
+.ident{
+  position:absolute;left:0;right:0;bottom:6%;
+}
+.ident .wrap{display:flex;align-items:flex-end;gap:clamp(16px,3vw,36px)}
+/* name row: the oval runs from the cap-top of GABE to the baseline of BARRERA (margins set by alignCartouche()) */
+.name-row{display:flex;align-items:stretch;gap:clamp(14px,2.2vw,30px)}
+.cartouche{
+  flex:none;border:1.5px solid var(--ink);border-radius:999px;
+  padding-inline:max(8px, calc(clamp(40px,6.2vw,88px) * .12));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:rgba(var(--paper-rgb),.55);
+  color:var(--ink);font-size:max(17px, calc(clamp(40px,6.2vw,88px) * .34));line-height:1;
+}
+.ident-text{min-width:0}
+.eyebrow{
+  font-family:var(--font-mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 10px;
+}
+.eyebrow b{color:var(--sun);font-weight:500}
+h1.name{
+  margin:0;font-family:var(--font-name);font-weight:600;color:var(--ink);text-transform:uppercase;
+  font-size:clamp(40px,6.2vw,88px);line-height:1;letter-spacing:.015em;white-space:nowrap;
+}
+h1.name .ch.br{display:block;height:0;width:auto!important}
+h1.name .ch{display:inline-block;text-align:center}
+.wd{white-space:nowrap}
+.ch.sp{display:inline!important;width:auto!important}
+h1.name .ch.on{color:var(--ink)}
+h1.name .ch.off{color:var(--sun);opacity:.85}
+h1.name .ch svg.bg,.band-title h2 .ch svg.bg{height:.62em;vertical-align:.02em}
+.role{margin:14px 0 0;font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.status{margin:10px 0 0;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.2em;color:var(--ink-faint);text-transform:uppercase;min-height:1.6em}
+.status .ok{color:var(--sun)}
+.status .dots{display:inline-block;width:3ch;text-align:left}   /* fixed width so the line never shifts as dots appear */
+
+/* ---------- home intro ---------- */
+.intro{padding-block:clamp(48px,8vw,96px) 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:clamp(28px,6vw,90px);align-items:start}
+.intro h2,.sec-h{font-family:var(--font-display);font-weight:500;color:var(--ink);font-size:clamp(26px,3.4vw,38px);line-height:1.25;margin:0;text-wrap:balance}
+.intro p{margin:0 0 1.1em;max-width:var(--measure)}
+.now{margin-top:28px;border-top:1px solid var(--rule)}
+.now div{display:grid;grid-template-columns:9.5em minmax(0,1fr);gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.now dt{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);padding-top:4px}
+.now dd{margin:0;color:var(--ink)}
+.go{display:flex;gap:22px;flex-wrap:wrap;margin-top:30px}
+.go a,.btn{
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--ink);
+  border-bottom:1px solid var(--ink);padding-bottom:3px;transition:color .3s,border-color .3s;
+}
+.go a:hover{color:var(--sun);border-color:var(--sun)}
+
+/* ---------- inner page band ---------- */
+.band{position:relative;height:clamp(230px,30vw,330px);overflow:hidden;margin-top:-24px}
+.band canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* inner pages: sun/moon and the Baybayin title start below the top bar's fade (24px tuck + 22px fade + 10px air) */
+.band .sun{width:clamp(70px,9vw,118px);left:9%;top:max(12%,56px)}
+.band .vert{font-size:clamp(32px,4vw,54px);top:max(10%,56px)}
+.band .vert-cap{top:max(10%,56px);right:calc(max(20px,4.5vw) + clamp(38px,4.6vw,62px))}
+.band-title{position:absolute;left:0;right:0;bottom:12%}
+.band-title h2{margin:0;font-family:var(--font-name);font-weight:600;text-transform:uppercase;color:var(--ink);font-size:clamp(34px,5.6vw,72px);line-height:1;letter-spacing:.015em}  /* same face as the name on Home */
+.band-title h2 .ch{display:inline-block;text-align:center}
+.band-title h2 .ch.off{color:var(--sun);opacity:.85}
+
+.body{padding-block:clamp(36px,6vw,72px) 80px}
+.lead{font-size:clamp(18px,1.8vw,21px);line-height:1.7;color:var(--ink);max-width:var(--measure);margin:0 0 1.2em}
+.prose p{max-width:var(--measure);margin:0 0 1.15em}
+
+/* about */
+.about{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr);gap:clamp(28px,6vw,84px);align-items:start}
+.portrait{margin:0;position:relative}
+/* Baybayin frame: glyph bands in the margin between two rules, like a seal */
+.frame{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto auto;
+  border:1.5px solid var(--ink);padding:6px;gap:0;color:var(--ink);font-size:clamp(17px,1.9vw,24px)}
+.frame .pic{grid-column:2;grid-row:2;border:1px solid var(--rule);min-width:0}
+.fb{display:flex;align-items:center;justify-content:center;gap:1.1em;line-height:1}
+.fb > span{display:flex;gap:.3em}
+.fb-top{grid-column:1/-1;grid-row:1;padding:.35em 0 .45em}
+.fb-bottom{grid-column:1/-1;grid-row:3;padding:.45em 0 .35em}
+.fb-left{grid-column:1;grid-row:2;flex-direction:column;padding:0 .45em 0 .3em}
+.fb-right{grid-column:3;grid-row:2;flex-direction:column;padding:0 .3em 0 .45em}
+.fb-left > span,.fb-right > span{flex-direction:column;align-items:center;gap:.22em}
+.sub{margin:40px 0 0;font-family:var(--font-mono);font-weight:500;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint)}
+.cv{margin:12px 0 0;border-top:1px solid var(--rule)}
+.cv div{display:grid;grid-template-columns:9.5em minmax(0,1fr);gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.cv dt{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-faint);padding-top:3px;font-variant-numeric:tabular-nums}
+.cv dd{margin:0;display:flex;flex-direction:column;gap:2px}
+.cv dd strong{font-weight:500;color:var(--ink)}
+.portrait img{width:100%;max-width:100%;height:auto;display:block;
+  -webkit-mask-image:linear-gradient(#000 82%,rgba(0,0,0,0));mask-image:linear-gradient(#000 82%,rgba(0,0,0,0))}
+.portrait figcaption{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);margin-top:6px;display:flex;align-items:center;gap:10px}
+.portrait figcaption i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--sun)}
+.skills{margin:12px 0 0;border-top:1px solid var(--rule)}
+.skills div{display:grid;grid-template-columns:8em minmax(0,1fr);gap:16px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.skills dt{font-family:var(--font-display);color:var(--ink);font-size:18px}
+.skills dd{margin:0}
+.word{margin-top:40px;display:flex;gap:22px;align-items:flex-start;max-width:var(--measure)}
+.word .bay{font-size:34px;line-height:1;color:var(--sun);flex:none;white-space:nowrap;padding-top:4px}
+.word p{margin:0}
+
+/* projects */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 28px}
+.chip{
+  font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  background:transparent;color:var(--ink-soft);border:1px solid var(--rule);border-radius:999px;padding:7px 14px;cursor:pointer;transition:all .3s;
+}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.plist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.proj{display:grid;grid-template-columns:3.4em minmax(0,1fr) minmax(0,15em);gap:clamp(14px,3vw,40px);padding:28px 0;border-bottom:1px solid var(--rule)}
+.proj .glyph{font-size:30px;line-height:1;color:var(--ink);padding-top:4px}
+.proj h3{margin:0 0 6px;font-family:var(--font-display);font-weight:500;font-size:clamp(21px,2.3vw,26px);color:var(--ink);line-height:1.3}
+.proj p{margin:0;max-width:var(--measure)}
+.meta{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;color:var(--ink-faint);display:flex;flex-direction:column;gap:6px;padding-top:6px}
+.meta .st{color:var(--ink);text-transform:uppercase;letter-spacing:.18em}
+.meta .st::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ink-faint);margin-right:8px;vertical-align:1px}
+.meta .st.live::before{background:var(--sun)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{border:1px solid var(--rule);border-radius:3px;padding:1px 7px}
+
+/* blog */
+.posts{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.post{border-bottom:1px solid var(--rule)}
+.post-btn{
+  all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:grid;grid-template-columns:8.5em minmax(0,1fr) 1.4em;gap:clamp(12px,3vw,36px);
+  padding:24px 0;align-items:baseline;
+}
+.post-btn:focus-visible{outline:2px solid var(--sun);outline-offset:4px}
+.post-date{font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.post-title{font-family:var(--font-display);font-size:clamp(20px,2.2vw,25px);color:var(--ink);line-height:1.35;font-weight:500}
+.post-sum{display:block;font-family:var(--font-body);font-size:15.5px;color:var(--ink-soft);margin-top:6px;line-height:1.6}
+.post-ico{font-family:var(--font-mono);color:var(--ink-faint);transition:transform .5s}
+.post-btn[aria-expanded="true"] .post-ico{transform:rotate(45deg);color:var(--sun)}
+.post-body{padding:0 0 30px calc(8.5em + clamp(12px,3vw,36px))}
+.post-body p{max-width:var(--measure);margin:0 0 1.1em}
+.post-body .tags{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);margin-top:14px}
+code,.mono{font-family:var(--font-mono);font-size:.88em;background:var(--paper-deep);padding:1px 6px;border-radius:3px;color:var(--ink)}
+
+/* contact */
+.contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:clamp(28px,6vw,84px);align-items:start}
+.addr{margin-top:26px;border-top:1px solid var(--rule)}
+.addr div{display:grid;grid-template-columns:7em minmax(0,1fr);gap:14px;padding:14px 0;border-bottom:1px solid var(--rule);align-items:center}
+.addr dt{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint)}
+.addr dd{margin:0;color:var(--ink);display:flex;gap:12px;align-items:center;flex-wrap:wrap;overflow-wrap:anywhere}
+.copy{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:transparent;border:1px solid var(--rule);
+  color:var(--ink-soft);border-radius:3px;padding:3px 9px;cursor:pointer;transition:all .3s
+}
+.copy:hover{border-color:var(--ink);color:var(--ink)}
+.note{margin-top:26px;padding:16px 18px;border-left:2px solid var(--sun);background:rgba(var(--deep-rgb),.45);font-size:15px;max-width:var(--measure)}
+.note strong{color:var(--ink);font-weight:500}
+form{display:grid;gap:18px}
+.field{display:grid;gap:6px}
+.field label{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint)}
+.field input,.field textarea,.field select{
+  font:inherit;color:var(--ink);background:rgba(var(--field-rgb),.35);border:0;border-bottom:1px solid var(--ink-faint);
+  border-radius:0;padding:10px 2px;width:100%;transition:border-color .3s,background .3s;-webkit-appearance:none;appearance:none;
+}
+.field select{background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);
+  background-position:calc(100% - 14px) 52%,calc(100% - 9px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+.field textarea{min-height:150px;resize:vertical;line-height:1.6}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--sun);background:rgba(var(--field-rgb),.7)}
+.field .err{font-size:13px;color:var(--sun);min-height:0}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.submit{
+  justify-self:start;font-family:var(--font-mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border:0;border-radius:2px;padding:14px 26px;cursor:pointer;transition:background .3s
+}
+.submit:hover{background:var(--sun)}
+.sealed{margin-top:8px;border:1px solid var(--rule);padding:20px;background:rgba(var(--field-rgb),.4)}
+.sealed h3{margin:0 0 8px;font-family:var(--font-display);font-weight:500;color:var(--ink);font-size:22px}
+.sealed pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono);font-size:13px;line-height:1.6;background:var(--paper-deep);padding:14px;border-radius:3px;margin:12px 0;color:var(--ink);max-height:280px;overflow:auto}
+.sealed .acts{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+
+/* footer */
+footer{border-top:1px solid var(--rule);margin-top:20px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:26px 34px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+footer .bay{color:var(--sun);text-transform:none;font-size:17px}
+
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+
+/* ---------- subheadings: Orbitron regular, mixed case (the garryhall.me tagline face) ---------- */
+:root{--font-sub:"BantayBaybayin","Orbitron","Eurostile","Bank Gothic",system-ui,sans-serif}
+.role,.intro h2,.lead,.proj h3,.post-title,.skills dt,.sealed h3,.sub{font-family:var(--font-sub);font-weight:400;letter-spacing:.01em}
+.role{text-transform:none;font-size:clamp(15px,1.55vw,19px);letter-spacing:.02em;color:var(--ink-soft)}
+.intro h2{font-size:clamp(21px,2.6vw,30px);line-height:1.35}
+.lead{font-size:clamp(16px,1.55vw,19px);line-height:1.65}
+.proj h3{font-size:clamp(17px,1.8vw,21px);line-height:1.35}
+.post-title{font-size:clamp(16px,1.75vw,20px);line-height:1.4}
+.skills dt{font-size:15px;padding-top:2px}
+.sealed h3{font-size:19px}
+.sub{font-size:12.5px;letter-spacing:.16em;color:var(--ink-faint)}
+
+/* ---------- rich text from the editor ---------- */
+.rt ul,.rt ol{margin:0 0 1.1em;padding-left:1.4em;max-width:var(--measure)}
+.rt li{margin:.25em 0}
+.rt blockquote{margin:0 0 1.1em 1.6em;padding:0}
+.rt a,.lead a,[data-edit] a,[data-part] a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--sun);text-underline-offset:3px}
+.fs-1{font-size:.7em}.fs-2{font-size:.85em}.fs-3{font-size:1em}.fs-4{font-size:1.15em}.fs-5{font-size:1.35em}.fs-6{font-size:1.6em}.fs-7{font-size:2em}
+.post-btn:focus-visible{outline:2px solid var(--sun);outline-offset:4px}
+
+/* ---------- events ---------- */
+.elist{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.evt{display:grid;grid-template-columns:5.2em minmax(0,1fr) minmax(0,13em);gap:clamp(14px,3vw,40px);padding:26px 0;border-bottom:1px solid var(--rule)}
+.evt-date{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;border:1px solid var(--rule);border-radius:4px;padding:8px 4px 7px;text-align:center;font-family:var(--font-mono);color:var(--ink);align-self:start}
+.evt-mon{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--sun)}
+.evt-day{font-family:var(--font-name);font-weight:600;font-size:26px;line-height:1.15}
+.evt-yr{font-size:10.5px;letter-spacing:.12em;color:var(--ink-faint)}
+.evt-format{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px}
+.evt h3{margin:0 0 6px;font-family:var(--font-sub);font-weight:400;font-size:clamp(17px,1.8vw,21px);line-height:1.35;color:var(--ink)}
+.evt-where{margin:0 0 8px;font-family:var(--font-mono);font-size:12.5px;letter-spacing:.04em;color:var(--ink-soft)}
+.evt p{margin:0;max-width:var(--measure)}
+.evt .meta{padding-top:2px}
+
+/* ---------- clickable list items (projects, events): data-link set from admin.html ---------- */
+[data-link]{cursor:pointer}
+[data-link] h3::after{content:" \2197";font-family:var(--font-mono);font-size:.8em;color:var(--ink-faint);transition:color .3s}
+[data-link]:hover h3,[data-link]:focus-visible h3{color:var(--sun)}
+[data-link]:hover h3::after,[data-link]:focus-visible h3::after{color:var(--sun)}
+[data-link]:focus-visible{outline:2px solid var(--sun);outline-offset:6px;border-radius:2px}
+
+/* ---------- responsive ---------- */
+@media (max-width:860px){
+  .intro,.about,.contact{grid-template-columns:minmax(0,1fr)}
+  .portrait{max-width:420px}
+  .proj{grid-template-columns:2.6em minmax(0,1fr)}
+  .proj .meta{grid-column:2}
+  .post-body{padding-left:0}
+  .evt{grid-template-columns:4.4em minmax(0,1fr)}
+  .evt .meta{grid-column:2}
+}
+@media (max-width:600px){
+  .top .wrap{flex-direction:column;align-items:flex-start;gap:10px;padding-block:14px 8px}
+  body{padding-top:var(--hdr,calc(118px + env(safe-area-inset-top,0px)))}
+  nav ul{justify-content:flex-start;gap:16px}
+  nav a{font-size:11px;letter-spacing:.14em}
+}
+@media (max-width:430px){
+  nav ul{gap:11px}
+  nav a{letter-spacing:.1em}
+}
+@media (max-width:600px){
+  .poster{height:680px}
+  .vert.vert-cols{font-size:24px;top:max(4%,56px)}
+  .sun{left:7%;top:5%}
+  .bangka{left:30%;top:calc(63.5% - var(--bw) * .3167)}  /* phones: matches the higher lake line (62%) */
+  .ident{bottom:5%}
+  h1.name{white-space:normal}
+  .post-btn{grid-template-columns:minmax(0,1fr) 1.4em}
+  .post-date{grid-column:1/-1;margin-bottom:-14px}
+  .row2{grid-template-columns:minmax(0,1fr)}
+  .now div,.skills div,.addr div,.cv div{grid-template-columns:minmax(0,1fr);gap:2px}
+  .band .vert-cap,.poster .vert-cap{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .sun .orb-sun svg,.bangka .streaks,.page{animation:none!important}
+  .sun .orb{transition:none!important}
+  .vert.vert-cols > *{transition:none!important;animation:none!important}
+  .sky .stars.tw{animation:none!important}
+}
+
+/* ============================================================
+   The Syslog: post lists (blog.html) and post pages
+   ============================================================ */
+.post-link{display:grid;grid-template-columns:8.5em minmax(0,1fr) auto;gap:clamp(12px,3vw,36px);padding:24px 0;align-items:baseline;text-decoration:none;color:inherit;border-radius:2px}
+.post-link:hover .post-title,.post-link:focus-visible .post-title{color:var(--sun)}
+.post-link:focus-visible{outline:2px solid var(--sun);outline-offset:4px}
+.post-link .post-title{display:block;transition:color .3s}
+.post-sec{font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap}
+.post-link .tags{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);margin-top:10px}
+.post-empty{padding:26px 0;color:var(--ink-faint);font-family:var(--font-mono);font-size:13px;letter-spacing:.04em;border-bottom:1px solid var(--rule)}
+.count{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 18px}
+.latest{margin-top:clamp(40px,6vw,70px)}
+.latest-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin:0 0 14px}
+.latest-head h3{margin:0;font-family:var(--font-sub);font-weight:400;font-size:clamp(19px,2vw,23px);color:var(--ink)}
+.latest-head a,.home-link{font-family:var(--font-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);text-decoration:none}
+.latest-head a:hover,.home-link:hover{color:var(--sun)}
+.secs a{color:inherit;text-decoration:none}
+.secs a:hover dd,.secs a:hover dt{color:var(--sun)}
+@media (max-width:600px){
+  .post-link{grid-template-columns:minmax(0,1fr)}
+  .post-link .post-date{margin-bottom:-14px}
+  .post-link .post-sec{order:-1;margin-bottom:-16px}
+}
+
+/* ---------- a single post ---------- */
+.band.post-band{height:clamp(330px,38vw,470px)}
+.band.post-band .band-title{bottom:9%}
+.band.post-band .band-title h2{font-size:clamp(27px,4.3vw,58px);line-height:1.1;max-width:calc(100% - 70px)}
+.post-kicker{margin:0 0 12px;font-family:var(--font-mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.post-kicker a{color:var(--ink-faint);text-decoration:none}
+.post-kicker a:hover{color:var(--sun)}
+.post-meta{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 22px}
+.article{width:100%}
+.article-body{font-size:17px;line-height:1.8;color:var(--ink-soft)}
+.article.ff-serif .article-body{font-family:var(--font-display);font-size:18px}
+.article.ff-mono .article-body{font-family:var(--font-mono);font-size:15px}
+.article.ff-display .article-body{font-family:var(--font-sub);font-size:16px}
+.article-body > *{max-width:var(--measure);margin:0 0 1.15em}
+.article.w-wide .article-body > *{max-width:78ch}
+.article-body > .w-wide{max-width:920px}
+.article-body > .w-full{max-width:none}
+.article-body h2{font-family:var(--font-sub);font-weight:400;font-size:clamp(22px,2.4vw,28px);line-height:1.3;color:var(--ink);margin:1.8em 0 .6em}
+.article-body h3{font-family:var(--font-sub);font-weight:400;font-size:clamp(19px,2vw,22px);line-height:1.35;color:var(--ink);margin:1.5em 0 .5em}
+.article-body a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--sun);text-underline-offset:3px}
+.article-body a:hover{color:var(--sun)}
+.article-body strong,.article-body b{color:var(--ink);font-weight:500}
+.article-body :not(pre) > code{font-family:var(--font-mono);font-size:.86em;background:rgba(var(--deep-rgb),.7);padding:1px 6px;border-radius:3px;color:var(--ink)}
+.article-body mark{background:rgba(214,63,41,.2);color:inherit;padding:0 2px;border-radius:2px}
+.article-body ul,.article-body ol{padding-left:1.4em}
+.article-body li{margin:.25em 0}
+.article-body .rich p{margin:0 0 1.15em}
+.article-body .rich > :last-child{margin-bottom:0}
+blockquote.quote{border-left:2px solid var(--sun);padding:.2em 0 .2em 1.1em;margin-left:0;font-family:var(--font-display);font-size:1.12em;line-height:1.7;color:var(--ink)}
+blockquote.quote cite{display:block;margin-top:.7em;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;font-style:normal;color:var(--ink-faint)}
+.callout{border-left:2px solid var(--ink-faint);background:rgba(var(--deep-rgb),.45);padding:14px 18px;border-radius:0 3px 3px 0}
+.callout.tip{border-left-color:var(--ink)}
+.callout.warn{border-left-color:var(--sun)}
+.callout-label{display:block;margin-bottom:4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint)}
+.callout.warn .callout-label{color:var(--sun)}
+figure.code{margin:1.6em 0;border-radius:6px;overflow:hidden;background:#1d1a16;color:#efe5cc;max-width:min(920px,100%)!important}
+html.night figure.code{background:#111216}
+figure.code figcaption{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 12px;background:#2c2721;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:#c9bc9c}
+html.night figure.code figcaption{background:#1c1e25}
+figure.code .copy-btn{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;background:#d63f29;color:#fff;border:0;border-radius:3px;padding:4px 11px;cursor:pointer}
+figure.code .copy-btn:hover{filter:brightness(1.1)}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--font-mono);font-size:13.5px;line-height:1.65;tab-size:4;-moz-tab-size:4;white-space:pre}
+figure.code code{font-family:inherit;font-size:inherit;background:none;padding:0;border-radius:0;color:inherit}
+.tk-c{color:#8c826f;font-style:italic}.tk-s{color:#d9b36a}.tk-k{color:#ee7b60}.tk-n{color:#9cc4a4}.tk-f{color:#f6ecd3;font-weight:500}.tk-v{color:#9fb7d9}
+figure.img{margin:1.8em 0}
+figure.img img{display:block;width:100%;height:auto;border-radius:3px}
+figure.img figcaption,figure.embed figcaption,.tbl-cap{margin-top:8px;font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:var(--ink-faint)}
+figure.embed{margin:1.8em 0;max-width:920px!important}
+.embed-box{position:relative;aspect-ratio:16/9;background:rgba(var(--deep-rgb),.6);border-radius:4px;overflow:hidden}
+.embed-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.poem{font-family:var(--font-display);font-size:1.12em;line-height:1.95;color:var(--ink)}
+.poem .poem-title{font-family:var(--font-sub);font-size:.9em;letter-spacing:.02em;color:var(--ink);margin:0 0 .8em}
+.poem .stanza{margin:0 0 1.3em;white-space:pre-wrap}
+.poem .stanza:last-child{margin-bottom:0}
+.poem.al-center{text-align:center}
+hr.div{border:0;height:1px;background:var(--rule);margin:2.4em 0}
+.div-dots,.div-bay{text-align:center;color:var(--ink-faint);margin:2.2em 0}
+.div-dots{letter-spacing:.9em;font-family:var(--font-mono)}
+.div-bay{color:var(--sun);font-size:26px;line-height:1}
+.tbl{overflow-x:auto;max-width:920px!important}
+.tbl table{border-collapse:collapse;width:100%;font-size:15px}
+.tbl th,.tbl td{border-bottom:1px solid var(--rule);padding:9px 12px;text-align:left;vertical-align:top}
+.tbl th{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(18px,4vw,44px);max-width:920px!important}
+@media (max-width:700px){ .cols{grid-template-columns:minmax(0,1fr)} }
+.al-center{text-align:center}.al-right{text-align:right}.al-left{text-align:left}
+.ff-serif{font-family:var(--font-display)}.ff-mono{font-family:var(--font-mono);font-size:.93em}.ff-display{font-family:var(--font-sub)}.ff-body{font-family:var(--font-body)}
+.fs-sm{font-size:.86em}.fs-lg{font-size:1.2em}.fs-xl{font-size:1.45em}
+.c-sun{color:var(--sun)}.c-faint{color:var(--ink-faint)}.c-ink{color:var(--ink)}
+.post-tags{margin-top:34px;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint)}
+.post-foot{display:flex;gap:24px;flex-wrap:wrap;margin-top:40px;padding-top:22px;border-top:1px solid var(--rule)}
+.post-foot a{font-family:var(--font-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);text-decoration:none}
+.post-foot a:hover{color:var(--sun)}
+/* reading progress: lives inside the fixed top bar, so the bar stays the only fixed element (see the iPhone note) */
+.read-bar{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--sun);z-index:3;pointer-events:none}
+@media (max-width:600px){
+  .article-body{font-size:16.5px}
+  .band.post-band .band-title h2{max-width:calc(100% - 56px)}
+}
+
+</style>
+</head>
+<body>
+
+<!-- ======================= shared SVG defs ======================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="inkEdge" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="0.9"/>
+    </filter>
+    <radialGradient id="sunWash" cx="45%" cy="40%" r="60%" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#d8412b"/>
+      <stop offset=".75" stop-color="#d63f29"/>
+      <stop offset="1" stop-color="#d03b25"/>
+    </radialGradient>
+    <symbol id="araw" viewBox="-50 -50 100 100">
+      <!-- Geometric Philippine sun: one ray group (pointed main ray + two narrow rays), mirrored for exact symmetry,
+           rotated 8 times around a perfect circle. Proportions measured from filipino_sun.svg. -->
+      <g fill="#d63f29" shape-rendering="geometricPrecision">
+        <g id="rayGroup"><polygon points="0.00,-47.83 4.62,-42.92 2.14,-19.00 -2.14,-19.00 -4.62,-42.92"/><polygon points="7.46,-39.92 9.96,-37.00 5.39,-19.00 3.74,-19.00"/><polygon points="-7.46,-39.92 -9.96,-37.00 -5.39,-19.00 -3.74,-19.00"/></g>
+        <use href="#rayGroup" transform="rotate(45)"/><use href="#rayGroup" transform="rotate(90)"/><use href="#rayGroup" transform="rotate(135)"/>
+        <use href="#rayGroup" transform="rotate(180)"/><use href="#rayGroup" transform="rotate(225)"/><use href="#rayGroup" transform="rotate(270)"/>
+        <use href="#rayGroup" transform="rotate(315)"/>
+        <circle r="22.32"/>
+      </g>
+    </symbol>
+    <radialGradient id="screenGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#d63f29" stop-opacity=".34"/>
+      <stop offset=".55" stop-color="#d63f29" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#d63f29" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="scrClip"><path d="M140.6 49.4 L159 47.8 L162.8 67 L144.3 67.6 Z"/></clipPath>
+<radialGradient id="moonFill" cx="66%" cy="66%" r="70%">
+      <stop offset="0" stop-color="#fffdf2"/>
+      <stop offset="1" stop-color="#f3e9c8"/>
+    </radialGradient>
+    <radialGradient id="moonHalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff4d6" stop-opacity=".30"/>
+      <stop offset=".45" stop-color="#fff4d6" stop-opacity=".10"/>
+      <stop offset="1" stop-color="#fff4d6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="moonGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4"/></filter>
+    <!-- the dark circle is offset toward the top-left at 45deg, so the crescent opens to the top-left -->
+    <mask id="crescentCut" maskUnits="userSpaceOnUse" x="-50" y="-50" width="100" height="100">
+      <rect x="-50" y="-50" width="100" height="100" fill="#fff"/>
+      <circle cx="-8.4" cy="-8.4" r="19.4" fill="#000"/>
+    </mask>
+    <symbol id="bulan" viewBox="-50 -50 100 100">
+      <g filter="url(#moonGlow)" opacity=".75"><circle r="22.3" fill="#fff6dc" mask="url(#crescentCut)"/></g>
+      <circle r="22.3" fill="url(#moonFill)" mask="url(#crescentCut)"/>
+    </symbol>
+    <symbol id="bangkaShape" viewBox="0 0 300 130">
+      <!-- glow thrown by the screen -->
+      <ellipse cx="156" cy="62" rx="40" ry="26" fill="url(#screenGlow)"/>
+      <!-- mooring pole, entering the water at the waterline (y=95) -->
+      <path d="M256 22 L252.6 95" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      <!-- hull: low stern on the left, steep upswept bow on the right, bottom flat on the waterline -->
+      <path d="M5 80.5 Q9 81.5 18 83.2 L250 83.2 Q272 82.4 285 74 Q291 69.5 297 64 Q294 75 284 85 Q272 94.6 236 95 L44 95 Q22 94.4 13 89 Q7 85.5 5 80.5 Z" fill="currentColor"/>
+      <g transform="translate(0 2.2)">
+      <!-- crate and laptop -->
+      <path d="M144 81 L144 71.5 L167 71.5 L167 81 Z" fill="currentColor"/>
+      <path d="M140.5 71.6 L171 71.6 L169 69 L143 69 Z" fill="currentColor"/>
+      <path d="M138.4 47.4 L160.6 45.4 L165.2 69.2 L142.9 69.8 Z" fill="currentColor"/>
+      <path d="M140.6 49.4 L159 47.8 L162.8 67 L144.3 67.6 Z" fill="#100d0a"/>
+      <g clip-path="url(#scrClip)">
+        <g id="codeLines" transform="matrix(.184 -.016 .037 .182 140.6 49.4)"></g>
+      </g>
+      <!-- figure in salakot, seated cross-legged, leaning in to type -->
+      <path d="M170 81 Q174 75 184 75.5 L200 81 Z" fill="currentColor"/>
+      <path d="M180 79 Q178 67 182 59 Q186 52.5 192 53.5 Q198 56 199 64 Q200 72 199 80 Z" fill="currentColor"/>
+      <circle cx="184.6" cy="47.6" r="5" fill="currentColor"/>
+      <path d="M169.5 45.6 Q176.5 37.5 185 34.6 Q193.5 37.5 200.5 45.6 Q185 48.4 169.5 45.6 Z" fill="currentColor"/>
+      <circle cx="185" cy="34.2" r="1.4" fill="currentColor"/>
+      <!-- arms reaching to the keyboard; hands are animated -->
+      <path d="M190 58 Q181 63 176 67.5" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" fill="none"/>
+      <path d="M176 67.5 L166.5 68.4" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle id="handA" cx="165.4" cy="68.2" r="1.7" fill="currentColor"/>
+      <path d="M186 60 Q179 65.5 174 68.8" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none" opacity=".85"/>
+      <path d="M174 68.8 L162 69" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none" opacity=".85"/>
+      <circle id="handB" cx="161" cy="68.8" r="1.5" fill="currentColor" opacity=".85"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<script>
+/* Day/night default: local time decides (6:00am-5:59pm day, 6:00pm-5:59am night).
+   A click on the sun/moon overrides it only until the next 6am/6pm, then the clock takes over again.
+   Stored: bantay-night ("1"/"0") + bantay-night-period (the half-day it was chosen in, e.g. "2026-10-20N"). */
+function bantayMode(){
+  var d=new Date(), h=d.getHours(), night=(h>=18||h<6), p=new Date(d.getTime());
+  if(h<6) p.setDate(p.getDate()-1);                       // 12am-6am belongs to the previous evening's night
+  var period=p.getFullYear()+"-"+(p.getMonth()+1)+"-"+p.getDate()+(night?"N":"D");
+  try{ if(localStorage.getItem("bantay-night-period")===period){ var v=localStorage.getItem("bantay-night");
+         if(v==="1"||v==="0") return {night:v==="1", period:period, manual:true}; } }catch(e){}
+  return {night:night, period:period, manual:false};
+}
+try{ if(bantayMode().night) document.documentElement.classList.add("night"); }catch(e){}
+</script>
+<header class="top" id="topbar">
+  <div class="wrap">
+    <a class="seal" href="../../blog.html#root" aria-label="The Syslog, home">
+      <span class="seal-mark" aria-hidden="true" data-bay="ta"></span>
+      <span class="seal-name">The&nbsp;Syslog</span>
+    </a>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="../../blog.html#root" data-sec="root">Root</a></li>
+        <li><a href="../../blog.html#tech" data-sec="tech">Tech</a></li>
+        <li><a href="../../blog.html#poetry" data-sec="poetry">Poetry</a></li>
+        <li><a href="../../blog.html#movies" data-sec="movies">Movies</a></li>
+        <li><a href="../../blog.html#misc" data-sec="misc">Misc</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<script>
+/* keep the page below the fixed top bar: reserve exactly its height (it changes with screen width and fonts) */
+(function(){ var t=document.getElementById("topbar"), r=document.documentElement;
+  function set(){ r.style.setProperty("--hdr", t.offsetHeight+"px"); }
+  set(); if(window.ResizeObserver) new ResizeObserver(set).observe(t); else addEventListener("resize",set);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(set); })();
+</script>
+
+<main id="main">
+<section class="page" id="page-post" data-page="post">
+  <div class="band post-band">
+    <div class="sky" aria-hidden="true"><i class="stars"></i><i class="stars tw"></i></div>
+    <canvas data-scene="band" aria-hidden="true"></canvas>
+    <button class="sun" type="button" aria-label="Switch to night mode" aria-pressed="false"><span class="orb orb-sun" aria-hidden="true"><svg><use href="#araw"/></svg></span><span class="orb orb-moon" aria-hidden="true"><svg><use href="#bulan"/></svg></span></button>
+    <div class="vert" lang="tl" role="img" aria-label="@@BAY_LABEL@@" data-bay="@@BAY@@" data-stack></div>
+    <div class="band-title"><div class="wrap"><p class="post-kicker"><a href="../../blog.html#@@SECTION@@">@@SECTION_LABEL@@</a></p><h2 class="glitch" data-name="@@TITLE@@" data-text="@@TITLE@@">@@TITLE@@</h2></div></div>
+  </div>
+  <div class="wrap body">
+    <article class="article @@ARTICLE_CLASS@@">
+      <p class="post-meta">@@DATE_HUMAN@@ · @@READ_MIN@@ min read · @@SECTION_LABEL@@</p>
+@@LEAD@@
+      <div class="article-body">
+@@BODY@@
+      </div>
+@@TAGS@@
+      <nav class="post-foot" aria-label="More from The Syslog">
+        <a href="../../blog.html#@@SECTION@@">← More @@SECTION_LABEL@@</a>
+        <a href="../../blog.html#root">The Syslog</a>
+        <a href="https://gabebarrera.dev">gabebarrera.dev ↗</a>
+      </nav>
+    </article>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><span class="bay" lang="tl" aria-hidden="true" data-bay="ta la"></span>&nbsp; The Syslog · <a href="https://gabebarrera.dev" style="color:inherit">Gabe Barrera</a></span>
+    <span>Ink, paper, packets · <span id="year">2026</span></span>
+  </div>
+</footer>
+<!-- The editable source of this post, for "Import" in admin.html -->
+<script type="application/json" id="syslog-source">@@SOURCE@@</script>
+
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   CONFIG — edit these to make the site yours
+   ============================================================ */
+var CONFIG = {
+  email:    "",                                        // left blank on purpose: no email on the public site (blank = hidden)
+  github:   "https://github.com/GabeBarrera",
+  linkedin: "https://www.linkedin.com/in/gbinfosec",
+  nameDecryptMs: 1000,                 // how long the big name takes to resolve
+  titleDecryptMs: 500,                // page titles (About, Projects…)
+  bodyDecryptMs: 1900                  // paragraphs and labels
+};
+
+var POSTS = [];   // the old blog posts now live on The Syslog (blog.gabebarrera.dev)
+
+/* ============================================================
+   Utilities
+   ============================================================ */
+var reduceMotion = false;
+try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch(e){}
+// admin.html opens this page as index.html?edit=1 : no animations, and content is supplied by the editor
+var EDIT_MODE = /[?&]edit=1(&|$)/.test(location.search);
+if(EDIT_MODE) reduceMotion = true;
+function $(s,r){return (r||document).querySelector(s);}
+function $all(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+
+/* ============================================================
+   Filipino sun — 8 primary rays, each a long ray with two short ones
+   ============================================================ */
+/* ============================================================
+   Baybayin — vector glyphs traced from Gabe's alphabet chart (Baybayin.svg).
+   Keys: base syllables (a ba ka da ga ha la ma na nga pa sa ta wa ya),
+   e/i forms (i bi ki … yi), o/u forms (u bu ku … yu).
+   Add "+" for a final consonant (e.g. "n+"): the base glyph with a cross kudlit below.
+   ============================================================ */
+var GLYPHS = {"a":{"w":86.8,"d":"M4.2 40.4 4.0 42.5 4.8 44.2 10.7 51.5 7.5 55.9 5.5 60.5 5.2 62.7 5.2 67.8 5.9 71.3 7.5 74.7 9.4 77.4 12.8 80.3 16.7 82.0 19.7 82.6 24.9 82.4 28.5 81.4 32.8 79.3 38.3 74.9 57.7 56.7 62.9 53.3 67.5 51.3 71.1 51.1 72.7 51.7 74.2 53.3 75.0 55.7 75.0 58.8 74.4 61.9 73.0 65.1 70.9 68.2 70.9 69.9 73.2 70.3 75.7 69.4 78.6 67.4 81.1 64.4 82.4 61.1 82.8 59.2 82.6 53.8 81.7 51.0 79.9 48.3 77.3 46.0 73.8 44.4 70.6 43.9 65.8 44.2 59.4 46.4 55.6 48.8 36.8 66.5 29.7 72.1 25.5 74.4 22.8 75.1 19.5 74.9 17.0 73.8 14.9 71.7 13.4 68.8 12.6 65.7 12.6 63.0 13.6 60.5 15.3 58.6 19.7 56.1 21.5 54.6 21.6 52.7 22.2 52.1 30.9 47.9 36.4 44.6 40.2 44.2 48.3 45.0 52.3 44.4 56.9 42.3 58.7 40.0 58.5 39.4 56.2 38.7 43.5 37.9 43.1 37.3 44.1 33.9 44.1 31.0 42.7 26.6 40.4 23.0 37.8 20.1 35.1 18.2 33.2 17.4 31.2 17.2 28.0 19.1 27.6 19.9 29.7 22.6 33.0 24.9 34.9 26.8 35.8 28.3 36.4 30.0 36.4 31.8 35.1 35.2 31.4 34.5 19.9 27.0 18.2 26.8 17.4 27.2 16.3 28.7 16.3 30.0 17.2 31.8 21.5 36.0 28.0 40.8 27.0 42.1 22.6 44.4 18.8 44.8 14.7 43.5 9.9 39.4 8.0 38.3 6.9 38.1 5.5 38.7Z"},"ba":{"w":69.8,"d":"M8.8 34.3 7.1 37.0 5.2 41.6 4.2 46.4 4.0 52.1 5.5 56.3 7.6 59.4 12.6 62.9 16.8 64.4 25.5 64.4 27.0 64.8 28.9 66.3 32.4 70.9 33.9 72.3 39.1 74.6 42.7 75.1 47.2 74.8 56.9 71.3 60.2 68.2 62.9 64.2 63.8 62.1 65.8 54.2 65.8 50.4 64.0 44.1 61.5 38.9 58.9 35.2 56.4 32.9 51.0 29.3 46.0 27.0 40.8 25.5 33.9 24.7 28.7 24.9 20.7 26.4 16.3 28.2 11.9 31.0ZM14.4 39.3 17.2 36.2 19.7 34.5 22.8 33.1 26.6 32.2 29.5 31.8 36.4 31.8 40.4 32.6 44.7 34.1 47.3 35.6 52.7 40.0 54.6 42.3 56.4 45.6 57.9 50.8 57.9 55.0 56.7 59.0 54.8 62.3 51.4 65.4 47.3 67.1 43.5 67.3 39.5 65.4 36.4 62.5 34.9 60.4 32.4 55.0 31.2 54.8 22.0 56.5 18.8 56.3 16.5 55.6 13.6 53.3 11.9 49.6 11.7 46.9 12.6 42.5Z"},"ka":{"w":83.2,"d":"M75.2 29.8 72.1 27.1 68.4 25.6 65.9 25.2 60.6 25.6 57.1 26.7 31.0 38.4 20.1 42.8 15.9 44.2 12.2 44.0 11.5 43.4 12.1 39.6 12.8 37.9 15.9 34.8 19.5 32.3 20.1 31.3 20.1 30.4 19.3 29.8 16.5 29.8 14.0 30.6 9.6 33.1 5.7 37.1 4.2 40.7 4.2 46.5 5.3 49.4 7.5 51.5 9.9 52.4 14.2 52.6 19.9 51.3 40.2 42.5 41.2 42.7 46.8 57.4 46.6 58.8 45.0 60.1 28.9 66.6 25.7 67.4 24.1 67.2 22.6 65.7 22.2 63.2 23.4 60.5 25.1 59.0 27.0 58.2 30.1 58.0 33.9 59.0 37.0 60.5 38.3 60.5 39.1 59.5 39.1 58.2 37.8 55.3 35.6 53.0 31.8 51.3 26.2 51.3 21.8 53.0 19.2 55.1 17.0 57.8 15.5 61.4 15.1 63.7 15.7 68.4 17.0 71.2 19.0 73.3 20.9 74.3 22.8 74.7 27.2 74.7 30.9 73.9 61.5 61.1 67.7 59.0 70.6 59.1 71.9 60.7 71.9 62.2 70.6 64.7 65.4 69.9 64.6 71.6 65.9 72.6 69.8 72.4 73.2 71.2 75.2 70.1 77.3 68.0 78.4 65.9 79.2 62.6 79.0 59.0 78.2 56.1 76.9 53.8 75.2 52.2 72.9 51.3 68.2 51.1 64.6 51.9 54.4 55.5 53.1 54.2 48.1 40.4 49.3 38.4 56.9 35.0 63.6 32.5 67.1 32.7 69.8 34.6 71.1 37.5 71.3 39.8 70.4 44.2 70.4 46.5 70.7 47.1 71.5 47.3 73.2 47.1 76.7 43.4 77.8 39.4 77.8 36.1 76.7 32.3Z"},"da":{"w":82.4,"d":"M5.7 32.5 4.2 37.7 4.0 41.7 4.8 46.1 6.7 51.1 6.7 54.0 5.9 58.4 5.9 63.2 6.7 66.1 8.2 68.8 10.3 70.9 13.2 72.6 18.4 73.9 21.8 73.9 25.9 73.2 34.9 69.3 47.2 62.4 54.4 58.8 59.0 57.1 65.6 55.5 68.4 55.7 70.0 56.3 71.1 57.3 72.5 59.4 73.2 63.8 74.4 66.1 76.9 64.7 77.6 63.6 78.0 61.9 78.0 58.4 77.5 55.5 75.9 52.1 73.4 49.0 75.3 47.7 77.6 44.0 78.4 40.8 78.2 37.5 77.3 34.6 74.6 30.8 71.9 29.1 69.4 28.5 66.3 28.7 58.7 30.8 48.1 34.2 28.4 42.9 16.8 46.3 14.9 46.3 13.6 45.8 12.6 44.8 11.9 42.5 12.2 38.7 15.5 31.4 15.5 29.3 14.7 27.3 14.0 26.6 12.4 26.0 10.1 26.4 8.4 27.9ZM71.9 40.0 72.1 43.1 71.3 47.3 70.9 47.7 62.3 48.1 58.9 49.0 40.2 57.5 34.5 60.7 28.9 63.2 23.9 64.5 18.8 64.7 16.1 63.8 14.5 62.4 13.8 61.1 13.4 59.6 13.6 56.9 14.2 55.3 15.3 54.2 22.6 52.9 30.9 50.2 60.6 37.7 65.2 36.4 68.2 36.4 69.8 37.1 71.1 38.5Z"},"ga":{"w":75.5,"d":"M5.5 24.9 4.0 27.6 4.0 29.7 4.8 30.4 7.1 30.4 13.8 28.3 19.0 28.3 22.2 29.1 24.9 30.2 28.2 32.2 29.7 33.7 29.9 35.0 29.1 36.4 23.0 42.7 22.0 44.8 22.0 47.7 23.0 49.8 24.3 51.3 34.1 58.1 35.6 60.2 35.6 61.5 34.3 63.2 29.9 65.2 24.5 65.2 14.2 64.0 13.0 64.6 13.2 65.9 14.0 66.7 20.7 70.3 27.2 71.9 30.1 71.9 33.3 71.3 36.0 70.3 40.2 67.8 42.0 65.7 43.1 62.7 43.1 59.0 42.5 57.1 41.6 55.4 39.3 53.1 31.0 48.1 30.3 47.3 29.9 45.8 33.5 41.8 39.9 37.0 46.6 33.9 49.1 33.3 51.6 33.3 54.6 34.5 56.4 36.2 57.5 39.3 57.1 43.5 54.2 51.2 52.5 58.2 52.5 61.3 53.9 65.5 56.7 69.9 61.0 73.6 68.8 77.4 71.5 77.0 70.6 74.6 62.3 66.1 60.4 61.9 60.2 58.1 60.6 55.9 65.6 40.8 65.6 37.9 64.6 34.3 63.1 31.6 60.8 29.3 57.7 27.6 53.3 26.4 48.1 26.4 43.3 27.4 37.2 30.1 33.9 27.0 30.5 24.7 25.5 22.8 21.1 22.0 10.9 22.4 8.6 23.0Z"},"ha":{"w":82.2,"d":"M78.2 47.5 77.6 45.0 75.9 41.5 73.2 38.6 71.5 37.5 68.2 36.0 63.1 34.8 56.7 35.0 51.0 36.5 46.8 38.6 26.8 54.2 22.2 55.9 19.0 56.3 16.8 56.1 14.0 54.9 11.9 52.6 11.5 50.0 12.4 47.8 14.0 46.1 16.3 44.8 23.4 44.0 24.5 43.2 24.5 42.1 22.4 39.6 20.3 38.4 15.9 38.1 11.3 39.2 8.6 40.7 6.7 42.7 5.0 45.5 4.2 48.0 4.0 53.8 5.0 57.0 6.3 59.2 8.2 60.9 10.5 62.0 16.1 63.2 21.6 63.2 24.9 62.6 29.7 60.9 33.5 58.6 45.6 48.4 52.5 43.4 55.0 42.3 58.1 41.5 62.5 41.7 66.9 43.4 69.6 46.1 70.7 49.8 70.6 52.1 69.8 54.2 68.1 56.3 65.2 57.8 63.1 58.2 52.7 58.4 51.0 59.2 51.0 59.5 52.1 61.3 56.2 62.8 62.1 64.5 66.5 64.7 69.6 64.0 71.5 63.0 75.0 59.7 76.9 56.3 77.8 53.4Z"},"la":{"w":83.2,"d":"M75.5 17.1 74.0 16.2 72.1 15.6 69.0 15.6 64.0 17.1 28.9 36.1 23.8 38.6 17.6 40.3 14.9 40.3 13.8 39.8 12.1 37.5 11.9 34.4 13.0 30.4 14.9 27.9 17.8 26.1 26.2 23.8 27.2 22.9 26.8 21.5 26.1 20.8 22.2 19.1 17.4 19.2 14.7 20.0 11.3 21.9 7.3 25.8 5.2 29.2 4.0 34.0 4.4 38.6 6.5 43.6 8.6 46.1 11.7 47.8 14.9 48.4 19.3 48.2 22.2 47.6 23.4 47.8 21.6 50.3 19.9 51.5 16.5 52.8 15.3 54.1 15.7 56.8 18.6 61.8 16.8 64.9 16.5 66.4 16.8 67.4 19.5 70.6 20.7 73.7 20.7 76.2 20.1 78.1 18.0 81.4 18.0 83.3 18.4 83.7 20.7 83.9 25.1 82.0 27.8 79.3 29.1 76.4 29.3 72.0 28.4 68.7 31.8 66.0 32.4 64.9 32.4 63.9 32.0 63.0 30.5 61.4 27.8 59.7 25.3 57.6 24.9 56.8 30.7 52.8 32.4 50.9 32.8 48.6 31.0 45.1 31.0 44.0 34.1 41.7 66.9 23.8 71.1 23.3 71.5 23.7 69.0 32.5 73.0 32.5 76.5 30.2 77.6 28.8 79.2 25.2 79.2 23.5 78.6 21.4 77.1 18.7Z"},"ma":{"w":76.7,"d":"M70.4 28.7 68.1 26.4 64.8 24.9 58.7 24.9 54.4 26.6 52.3 28.2 49.6 31.2 47.0 36.0 45.4 37.5 44.3 38.1 22.6 39.5 19.3 33.7 15.7 31.0 11.5 29.7 8.2 29.7 5.3 30.6 4.2 31.8 4.0 32.9 4.8 33.7 8.4 34.3 11.1 35.4 12.8 37.0 14.2 40.0 14.0 44.5 12.8 47.9 10.3 52.9 7.1 57.7 5.9 60.9 5.9 65.6 7.5 69.4 9.4 71.7 12.1 73.4 19.0 74.8 23.9 74.8 28.5 74.2 32.0 73.0 34.5 71.7 36.6 70.2 41.0 65.2 43.9 60.0 48.9 48.3 52.7 40.4 55.6 36.2 59.0 32.6 60.4 32.0 62.7 32.2 64.6 33.7 65.6 35.4 66.5 39.5 66.3 42.2 65.4 44.6 65.6 46.6 66.3 46.9 68.4 46.9 70.4 46.0 71.9 44.5 72.7 42.7 72.7 36.0 71.9 32.0ZM42.7 46.0 42.4 47.3 35.6 59.2 33.0 62.5 29.1 65.9 23.8 67.9 19.2 67.9 15.5 66.7 13.6 65.0 13.2 64.2 13.4 61.9 20.3 48.7 21.6 46.9 39.3 45.4 42.2 45.4Z"},"na":{"w":72.1,"d":"M6.3 46.4 4.6 51.8 4.0 59.6 5.0 67.1 5.5 69.4 6.5 70.6 10.1 70.6 11.1 70.2 11.9 69.2 12.2 68.1 12.1 60.6 12.6 55.4 14.2 49.3 15.9 46.2 19.5 42.2 23.6 39.1 27.6 37.0 31.2 36.1 32.8 36.2 35.5 38.0 37.2 40.1 38.3 43.2 38.3 47.9 39.1 49.3 39.3 51.8 38.1 55.0 37.9 57.0 38.7 59.1 38.9 61.4 37.9 63.9 35.5 68.1 35.8 68.5 41.2 68.7 42.9 68.1 45.0 66.9 46.8 64.6 47.0 61.2 46.2 57.5 48.3 53.1 48.1 50.1 46.2 46.8 46.2 38.0 46.8 37.8 51.4 40.1 54.1 42.2 56.0 44.5 57.1 46.8 58.9 54.9 60.2 67.7 61.0 70.6 62.5 71.5 65.4 71.5 66.3 71.2 67.5 69.6 68.1 63.9 67.9 56.2 66.7 49.9 64.6 44.3 61.3 39.1 57.5 35.1 53.5 32.2 49.1 30.1 44.9 28.8 40.1 28.0 33.3 28.0 28.7 28.8 24.7 29.9 19.0 32.6 14.2 36.1 9.8 40.7Z"},"nga":{"w":89.3,"d":"M4.4 31.6 4.0 33.5 4.4 37.2 5.7 40.1 7.6 41.8 11.3 42.9 22.4 42.0 27.0 42.4 30.1 43.9 32.4 46.2 33.9 50.0 33.9 54.1 33.2 56.4 31.0 58.9 29.1 60.0 25.7 61.0 21.8 61.3 9.8 61.3 5.7 62.7 4.2 65.0 4.0 67.1 4.4 69.6 6.3 72.5 9.4 74.4 13.0 75.0 14.5 74.6 15.3 73.8 14.9 72.3 12.4 69.8 12.6 69.2 26.4 68.4 31.6 67.1 34.3 65.8 38.5 62.1 40.2 59.4 42.0 55.4 44.1 52.9 45.6 52.0 47.5 52.7 55.6 62.9 57.5 64.8 59.6 65.8 61.0 65.4 62.5 63.8 68.8 52.1 72.1 48.9 74.2 47.9 76.1 48.1 78.6 50.0 79.4 52.7 79.4 55.2 78.6 57.7 77.5 58.9 76.5 59.2 75.3 59.0 72.9 57.7 70.6 57.7 70.4 60.2 71.9 63.5 73.6 65.0 75.7 66.0 79.9 65.8 82.1 64.8 83.8 63.3 85.3 60.2 85.3 47.0 82.4 43.3 79.6 41.6 76.5 40.8 74.0 40.8 70.9 41.4 67.7 42.7 63.6 46.0 59.0 53.5 58.3 53.9 53.5 48.1 51.0 45.6 48.5 44.1 45.8 43.7 40.6 45.6 37.2 40.1 35.1 37.9 32.4 36.2 27.0 34.7 22.4 34.7 17.4 35.5 14.2 35.5 11.7 34.9 11.7 34.1 14.7 30.9 16.1 28.0 15.7 26.8 14.0 25.7 11.9 25.1 8.4 26.6 6.3 28.4Z"},"pa":{"w":82.4,"d":"M4.0 35.1 4.0 36.8 4.4 37.4 10.1 39.5 12.2 40.7 12.8 41.4 12.4 43.0 9.4 46.6 7.8 50.4 7.8 59.6 8.8 61.9 11.1 64.4 14.4 66.4 16.5 66.9 22.4 66.9 28.9 65.2 33.9 62.7 38.9 59.3 42.5 56.2 45.2 55.0 47.0 55.6 48.1 56.8 49.5 59.1 50.4 61.9 52.1 63.7 53.7 62.3 54.2 61.2 54.8 58.7 54.8 56.4 54.2 54.1 51.8 50.1 51.8 48.7 52.7 47.8 57.1 45.1 62.1 43.0 65.0 43.0 67.5 43.9 69.6 45.8 70.6 47.6 71.1 49.9 71.1 52.4 69.6 60.4 70.0 62.7 72.5 62.5 74.2 61.0 76.3 58.5 78.2 53.3 78.4 49.5 77.8 46.0 76.9 43.1 75.3 40.5 73.0 38.2 70.0 36.4 66.5 35.5 62.3 35.1 58.9 35.9 50.2 39.7 36.4 51.6 29.7 56.6 22.0 59.3 18.8 59.5 16.8 58.7 15.3 57.0 14.9 55.8 14.9 53.5 15.9 50.8 17.4 48.7 22.8 44.3 23.2 43.7 22.8 42.2 17.4 36.1 12.6 33.2 10.3 32.6 7.6 32.8 5.5 33.8Z"},"sa":{"w":59.2,"d":"M5.7 22.2 4.4 24.3 4.0 27.5 9.8 69.2 10.3 70.9 11.9 71.8 14.9 71.7 17.0 70.9 19.5 68.2 33.9 47.3 35.5 45.8 37.2 45.2 43.7 50.0 43.5 50.6 37.6 55.5 37.2 57.1 45.2 68.0 46.0 69.7 46.0 70.7 45.0 71.7 42.5 71.8 36.0 70.1 33.2 69.9 32.2 70.9 32.6 72.8 35.8 76.1 40.8 78.0 47.0 78.0 51.2 77.0 53.9 75.9 55.2 73.8 55.0 71.3 54.1 68.2 51.8 64.0 46.8 57.7 46.8 57.1 51.9 52.7 52.7 51.1 52.5 49.2 51.6 47.7 47.5 43.7 44.3 41.0 42.0 39.6 41.0 38.3 41.2 36.8 44.1 31.8 44.3 30.2 43.5 27.4 42.0 26.2 40.4 26.0 38.7 26.6 37.2 27.9 18.8 55.5 16.8 57.7 16.5 57.3 11.7 25.2 10.7 22.9 9.8 22.0 7.1 21.6Z"},"ta":{"w":82.0,"d":"M76.5 33.4 72.1 30.3 68.2 28.6 61.9 27.8 56.0 27.8 47.2 30.3 40.8 33.0 24.1 42.4 17.2 44.5 16.1 44.5 13.8 43.7 11.3 41.2 11.5 38.3 14.7 35.3 17.8 35.1 22.0 36.4 24.1 37.6 26.6 37.2 27.6 36.6 27.6 35.9 22.4 29.0 18.6 28.2 14.4 28.4 10.9 29.1 7.5 31.4 5.0 35.1 4.2 37.8 4.0 42.2 4.8 45.4 5.5 47.0 7.5 49.1 9.9 50.6 14.5 52.0 12.2 58.3 12.4 62.7 14.4 66.7 17.6 69.6 20.9 71.0 25.9 71.9 31.4 71.7 34.7 71.0 36.8 70.0 40.1 67.3 42.4 63.7 43.1 59.6 42.4 58.3 40.4 58.5 35.5 62.5 33.3 63.7 29.7 64.8 25.5 64.8 22.0 63.7 20.5 62.3 19.7 61.0 19.7 58.1 20.7 56.2 22.8 53.5 26.6 50.0 34.3 44.7 43.5 39.7 54.1 35.3 60.2 34.3 63.3 34.5 66.7 35.3 68.8 36.2 70.2 37.4 71.1 39.3 71.1 41.8 69.6 46.0 69.4 48.1 69.8 49.1 71.3 49.1 73.6 47.6 75.5 45.6 77.6 41.4 78.0 36.6Z"},"wa":{"w":47.3,"d":"M18.6 23.0 15.7 23.8 11.9 26.1 10.7 27.2 10.1 29.7 10.9 30.3 16.8 29.9 24.1 30.3 28.4 31.8 31.6 34.5 34.3 39.1 36.0 46.4 35.8 53.9 34.3 59.8 31.8 64.4 29.5 66.7 26.8 68.3 24.7 68.8 20.7 69.0 17.0 68.5 14.4 67.3 12.4 65.6 11.7 64.2 11.3 62.5 11.5 60.4 13.2 56.4 18.0 51.6 18.4 50.6 18.4 47.9 16.7 44.9 13.4 42.2 9.9 40.8 7.1 40.8 4.8 42.4 4.0 44.3 4.8 45.8 6.5 47.5 9.2 48.9 9.4 49.5 6.5 53.1 5.0 56.2 4.0 60.0 4.0 63.3 4.8 66.3 5.9 68.6 7.1 70.2 10.1 72.9 13.8 74.6 17.6 75.7 21.1 76.3 25.5 76.3 29.9 75.2 33.0 73.4 35.6 71.1 39.5 66.0 41.8 61.0 42.9 56.6 43.3 53.9 43.1 46.0 42.0 39.7 40.4 34.5 38.7 31.2 35.8 28.0 32.4 25.7 27.6 24.0 23.0 23.0Z"},"ya":{"w":88.6,"d":"M7.1 27.1 6.9 30.0 7.3 30.9 8.6 32.3 14.9 35.0 16.5 36.3 16.8 37.3 16.1 39.2 11.7 42.8 7.3 47.8 5.3 51.5 4.0 57.0 4.4 63.5 6.3 68.5 8.6 71.4 12.6 73.9 15.7 74.7 19.7 74.5 22.8 73.5 26.8 71.4 36.4 63.9 55.2 46.1 57.9 44.2 61.0 42.6 64.0 41.7 68.4 41.3 71.3 41.7 73.8 42.6 76.1 45.1 77.3 48.8 77.1 52.0 75.9 54.9 74.8 56.5 73.0 58.0 70.9 59.1 68.8 59.7 65.8 59.7 65.2 60.5 65.2 61.4 65.9 62.2 67.9 63.2 71.3 64.1 76.1 63.9 79.6 62.2 82.6 58.8 84.2 52.6 84.6 48.2 83.6 43.4 81.7 40.0 78.4 36.9 73.6 34.8 68.8 34.2 64.6 34.4 58.1 35.9 50.8 39.6 46.0 43.2 27.4 60.9 23.0 63.9 18.8 66.2 17.0 66.6 15.9 66.4 13.8 64.9 12.2 61.6 11.9 59.7 12.2 55.3 13.8 52.2 16.3 49.5 25.5 42.6 26.6 40.2 26.2 37.1 25.3 34.6 22.8 30.9 20.7 28.8 17.4 26.5 14.2 25.2 9.9 25.0 7.8 26.0Z"},"i":{"w":82.2,"d":"M14.5 59.7 14.7 62.2 15.7 64.5 18.4 65.9 33.0 68.6 39.3 71.2 47.0 70.9 51.6 74.1 60.2 76.6 64.4 76.8 68.4 75.8 70.7 74.7 72.9 72.6 73.8 70.1 73.6 67.8 72.9 65.7 71.7 64.5 69.8 63.6 68.4 63.8 67.3 64.7 66.5 66.8 65.4 68.6 62.7 69.3 61.0 69.3 55.6 67.4 51.8 64.7 50.4 64.5 47.7 65.1 43.9 65.1 42.5 64.7 40.1 62.8 38.7 60.5 37.8 60.1 34.9 60.1 28.2 61.3 25.1 61.3 23.6 60.9 21.3 59.0 20.1 55.7 19.0 55.1 17.4 55.7 15.9 57.1ZM4.0 42.5 4.0 44.4 4.6 46.1 8.0 49.0 15.3 49.0 26.6 49.8 28.7 50.5 32.0 50.3 40.2 51.3 68.2 57.6 73.0 57.8 77.5 54.9 78.2 53.6 78.2 52.3 76.5 51.1 60.8 47.7 24.7 42.9 10.1 41.9 5.0 41.9Z"},"bi":{"w":69.6,"d":"M9.8 33.1 7.5 36.4 5.9 39.6 4.6 44.4 4.0 49.4 4.6 53.4 6.3 57.4 7.6 59.4 11.5 62.6 13.8 63.8 17.8 64.7 27.0 64.4 28.5 65.7 31.0 69.3 34.1 72.2 37.4 73.9 41.2 74.9 47.7 74.7 52.9 73.2 56.0 71.6 58.7 69.7 62.3 65.3 64.0 61.9 65.4 56.9 65.6 51.5 64.6 45.9 62.9 41.3 58.9 35.6 56.9 33.5 52.5 30.2 48.3 27.9 40.6 25.4 36.6 24.8 29.5 24.8 21.8 26.2 17.4 27.7 13.8 29.6ZM14.9 38.7 17.8 35.8 21.1 33.9 24.7 32.7 29.1 31.9 37.4 31.9 41.6 32.9 45.6 34.4 50.6 37.5 54.2 41.3 56.2 44.6 57.3 47.7 57.9 50.7 57.9 54.4 56.9 58.4 55.2 61.3 51.8 65.1 47.3 66.7 44.1 66.8 40.1 65.7 36.6 62.8 35.3 60.9 33.3 56.3 32.4 55.0 30.5 55.0 26.8 55.9 22.2 56.5 17.4 55.9 15.3 54.8 13.4 52.8 11.9 49.2 11.9 45.7 12.4 43.4ZM41.0 9.7 37.6 9.5 36.6 9.9 35.8 10.8 36.0 12.2 38.5 15.4 38.5 17.0 37.8 17.9 35.8 17.9 33.0 16.6 32.0 16.6 31.2 17.2 30.7 19.9 31.4 21.6 33.2 23.1 35.5 24.1 40.1 23.7 42.4 22.5 44.3 20.2 44.9 17.7 44.7 13.9 43.3 11.2Z"},"ki":{"w":83.4,"d":"M75.3 30.1 71.9 27.0 68.6 25.7 66.7 25.3 61.2 25.5 56.7 27.0 24.1 41.4 14.9 44.5 12.4 44.7 11.3 43.9 10.9 43.0 11.1 41.2 13.2 37.6 15.7 35.1 19.3 32.6 20.3 31.5 20.3 30.7 19.5 29.9 16.8 29.7 13.4 30.9 8.6 33.9 6.1 36.6 4.8 38.9 4.2 41.2 4.2 46.4 5.3 49.1 7.3 51.2 9.9 52.6 13.0 52.9 20.9 51.0 39.9 42.6 40.8 42.8 41.6 43.5 46.8 57.3 46.6 58.5 45.8 59.6 27.8 66.9 25.5 67.1 23.8 66.6 22.4 64.8 22.4 63.1 23.0 61.4 24.7 59.3 26.6 58.3 29.5 57.9 32.0 58.3 36.6 60.4 38.3 60.6 39.1 59.8 39.3 58.5 37.8 55.0 35.6 52.9 32.8 51.6 27.2 51.6 23.6 52.4 19.9 54.3 17.2 57.3 16.3 59.3 15.3 63.1 15.3 65.6 15.9 68.5 17.6 71.7 19.2 73.3 21.6 74.6 25.7 75.2 30.9 74.0 67.1 59.1 69.4 59.1 70.6 59.5 71.5 60.6 71.7 62.5 70.4 65.4 65.4 70.2 64.6 71.7 66.3 72.7 70.7 72.1 72.7 71.5 75.9 69.6 77.5 67.9 78.6 65.8 79.4 62.5 79.4 60.2 78.8 57.2 77.5 54.5 75.7 52.7 74.0 51.8 72.1 51.2 69.0 51.0 65.8 51.6 55.8 55.2 53.9 54.9 52.3 51.8 47.5 39.1 64.2 32.4 67.3 32.6 68.6 33.4 70.4 35.7 70.7 37.8 70.9 47.0 73.4 46.6 75.2 45.8 75.9 45.1 77.3 42.6 78.0 39.7 77.6 34.7 76.9 32.6ZM49.5 9.8 47.3 9.4 44.7 10.7 46.2 14.8 46.8 17.6 46.4 18.0 40.6 16.9 39.9 17.5 39.3 18.6 39.3 19.9 40.6 22.2 42.4 23.8 43.9 24.4 48.1 24.2 50.6 23.0 52.5 20.9 53.5 17.6 53.3 14.6 51.9 11.7Z"},"di":{"w":82.4,"d":"M5.5 32.3 4.2 36.9 4.0 41.7 5.0 46.9 6.3 50.7 6.3 53.6 5.5 58.0 5.7 63.4 6.5 65.9 8.2 68.7 10.1 70.7 13.4 72.6 17.0 73.5 22.0 73.5 29.1 71.6 37.0 68.2 51.8 59.9 60.0 56.3 64.4 55.3 67.9 55.5 70.2 56.5 71.9 58.2 72.7 59.7 73.2 64.5 74.8 66.2 75.3 66.2 78.0 59.7 77.3 54.5 74.2 49.8 74.0 48.6 75.9 46.3 77.5 43.6 78.4 39.0 78.0 36.7 76.5 33.1 74.2 30.4 71.7 28.8 69.6 28.3 65.6 28.3 62.3 29.0 53.5 32.1 24.5 43.8 17.4 46.1 15.3 46.1 13.8 45.5 12.2 44.0 11.7 42.3 12.1 38.4 15.3 31.1 15.5 29.0 14.9 27.5 12.6 25.8 9.9 26.2 7.5 28.8ZM71.3 38.6 71.7 40.2 71.5 46.1 70.6 47.4 63.3 47.6 56.9 49.0 51.2 51.3 32.8 60.9 25.9 63.8 22.2 64.3 18.8 64.3 16.3 63.4 14.2 61.3 13.8 59.1 14.2 54.5 15.1 53.8 24.9 51.9 51.9 40.7 62.9 36.7 65.9 36.1 68.6 36.1 69.6 36.5ZM48.7 8.9 44.1 9.3 45.6 14.5 45.8 16.6 45.4 17.0 42.7 16.6 40.6 15.8 39.5 15.8 38.5 17.5 38.5 19.6 39.3 21.2 40.8 22.5 42.7 23.3 47.9 22.9 49.6 22.1 51.6 20.0 52.5 17.0 52.3 13.5 51.2 11.2Z"},"gi":{"w":75.5,"d":"M5.2 25.7 4.4 27.0 4.0 29.9 4.8 30.5 7.1 30.5 13.2 28.7 18.6 28.6 23.6 29.9 27.6 32.0 29.1 33.4 29.5 35.5 28.9 36.6 23.0 42.7 21.8 45.4 21.8 47.5 22.8 49.8 24.5 51.8 33.5 57.9 34.9 59.2 35.6 60.8 35.3 62.3 33.9 63.7 30.7 65.2 27.4 65.8 14.2 64.2 13.0 64.8 13.8 66.9 18.8 69.8 23.8 71.3 29.1 72.1 31.8 71.9 35.3 70.9 39.3 68.4 41.6 66.0 42.9 63.3 43.3 60.8 42.5 57.5 40.6 54.6 39.1 53.3 31.4 48.7 30.1 47.4 29.9 45.8 32.8 42.6 39.9 37.2 43.5 35.3 47.7 33.7 51.4 33.5 54.1 34.5 56.0 36.2 57.1 38.3 57.5 40.4 56.9 44.1 54.4 50.6 52.7 57.3 52.3 61.4 53.1 64.6 54.6 67.5 56.7 70.2 61.5 74.4 66.3 77.1 70.0 77.8 71.5 76.9 70.7 75.0 62.7 67.1 60.4 62.3 60.0 59.4 60.4 56.2 63.3 48.5 65.4 41.2 65.4 37.6 64.6 34.7 62.9 31.6 60.8 29.5 56.7 27.4 52.9 26.6 45.8 26.8 42.4 27.8 38.7 29.5 36.2 29.5 32.8 26.6 28.9 24.5 24.7 23.0 19.5 22.0 14.0 22.0 10.9 22.6 7.6 23.8ZM41.2 6.5 39.1 6.7 37.8 8.2 37.9 9.6 39.7 11.7 40.1 14.7 38.9 15.1 33.5 14.2 32.8 15.3 32.6 16.9 33.7 19.0 35.5 20.7 36.8 21.3 40.4 21.7 42.9 20.7 45.0 18.8 46.6 15.9 46.8 12.4 45.6 9.4 43.7 7.5Z"},"hi":{"w":82.2,"d":"M78.2 48.8 77.6 45.6 76.1 42.1 72.7 38.5 69.2 36.5 66.3 35.6 62.5 35.0 58.9 35.0 52.7 36.2 47.3 38.5 28.7 53.0 24.3 55.5 20.3 56.5 17.2 56.3 13.4 54.8 11.7 52.5 11.7 50.0 13.0 47.3 15.9 45.0 18.8 44.2 23.2 44.2 24.1 43.8 24.5 43.3 24.1 41.5 21.8 39.4 19.0 38.3 15.5 38.3 11.3 39.4 8.8 40.8 6.7 42.9 5.7 44.4 4.0 50.4 4.0 54.0 6.3 59.0 8.4 61.1 10.5 62.2 16.1 63.4 19.9 63.4 25.1 62.6 29.5 61.1 34.5 58.2 37.6 55.3 48.7 46.7 54.6 42.9 57.9 41.7 62.5 41.7 65.6 42.9 69.6 46.3 70.4 49.0 70.6 51.5 69.4 55.0 67.3 56.9 63.1 58.4 60.4 58.8 50.8 59.0 52.3 61.5 56.4 63.4 61.2 64.7 65.2 64.9 70.4 63.6 72.9 62.1 74.8 60.1 75.9 58.4 77.5 54.8 78.0 52.3ZM48.3 9.7 44.9 9.7 43.7 10.7 43.7 11.8 45.6 14.7 46.0 17.0 45.6 17.7 40.6 16.8 39.5 16.8 38.5 18.7 38.7 20.8 39.3 22.0 40.6 23.1 43.1 23.9 45.8 24.1 49.8 22.7 51.6 21.0 52.5 18.5 52.5 14.5 51.4 11.8 50.0 10.5Z"},"li":{"w":83.0,"d":"M75.3 17.1 72.9 15.9 70.9 15.7 68.2 16.1 63.1 17.6 25.5 38.0 21.6 39.3 16.1 40.5 14.4 40.3 13.4 39.7 12.4 38.5 11.9 37.0 11.9 33.6 13.0 30.5 14.5 28.4 16.7 26.6 19.5 25.5 23.9 24.7 26.4 23.8 27.0 23.2 26.8 21.9 26.1 20.9 23.8 19.4 21.6 18.8 19.9 18.8 16.3 19.9 12.1 21.9 9.2 23.8 6.9 26.1 5.0 29.3 4.0 32.8 4.0 36.8 4.4 38.9 5.5 42.2 6.9 44.5 8.8 46.4 12.1 47.9 14.2 48.3 22.8 47.9 23.4 48.7 23.0 49.5 16.1 53.1 15.1 54.5 15.9 57.3 18.4 61.9 16.7 65.0 16.5 66.3 17.0 67.7 19.5 71.0 20.7 73.8 20.3 77.5 17.8 81.9 17.8 83.2 18.2 83.8 19.7 84.2 25.9 80.9 27.8 79.2 29.5 76.1 29.7 73.8 28.5 69.2 28.7 68.7 32.0 65.8 32.4 63.7 31.0 61.9 26.8 59.1 24.9 57.3 24.9 57.0 29.7 53.5 32.6 50.4 32.6 48.1 30.7 44.1 32.6 42.6 65.9 24.2 69.0 22.8 70.4 22.8 71.5 23.6 71.5 25.7 69.2 29.9 68.6 32.4 69.6 33.2 70.9 33.2 75.0 31.3 77.5 29.1 79.0 25.9 79.0 23.0 78.2 20.7 77.1 18.8ZM49.8 2.5 48.1 2.1 44.7 3.1 46.0 6.7 46.6 9.6 46.2 10.3 41.4 9.4 40.2 9.4 39.5 10.2 39.1 12.3 40.2 14.2 42.2 16.1 44.1 16.9 47.3 16.9 50.4 15.3 52.7 12.6 53.3 9.0 52.9 6.1 52.1 4.4Z"},"mi":{"w":77.0,"d":"M70.6 29.4 68.1 26.7 65.9 25.6 63.3 24.8 58.3 25.0 56.0 25.8 52.7 27.7 50.2 30.4 46.6 36.1 44.7 37.9 26.4 39.4 23.0 39.4 21.3 38.1 20.3 35.8 19.0 33.8 16.8 31.9 14.5 30.6 10.7 29.6 7.6 29.8 5.9 30.4 4.0 32.1 4.0 32.5 6.1 34.0 9.2 34.8 11.9 36.3 13.2 37.9 14.2 40.5 14.0 43.6 12.8 47.1 10.9 51.1 7.6 56.3 5.9 60.5 5.7 64.9 7.3 69.5 12.6 73.7 19.3 74.9 24.9 74.9 28.4 74.3 31.2 73.3 34.1 71.8 38.7 67.8 41.0 64.7 44.9 57.4 52.5 40.4 55.8 35.6 58.1 33.1 60.0 32.1 61.7 32.1 63.1 32.7 64.8 34.4 66.3 39.0 66.3 41.5 65.2 44.8 65.2 46.3 65.6 46.9 67.7 47.1 71.1 44.6 72.9 40.9 73.0 36.5 72.1 32.5ZM42.2 45.9 41.6 48.2 40.2 50.9 30.9 64.5 29.1 66.1 25.7 67.6 20.5 68.0 15.3 66.6 13.2 64.1 14.5 59.0 20.3 48.4 21.6 47.1 23.9 46.5 38.9 45.5 41.4 45.5ZM43.1 9.1 39.9 8.9 39.1 9.1 38.3 10.2 38.3 11.2 40.2 14.7 40.4 17.0 40.1 17.3 34.3 16.2 33.2 17.5 33.0 18.9 33.7 20.2 35.8 22.5 37.2 23.3 40.8 23.5 43.3 22.9 44.9 21.9 46.6 19.6 47.3 16.6 47.0 13.3 45.6 10.8Z"},"ni":{"w":71.5,"d":"M5.7 48.2 4.6 52.3 4.0 56.5 4.0 60.7 4.6 65.3 6.1 70.3 7.3 71.1 9.8 71.2 11.5 70.3 12.4 68.2 12.6 58.4 13.2 53.4 14.2 49.6 16.5 45.4 19.3 42.3 23.6 39.4 31.6 36.2 33.7 36.7 35.8 38.5 37.9 41.9 38.5 44.4 38.3 48.0 39.3 50.2 39.1 53.0 37.6 56.9 38.7 59.4 38.7 62.2 37.6 64.5 35.5 66.8 35.1 68.6 35.6 69.1 41.0 68.6 45.4 66.8 46.4 65.9 47.2 64.0 46.6 58.2 47.9 53.0 48.1 50.7 46.6 47.7 46.4 40.4 45.6 38.3 46.4 38.1 48.1 38.6 51.0 40.2 55.0 43.8 57.9 48.8 58.9 52.8 60.4 69.1 61.0 70.9 62.9 71.8 65.6 71.8 67.1 70.7 67.5 65.9 67.3 54.0 66.3 48.8 65.0 45.0 61.3 39.0 57.9 35.6 54.1 32.9 48.5 30.2 41.2 28.3 34.5 28.1 28.0 29.2 21.6 31.5 17.0 34.0 11.5 38.8 8.0 43.4ZM40.2 7.2 38.5 7.0 36.2 8.2 36.6 10.6 37.9 12.6 38.3 15.2 37.9 15.6 35.6 15.6 32.2 14.3 30.9 15.8 30.7 17.7 31.8 19.7 32.8 20.6 35.3 22.0 38.1 22.2 40.8 21.4 43.3 19.5 44.5 17.4 44.9 15.8 44.5 11.4 43.5 9.5 42.2 8.2Z"},"ngi":{"w":88.9,"d":"M4.6 30.9 4.0 33.0 4.2 36.4 5.3 39.1 7.3 41.2 9.9 42.4 14.7 42.4 23.2 41.6 28.2 42.6 30.9 44.1 32.2 45.6 33.3 47.7 33.9 50.4 33.9 53.1 33.0 56.2 31.4 58.1 28.9 59.8 26.1 60.6 21.6 61.0 10.5 60.8 8.2 61.2 6.1 62.1 4.6 63.8 4.0 65.4 4.4 69.4 6.5 72.5 9.4 74.2 10.7 74.6 13.4 74.6 15.1 73.6 15.1 72.5 12.2 69.2 12.4 68.6 19.3 68.8 25.9 68.3 31.0 66.9 34.3 65.4 36.6 63.7 39.1 60.8 42.7 53.3 43.7 52.3 45.2 51.8 47.2 52.3 49.6 54.6 54.2 61.0 57.5 64.6 58.7 65.2 60.4 65.2 61.3 64.6 63.1 62.5 66.7 55.2 70.2 50.2 73.0 47.9 75.7 47.5 77.1 48.1 78.4 49.5 79.0 50.8 79.2 53.3 78.2 57.1 77.5 58.3 72.3 57.1 70.6 57.3 70.2 58.1 70.2 59.8 70.9 61.9 73.4 64.6 75.7 65.6 77.8 65.8 81.7 64.6 83.0 63.7 84.9 61.4 84.9 46.2 82.1 42.7 79.0 41.0 75.7 40.4 73.0 40.6 70.0 41.4 67.5 42.6 62.5 47.0 59.6 51.6 59.4 52.9 58.5 53.3 56.7 51.8 54.2 48.5 50.2 45.2 47.7 43.9 45.8 43.5 41.0 44.9 33.2 36.2 28.0 34.5 24.5 34.1 14.4 35.3 12.6 35.1 11.5 34.1 11.9 32.8 16.3 28.9 16.1 26.4 14.4 25.1 11.5 24.9 8.4 26.3 6.3 28.0ZM54.2 9.0 51.8 8.8 50.0 10.0 50.6 12.6 51.6 13.8 51.9 16.1 51.6 17.2 49.3 17.2 47.2 16.1 45.8 16.1 44.5 17.4 44.3 18.8 44.7 20.5 46.0 22.2 49.1 23.6 52.5 23.8 54.6 23.2 56.9 21.1 58.1 18.4 58.7 14.4 57.1 11.1Z"},"pi":{"w":82.2,"d":"M4.0 35.4 4.0 36.3 5.3 37.5 11.3 40.0 12.6 40.9 9.2 47.3 7.8 50.5 7.3 53.2 7.3 57.2 7.8 59.7 9.4 62.6 12.1 65.1 15.5 66.6 20.5 67.0 28.5 65.1 35.3 61.7 39.5 58.6 43.3 55.1 44.3 54.8 46.0 54.9 47.5 56.5 50.0 61.3 51.9 63.6 53.9 61.7 54.6 59.0 54.6 55.7 54.1 53.8 52.1 50.5 51.8 48.6 53.5 46.7 55.8 45.2 61.3 42.9 63.5 42.7 66.7 43.4 69.6 45.9 70.4 47.3 70.9 49.2 70.9 53.4 69.4 60.9 69.6 62.4 70.0 62.8 71.1 62.8 72.5 62.2 75.0 59.9 77.1 56.3 78.0 53.0 78.2 49.4 77.6 45.9 76.5 42.5 75.0 40.0 73.0 38.1 70.0 36.3 66.1 35.4 61.7 35.2 55.8 36.5 51.8 38.6 30.5 55.9 26.1 58.0 21.6 59.2 19.0 59.4 17.2 58.8 15.7 57.4 14.9 55.7 14.9 52.8 16.7 48.8 18.8 46.7 22.2 44.8 23.0 43.8 23.0 42.5 20.3 39.0 17.2 36.0 12.4 33.1 10.5 32.5 7.8 32.5 5.3 33.7ZM49.5 10.3 46.2 9.3 45.2 9.5 43.9 10.5 44.3 13.1 46.0 16.4 45.6 17.7 44.9 18.5 43.9 18.5 40.4 16.8 39.5 16.8 38.3 18.5 38.3 20.0 39.5 22.1 40.6 23.3 43.3 23.9 46.8 23.9 49.5 23.1 50.8 22.0 52.1 19.1 52.3 15.2 51.4 12.4Z"},"si":{"w":59.2,"d":"M6.1 22.3 4.4 24.4 4.0 27.8 9.6 67.5 10.3 70.6 11.7 71.5 15.9 71.4 17.2 70.8 18.6 69.4 35.5 44.9 36.6 44.1 43.7 49.9 37.9 55.1 37.4 56.0 37.4 57.5 42.9 63.9 45.6 68.7 46.0 70.4 45.0 71.5 42.9 71.7 35.8 70.0 33.5 69.8 32.2 70.6 32.4 72.5 36.4 76.3 41.0 77.9 46.6 77.9 49.6 77.3 53.9 75.8 55.2 74.0 55.2 72.5 50.4 62.0 46.4 57.4 52.1 52.4 52.7 51.2 52.5 49.1 51.6 47.6 48.7 44.7 40.4 38.0 42.9 34.0 43.9 31.7 44.1 28.8 43.5 27.2 42.0 26.1 40.1 26.1 38.7 26.7 36.6 28.6 17.6 57.0 16.8 57.4 15.9 53.9 12.8 31.7 11.3 24.9 10.5 23.0 9.6 22.3 8.2 21.7 7.1 21.7ZM26.1 7.3 23.6 8.1 22.8 8.8 23.2 10.6 25.1 13.6 24.9 15.7 24.3 16.3 22.6 16.3 20.9 15.2 18.6 14.8 17.8 15.4 17.2 16.5 19.2 20.5 20.5 21.7 22.0 22.3 25.1 22.5 28.2 21.3 30.3 19.4 31.2 17.5 31.6 13.4 30.5 10.6 27.8 8.1Z"},"ti":{"w":82.0,"d":"M76.5 33.8 73.6 30.8 69.0 28.7 63.8 27.9 55.0 28.3 50.2 29.4 42.2 32.5 34.3 36.5 21.8 44.0 18.6 45.0 16.3 45.0 13.4 44.2 11.7 42.5 11.1 41.3 11.1 39.4 11.7 37.9 13.6 35.8 14.9 35.2 16.3 35.2 23.0 37.3 26.6 37.9 27.0 37.1 27.0 34.6 25.5 31.5 23.6 29.8 20.5 28.7 15.1 28.5 12.1 29.1 9.8 30.0 6.5 32.9 5.0 35.6 4.2 38.3 4.0 43.4 5.2 46.5 7.3 49.0 10.1 50.7 13.8 51.9 14.5 52.5 12.4 57.8 12.2 62.2 13.0 64.9 14.7 67.6 17.2 69.7 20.5 71.1 25.3 71.8 32.4 71.8 36.8 70.3 40.1 67.6 41.6 65.3 42.5 63.0 42.5 58.8 39.1 59.9 35.1 63.0 30.5 64.9 25.9 65.1 23.6 64.5 21.6 63.6 20.1 62.0 19.5 60.7 19.5 58.8 20.7 56.5 24.5 52.1 32.4 46.1 40.2 41.5 52.1 36.2 56.2 35.0 59.2 34.6 65.8 35.2 68.6 36.3 70.2 37.7 71.1 39.6 71.1 42.3 69.2 47.3 69.2 48.6 70.0 49.6 71.1 49.6 73.4 48.0 75.2 46.3 77.3 42.7 78.0 38.5ZM47.0 9.3 44.5 9.5 43.3 10.8 43.5 12.4 45.2 14.5 45.6 17.5 44.9 17.9 39.1 17.0 38.1 18.9 38.1 20.0 38.9 21.4 40.8 23.3 42.5 24.1 46.8 24.3 48.5 23.7 50.6 22.0 52.1 19.1 52.3 15.4 51.6 12.9 49.3 10.3Z"},"wi":{"w":47.3,"d":"M27.4 16.1 25.3 16.1 23.0 17.1 23.8 19.7 24.5 20.7 24.7 24.3 23.0 24.5 19.7 23.0 18.6 23.2 17.4 24.7 17.2 26.1 18.0 28.4 19.0 29.7 17.4 30.7 15.3 31.3 12.6 33.0 10.5 34.9 10.3 36.6 10.5 37.4 11.5 38.0 17.0 37.2 21.1 37.2 24.3 37.8 29.3 39.9 32.8 43.5 35.1 48.1 36.0 54.1 36.0 56.8 35.3 64.4 34.1 68.1 32.6 71.1 29.9 74.0 26.1 75.9 24.1 75.9 22.0 75.4 17.2 75.7 14.0 74.4 12.8 73.3 11.9 71.3 11.9 67.1 13.6 63.5 18.0 59.3 18.6 58.1 18.8 56.0 18.0 53.7 14.9 50.4 10.5 48.3 6.9 48.3 5.0 49.3 4.0 50.4 4.4 53.1 5.7 54.5 9.4 56.4 9.0 57.7 5.7 62.7 4.4 66.7 4.2 70.2 5.2 73.8 7.1 76.9 9.4 79.2 12.6 81.5 17.4 83.2 23.0 83.6 26.4 83.4 29.7 82.7 33.0 81.1 36.4 77.9 39.9 73.3 42.0 68.8 42.9 65.0 43.3 59.4 43.1 51.2 42.2 46.0 40.2 41.2 37.8 37.4 33.9 33.7 27.6 30.9 30.9 26.8 31.6 24.5 31.6 22.6 30.5 18.6 28.9 16.9Z"},"yi":{"w":88.2,"d":"M7.3 27.2 6.9 28.2 7.3 30.9 9.2 32.6 15.1 35.3 17.0 37.2 16.8 38.7 12.6 42.2 7.5 47.7 5.2 52.0 4.0 56.6 4.2 62.1 5.5 66.9 7.5 70.2 9.2 71.9 12.1 73.6 15.7 74.6 19.2 74.6 22.2 74.0 26.4 72.3 30.7 69.2 53.7 47.3 58.1 44.3 64.2 41.8 69.8 41.4 72.5 42.0 75.3 43.9 76.7 46.2 77.1 47.7 77.1 52.3 76.7 54.1 75.5 56.2 72.7 58.5 70.6 59.2 66.5 59.8 65.6 60.4 65.2 61.2 66.1 62.5 71.3 64.0 75.5 64.0 77.3 63.7 80.1 62.1 81.5 60.8 83.0 58.1 84.2 52.9 84.2 46.6 83.4 42.7 81.7 39.7 78.2 36.8 74.2 35.1 68.4 34.1 64.8 34.3 57.9 36.2 48.7 40.8 24.5 63.5 19.0 66.1 15.3 66.1 13.4 64.4 12.4 62.1 12.1 57.3 12.6 54.8 14.4 51.6 17.6 48.1 26.6 42.2 26.4 37.0 25.7 34.9 24.1 32.4 17.8 26.6 13.0 25.1 8.8 25.3ZM55.4 9.6 52.7 8.8 50.2 10.0 50.2 11.3 50.8 12.8 51.9 14.2 52.1 15.5 51.8 17.6 49.8 17.6 46.8 16.1 45.8 16.1 45.2 16.7 44.5 18.6 44.9 21.1 47.3 23.2 49.5 23.8 53.9 23.4 56.4 22.2 57.9 20.1 58.7 17.8 58.7 14.4 57.3 11.3Z"},"u":{"w":48.3,"d":"M5.7 17.3 4.6 18.3 4.0 19.4 4.2 21.9 5.5 23.6 22.2 34.4 26.6 37.6 26.1 38.6 15.7 47.8 15.3 48.6 15.5 49.5 17.0 50.7 18.8 51.0 26.6 54.5 31.8 57.4 34.3 60.1 35.3 62.2 35.6 64.3 35.5 67.3 34.3 70.4 31.8 72.7 29.5 73.5 25.3 73.5 20.9 72.3 9.0 63.7 7.6 63.1 5.7 62.9 5.5 65.8 6.5 68.3 9.0 72.7 12.2 76.4 15.5 78.9 19.5 81.0 25.5 82.5 30.7 82.3 34.5 81.2 37.9 79.2 40.8 76.6 43.1 72.7 44.3 68.1 44.1 62.7 43.3 59.9 41.4 55.8 37.2 50.9 30.3 46.1 31.8 44.0 38.5 37.6 38.9 35.9 37.4 34.4 8.8 17.7 7.1 17.1Z"},"bu":{"w":69.4,"d":"M22.6 18.6 17.8 20.1 13.0 22.8 9.6 25.8 7.5 28.7 5.5 32.7 4.2 37.7 4.0 44.1 4.6 46.6 6.9 51.2 10.7 54.8 14.2 56.5 17.4 57.3 27.2 57.3 28.2 58.1 29.3 60.4 31.6 63.0 37.4 66.7 35.8 68.8 35.8 70.0 37.9 73.2 37.9 75.7 37.6 76.1 35.6 76.1 33.3 74.7 32.2 74.6 30.9 76.1 30.9 78.6 31.8 80.5 33.9 82.0 39.9 82.0 42.0 81.1 43.3 79.7 44.5 77.2 44.7 73.2 43.9 70.7 42.7 68.6 52.5 65.5 56.9 63.6 60.0 61.1 62.3 57.9 63.6 55.0 65.2 49.6 65.4 42.9 64.8 39.8 62.3 33.9 59.6 29.3 55.4 25.1 50.4 21.6 44.1 18.9 37.4 17.6 32.0 17.4ZM14.7 31.4 17.0 28.9 19.9 27.0 24.3 25.5 29.7 24.5 36.0 24.5 38.5 24.9 42.7 26.0 47.0 27.9 49.8 29.7 52.9 32.6 55.2 35.8 56.7 39.3 57.7 43.7 57.7 47.5 56.2 52.7 54.1 55.8 50.6 58.4 46.8 59.8 43.1 59.8 39.5 58.1 35.8 54.6 34.3 52.3 32.8 48.5 28.9 47.9 24.5 49.0 19.9 49.2 15.9 47.9 12.8 45.0 11.9 42.9 11.5 40.4 12.4 35.6Z"},"ku":{"w":83.4,"d":"M49.6 75.5 46.2 75.3 45.2 75.7 44.5 76.7 44.9 78.0 46.2 79.8 47.0 82.1 47.0 83.0 46.0 84.2 45.0 84.2 43.1 82.8 41.4 82.2 40.2 82.6 39.3 84.5 39.5 86.5 41.4 88.8 43.9 89.7 47.5 89.7 50.8 88.4 52.5 86.7 53.3 84.9 53.7 82.6 53.3 79.6 52.3 77.6 50.8 76.1ZM76.1 30.8 72.9 27.6 69.8 25.9 66.3 24.9 62.5 25.1 54.2 28.2 26.2 40.4 15.1 44.5 12.6 44.5 11.3 43.1 11.5 40.6 13.6 37.2 16.1 34.7 19.5 32.2 20.3 30.7 18.2 29.7 9.8 33.3 6.3 36.2 5.0 38.5 4.2 41.2 4.0 43.5 4.4 46.4 5.3 48.9 7.6 51.4 10.9 52.5 15.1 52.5 19.5 51.4 39.3 42.7 40.6 42.7 41.8 43.7 47.0 57.5 46.8 58.7 45.6 59.8 30.1 66.1 25.3 67.3 23.9 66.9 22.6 65.2 22.6 62.5 23.8 60.2 26.1 58.5 28.4 57.9 30.3 57.9 33.3 58.7 36.8 60.4 38.3 60.6 39.1 59.6 39.1 57.9 37.4 54.4 35.5 52.7 33.9 51.9 31.4 51.4 27.6 51.4 23.9 52.1 21.5 53.3 19.3 54.8 17.4 57.1 15.7 61.5 15.7 67.1 16.3 69.2 17.4 71.3 18.6 72.7 21.5 74.4 24.3 75.0 26.6 75.0 32.6 73.4 40.6 69.8 67.9 58.7 69.8 58.7 70.6 59.0 72.1 61.1 72.1 62.7 70.6 65.6 65.0 70.4 64.8 71.7 65.8 72.5 69.8 72.3 72.9 71.3 75.9 69.6 77.5 68.1 78.6 66.1 79.2 64.2 79.4 60.8 78.8 57.1 77.6 54.4 76.3 52.9 74.0 51.6 71.7 51.0 68.2 51.0 62.1 52.7 54.2 55.8 52.9 53.1 47.7 39.1 48.3 38.5 64.4 32.2 67.5 32.6 69.6 34.1 70.6 35.8 70.9 38.5 70.9 44.5 71.3 47.0 71.7 47.1 75.3 45.6 76.5 44.1 77.6 41.4 78.0 39.7 78.0 36.4 77.3 33.3Z"},"du":{"w":82.4,"d":"M44.5 74.8 44.1 75.8 44.1 77.9 45.2 79.0 46.0 81.9 45.8 82.7 45.0 83.4 43.9 83.4 42.0 82.1 39.3 81.5 38.7 82.1 38.9 84.8 39.5 87.5 41.0 88.4 43.1 89.0 46.8 89.0 49.6 87.8 51.4 86.1 52.3 83.8 52.3 79.8 51.6 76.9 49.6 75.2ZM5.7 32.0 4.8 34.7 4.0 38.7 4.0 43.2 4.4 45.5 6.5 50.6 6.5 53.7 5.5 58.1 5.7 63.5 6.5 66.4 7.5 68.3 10.7 71.2 13.6 72.7 17.8 73.8 22.0 73.8 27.4 72.5 41.2 66.0 55.0 58.1 59.6 56.4 63.5 55.6 66.7 55.4 68.8 55.8 70.4 56.6 72.3 59.1 73.0 62.0 73.2 65.2 73.8 66.0 74.6 66.4 75.3 66.2 77.3 64.1 77.8 61.8 77.5 55.6 76.1 52.4 74.6 50.8 74.2 49.5 74.6 48.3 76.3 46.2 77.6 43.7 78.4 39.9 78.2 37.8 77.6 35.7 76.1 32.8 73.4 29.9 72.1 29.2 70.0 28.6 65.9 28.6 62.3 29.2 25.3 43.7 16.5 46.4 13.6 45.7 12.4 44.5 11.7 43.0 11.9 39.1 15.1 31.8 15.1 30.1 14.2 27.4 13.4 26.5 12.2 25.9 10.1 26.3 8.0 28.2ZM71.3 38.9 71.7 40.5 71.7 45.3 71.3 46.4 69.4 48.0 62.5 48.0 56.6 49.3 48.7 52.8 34.3 60.6 30.9 62.1 25.3 63.9 20.9 64.6 17.2 64.4 14.7 62.7 13.4 60.4 13.4 56.6 14.2 54.9 15.5 53.9 21.1 52.9 56.7 39.1 63.6 36.8 66.5 36.3 68.8 36.4 70.0 37.0Z"},"gu":{"w":75.5,"d":"M43.5 72.6 41.4 71.9 39.7 71.9 38.5 72.6 38.1 74.7 40.1 78.8 40.2 80.1 39.5 81.1 38.5 81.3 35.8 79.5 33.7 79.5 32.8 80.7 32.6 82.4 32.8 83.4 34.1 85.5 35.8 86.4 39.9 86.8 42.9 86.2 45.0 84.7 46.4 82.2 46.8 78.4 45.6 74.7ZM5.3 25.1 4.2 27.0 4.2 30.1 7.3 30.2 13.4 28.5 19.5 28.5 23.0 29.5 25.9 30.8 29.3 33.5 29.5 35.4 28.9 36.4 24.5 40.6 22.0 47.9 26.1 52.7 33.7 57.9 35.6 60.5 35.5 61.9 34.3 63.2 32.4 64.4 30.1 65.2 26.4 65.3 14.4 64.0 13.0 64.8 13.0 65.7 13.8 66.7 20.5 70.3 23.4 71.3 26.8 71.9 30.3 71.9 33.3 71.3 36.6 70.1 39.5 68.4 41.4 66.5 42.9 63.4 43.1 59.4 42.5 57.3 40.8 54.6 39.1 53.1 31.0 48.3 29.9 46.9 29.9 45.6 30.3 44.8 34.3 41.0 40.2 36.8 47.2 33.7 49.1 33.3 51.4 33.5 53.3 34.1 55.2 35.2 57.1 37.2 57.7 38.5 57.3 42.5 53.1 54.4 52.3 57.9 52.3 61.3 53.5 65.0 56.4 69.6 61.3 74.0 64.8 75.9 69.2 77.6 71.5 77.0 70.7 74.7 61.7 65.3 60.2 62.1 60.2 57.5 64.6 44.1 65.4 39.5 65.2 37.0 64.2 33.7 62.5 31.0 60.4 29.1 58.5 27.9 54.8 26.8 49.1 26.4 44.1 27.2 41.2 28.1 37.2 30.2 33.5 26.8 28.5 23.9 24.3 22.6 20.5 22.0 14.4 22.0 9.9 22.6 6.7 23.9Z"},"hu":{"w":82.2,"d":"M48.1 75.3 45.2 75.1 43.9 76.4 43.9 77.8 45.4 79.9 45.8 81.0 46.0 83.3 45.6 83.7 40.2 82.6 39.3 82.8 38.7 84.1 38.7 86.4 39.7 88.1 40.8 89.1 42.7 89.9 47.0 89.9 49.5 88.9 51.6 86.8 52.7 83.3 52.3 79.5 51.4 77.6 50.0 76.2ZM78.0 46.9 76.9 43.2 75.7 41.3 74.2 39.6 71.5 37.7 67.7 36.2 64.4 35.4 61.2 35.0 57.3 35.2 51.4 36.7 46.2 39.4 27.0 54.4 21.8 56.3 16.5 56.3 13.6 55.1 11.9 52.8 11.7 49.8 12.4 48.0 13.8 46.5 15.3 45.5 17.4 45.0 23.0 44.4 23.9 44.0 24.5 43.4 24.5 42.9 23.8 41.1 22.2 39.8 19.3 38.6 15.7 38.5 13.2 38.8 10.3 40.0 6.5 43.2 4.6 46.9 4.0 50.0 4.0 52.8 4.4 55.5 5.5 58.4 6.3 59.5 8.6 61.5 11.3 62.6 14.7 63.4 21.3 63.6 23.8 63.2 28.7 61.7 33.2 59.2 46.0 48.4 53.1 43.4 56.9 42.1 62.3 42.1 66.9 43.8 69.6 46.5 70.4 48.0 70.7 50.7 69.4 54.8 68.1 56.5 65.4 58.0 52.9 58.8 51.0 59.9 52.3 61.7 56.9 63.4 62.3 64.7 66.7 64.7 69.2 64.2 71.7 63.0 73.6 61.7 76.1 58.6 77.1 56.7 78.0 53.2Z"},"lu":{"w":83.0,"d":"M51.0 68.7 49.3 67.8 47.0 67.6 45.2 68.2 44.3 69.1 44.5 70.3 46.2 72.8 46.8 75.2 46.0 76.4 44.7 76.6 42.5 75.1 41.4 74.7 40.2 74.9 39.1 76.6 39.1 77.5 40.8 80.8 44.3 81.8 47.5 82.2 49.3 81.8 51.8 80.0 53.1 77.4 53.5 74.1 52.9 71.6ZM75.9 17.5 73.6 16.2 71.5 15.6 69.0 15.6 64.8 16.8 26.8 37.3 19.5 40.0 16.5 40.5 13.4 39.6 12.1 37.7 11.9 33.8 12.8 30.8 14.4 28.4 17.0 26.3 20.7 25.0 26.1 24.0 27.0 23.1 26.6 21.4 24.7 19.8 22.4 18.9 18.8 18.9 11.7 21.9 9.2 23.7 7.1 25.8 5.0 29.2 4.0 32.7 4.2 38.0 5.3 41.7 6.7 44.2 9.0 46.5 11.9 47.8 13.6 48.2 19.3 48.2 22.8 47.6 23.4 48.4 22.8 49.4 15.9 53.4 15.1 54.5 15.9 57.8 18.4 61.6 18.2 62.8 16.7 65.1 16.7 67.2 19.9 71.6 20.9 74.3 20.3 77.2 17.8 81.8 17.8 83.3 19.2 84.1 20.7 83.9 24.7 82.2 27.4 79.7 28.9 76.6 29.3 72.8 28.4 68.9 31.8 66.0 32.4 64.9 32.4 63.7 31.0 61.8 27.4 59.7 25.5 57.8 25.3 57.0 26.8 55.3 31.0 52.4 32.4 50.7 32.4 47.6 30.7 44.0 33.0 42.3 68.4 22.9 70.6 22.7 71.9 23.8 71.5 26.0 68.8 30.8 68.6 32.3 69.4 32.9 71.3 33.1 74.4 31.7 77.5 29.0 79.0 25.6 79.0 22.9 78.0 20.2Z"},"mu":{"w":77.0,"d":"M44.1 75.1 41.4 74.4 40.2 74.6 38.7 75.5 38.7 77.3 40.8 80.7 40.8 82.0 40.1 83.2 38.7 83.2 34.7 82.0 33.9 82.2 33.3 84.2 33.3 85.9 33.9 87.0 35.6 88.6 38.5 89.3 41.8 89.1 44.1 88.2 45.8 86.6 47.0 84.0 47.2 80.3 46.2 77.4ZM70.9 30.3 68.1 26.8 66.1 25.7 63.6 24.9 59.0 24.9 55.0 26.2 52.9 27.6 50.2 30.5 46.4 36.4 44.3 38.1 25.5 39.5 22.4 39.3 21.3 38.1 20.7 35.8 19.7 34.3 17.6 32.4 14.7 30.8 11.1 29.9 7.5 29.9 5.3 30.6 4.0 32.8 5.9 34.1 8.2 34.5 11.7 36.2 13.2 37.9 14.2 40.8 14.0 43.5 12.8 47.1 7.6 56.3 5.9 60.4 5.7 65.2 6.5 67.9 7.6 70.0 9.4 71.9 12.8 74.0 18.6 74.9 26.4 74.8 30.7 73.6 33.7 72.1 36.4 70.2 38.9 67.7 41.4 64.2 51.9 41.6 54.8 37.0 58.3 32.9 59.8 32.2 62.1 32.2 63.3 32.8 64.8 34.5 65.6 36.0 66.3 39.5 66.1 42.5 65.2 44.6 65.2 46.4 65.6 46.9 67.5 47.1 71.3 44.3 72.9 41.2 73.0 36.4 72.1 32.6ZM42.7 45.6 36.6 57.7 32.2 63.4 29.9 65.6 27.2 67.1 24.3 67.9 17.8 67.7 16.1 67.3 13.8 65.7 13.0 64.2 13.2 61.5 19.3 50.2 21.6 47.1 24.1 46.6 40.6 45.4Z"},"nu":{"w":71.5,"d":"M39.5 72.5 37.6 72.7 36.2 73.8 36.4 75.8 38.5 78.6 38.5 80.7 36.4 81.7 33.9 80.2 31.8 80.0 30.9 81.5 30.9 83.4 31.4 84.8 32.4 85.9 34.3 87.1 35.6 87.5 38.3 87.5 41.0 86.7 42.4 85.9 44.3 83.4 44.9 80.9 44.9 78.6 44.3 76.3 42.5 74.0ZM5.7 48.1 4.6 52.2 4.0 56.0 4.4 64.4 5.9 69.8 7.1 71.0 9.8 71.2 11.1 70.6 12.4 68.9 12.1 62.1 12.6 55.0 14.0 49.9 16.1 45.8 20.1 41.6 23.9 39.1 30.9 36.2 32.8 36.2 33.5 36.6 37.0 39.9 38.1 41.8 38.7 43.7 38.1 47.4 39.3 49.9 39.3 52.0 37.9 55.6 37.9 57.7 38.9 60.4 38.7 62.1 35.5 68.3 39.1 68.9 41.8 68.7 45.2 66.9 46.2 65.8 47.0 63.7 46.6 57.9 48.1 52.0 48.1 50.6 47.0 48.7 46.4 46.0 46.4 40.3 45.8 38.0 46.6 37.8 50.2 39.5 53.5 41.8 55.6 44.1 57.1 46.8 58.9 54.1 60.4 68.7 61.0 70.6 62.1 71.5 65.4 71.5 66.5 71.2 67.3 70.2 67.3 54.5 66.7 50.2 65.0 44.9 61.9 39.7 57.9 35.5 53.7 32.4 47.3 29.5 41.4 28.2 33.9 28.0 28.9 28.8 22.4 30.9 16.7 34.1 14.4 35.9 10.7 39.5 7.5 44.3Z"},"ngu":{"w":88.9,"d":"M54.1 74.7 51.6 74.5 49.6 76.2 50.0 77.8 51.8 79.9 51.9 82.9 51.6 83.3 46.6 82.2 45.4 82.2 44.5 83.9 44.5 85.6 45.4 87.5 46.6 88.5 50.0 89.4 53.9 89.3 56.4 87.9 57.5 86.4 58.7 83.3 58.5 79.9 57.1 77.0ZM4.8 30.6 4.0 33.6 4.2 36.5 5.3 39.4 7.5 41.5 10.5 42.7 23.2 42.1 28.0 42.5 29.9 43.4 32.0 45.5 33.0 47.3 33.9 51.1 33.9 53.6 33.0 56.5 31.0 58.6 28.9 59.7 25.3 60.9 21.8 61.4 8.2 61.4 5.5 62.6 4.6 63.7 4.0 65.5 4.2 69.1 5.3 71.6 6.5 72.8 8.6 73.9 13.6 74.5 14.9 73.7 14.9 72.8 14.4 71.6 12.4 69.5 12.6 68.9 26.1 68.4 31.8 66.8 34.5 65.5 36.8 63.7 38.7 61.6 40.2 59.1 42.0 55.1 45.4 51.9 46.6 51.9 47.5 52.4 55.6 63.0 57.1 64.5 59.2 65.5 60.6 65.3 62.3 63.9 69.0 51.7 71.1 49.6 73.8 48.2 76.9 48.8 78.8 50.3 79.6 52.6 79.6 54.5 78.6 57.6 76.9 59.0 75.5 59.0 72.3 57.4 70.7 57.4 70.4 57.8 70.2 59.7 71.7 63.2 73.2 64.7 75.2 65.7 78.6 65.9 82.4 64.3 83.6 63.2 84.9 60.9 84.9 46.7 83.2 44.0 81.7 42.5 79.2 41.1 77.6 40.7 73.4 40.7 70.6 41.3 67.1 42.8 63.3 46.3 58.9 53.6 58.3 53.8 53.7 48.0 51.2 45.5 48.9 44.2 45.2 44.0 40.6 45.5 36.6 39.2 34.7 37.5 31.6 35.7 27.6 34.8 22.6 34.8 16.5 35.4 11.9 34.8 11.9 33.8 16.3 28.8 16.1 27.3 13.6 25.4 10.9 25.2 8.2 26.4 6.1 28.3Z"},"pu":{"w":82.2,"d":"M47.2 75.0 45.2 75.2 43.7 76.3 44.1 78.4 45.2 79.8 45.6 83.2 45.2 83.6 43.1 83.4 39.9 82.1 38.9 82.7 38.3 84.0 38.1 85.4 39.1 87.1 40.6 88.6 43.9 90.0 46.4 90.0 49.5 88.8 51.2 87.1 52.3 84.0 52.3 80.6 51.2 77.7 50.0 76.3ZM4.0 35.5 4.0 35.9 5.9 37.6 13.2 41.2 10.1 45.8 8.0 49.9 7.3 53.5 7.5 57.3 8.4 60.6 10.1 63.5 12.1 65.2 15.1 66.6 17.2 66.9 22.2 66.7 26.6 65.8 29.7 64.6 35.6 61.4 44.5 54.7 45.6 54.7 47.2 55.8 48.1 57.2 50.6 62.7 51.4 63.5 53.1 63.1 54.2 60.8 54.4 57.9 51.9 48.1 57.1 44.5 61.2 43.0 64.2 42.8 66.9 43.5 69.4 45.6 70.4 47.2 71.1 49.7 71.3 52.9 69.6 60.0 70.0 62.7 72.5 62.1 75.0 59.8 76.5 57.5 77.8 54.1 78.2 52.0 78.0 47.2 77.1 43.7 75.2 40.3 72.9 38.0 69.6 36.3 65.8 35.3 60.6 35.3 55.6 36.6 50.8 39.3 33.9 53.5 29.1 56.8 23.9 58.7 20.9 59.3 17.8 59.1 16.5 58.3 15.3 56.8 14.9 55.4 15.3 51.6 16.7 48.9 19.0 46.6 23.0 44.1 23.0 42.4 17.2 36.8 11.9 33.0 9.2 32.8 5.9 33.4Z"},"su":{"w":59.4,"d":"M28.5 73.9 27.0 73.3 25.5 73.3 23.2 74.2 24.1 77.7 24.9 78.5 24.9 81.1 24.3 81.9 22.2 81.7 19.9 80.4 18.6 80.4 18.2 80.8 17.4 83.4 18.6 85.7 20.3 87.3 22.8 88.1 26.8 87.7 29.1 86.5 30.7 84.8 31.6 81.7 31.4 78.5 30.7 76.2ZM5.7 22.3 4.4 24.6 4.0 27.6 9.9 69.4 10.7 71.2 13.0 71.9 15.1 71.7 17.2 70.8 18.8 69.4 34.3 46.8 35.8 45.1 36.6 44.9 42.9 49.5 42.9 50.1 40.8 52.8 38.3 54.9 37.4 56.8 37.9 58.1 41.6 62.4 44.9 67.0 45.8 70.8 45.4 71.2 41.4 71.6 35.1 69.8 33.7 69.8 32.4 70.6 32.6 72.5 37.8 76.7 41.6 78.1 47.2 77.9 51.6 76.9 53.7 76.0 54.8 74.8 55.4 73.5 55.4 71.7 54.8 69.6 52.5 65.2 47.0 57.7 47.0 57.0 50.8 53.5 52.7 50.5 52.3 49.1 50.6 46.2 48.1 43.7 43.3 40.3 41.4 38.4 41.4 36.7 42.7 34.5 44.1 31.3 44.1 28.4 43.3 26.9 42.0 26.1 40.2 26.1 38.3 27.1 36.6 28.8 23.0 49.7 17.8 57.2 17.0 57.6 16.3 55.3 11.7 24.8 11.1 23.2 9.8 21.9 7.6 21.5Z"},"tu":{"w":82.0,"d":"M49.5 75.7 47.7 75.0 46.4 75.0 43.9 75.7 45.6 82.8 44.7 84.0 43.7 84.0 41.4 82.5 39.1 82.5 38.1 83.8 38.1 85.7 38.9 87.4 39.9 88.4 42.5 89.5 46.6 89.5 48.5 89.0 50.4 87.6 51.9 84.9 52.3 80.9 51.2 77.7ZM76.9 34.1 75.7 32.4 74.0 30.9 68.8 28.6 63.1 27.6 55.8 28.0 50.0 29.3 42.4 32.2 34.5 36.2 25.1 42.0 22.6 43.1 19.0 44.3 15.1 44.7 12.6 43.5 11.1 41.2 11.3 38.3 13.2 35.8 14.9 35.1 17.4 35.1 23.8 37.4 26.6 37.8 27.2 35.3 26.4 33.0 25.1 30.9 22.2 28.9 20.7 28.6 11.3 29.1 8.6 30.7 5.7 33.7 4.2 37.8 4.0 42.6 4.8 45.6 6.9 48.7 10.3 50.8 14.5 52.0 12.4 57.7 12.2 61.9 12.8 64.2 15.1 67.9 19.0 70.4 22.4 71.3 25.5 71.7 31.4 71.7 35.8 70.6 38.9 68.6 40.8 66.5 42.2 64.0 42.9 60.2 42.2 58.3 40.2 58.9 34.9 62.9 32.6 64.0 29.1 65.0 25.3 64.8 22.2 63.8 20.1 61.9 19.5 60.6 19.5 58.7 21.5 55.2 25.3 51.2 30.1 47.5 38.7 42.2 51.6 36.2 58.1 34.5 62.9 34.5 65.8 35.1 68.6 36.2 70.2 37.6 71.1 39.5 71.3 41.2 70.7 43.7 69.2 47.0 69.2 48.7 69.8 49.3 71.3 49.3 75.7 45.4 77.3 42.9 77.8 41.0 78.0 38.3Z"},"wu":{"w":47.5,"d":"M17.0 17.0 14.0 18.3 12.4 19.9 10.5 22.9 13.6 23.7 18.6 23.5 26.4 24.9 29.3 26.0 32.6 29.1 34.9 33.5 36.0 39.6 36.0 46.5 35.1 51.7 33.7 55.4 32.4 57.7 28.7 60.9 21.6 62.3 18.0 62.3 14.9 61.3 13.0 59.6 12.1 57.9 11.7 54.0 13.6 50.0 18.4 45.4 18.6 43.7 18.2 41.5 16.8 38.7 14.2 36.0 10.3 34.5 6.9 34.5 5.0 35.8 4.2 37.5 4.0 39.2 8.8 41.9 9.4 42.5 9.4 43.5 8.2 44.8 5.0 51.3 4.6 58.4 5.9 62.8 8.2 65.3 17.6 69.4 21.6 70.1 22.8 70.7 24.3 72.2 25.3 75.5 24.1 76.8 23.2 76.8 20.9 75.1 17.8 76.1 17.8 78.0 18.2 79.7 19.3 81.2 21.5 82.4 24.5 82.6 28.2 81.6 30.5 79.7 31.4 77.4 31.4 74.5 30.5 68.8 33.5 66.7 37.4 63.0 39.5 60.2 41.4 56.5 42.4 53.8 43.3 49.0 43.3 39.2 42.4 33.5 40.4 27.2 33.7 19.7 27.8 17.4Z"},"yu":{"w":88.4,"d":"M54.1 74.9 51.2 74.9 49.8 76.0 50.2 77.9 51.9 80.0 52.1 82.5 51.8 82.9 48.7 82.9 46.8 82.2 45.6 82.2 45.0 82.9 44.9 85.8 45.8 87.5 47.7 88.9 50.0 89.4 53.9 89.1 56.2 87.9 57.7 86.4 58.3 85.2 58.9 81.6 58.1 78.3 56.2 75.8ZM7.1 27.3 6.9 30.0 7.3 30.9 9.0 32.5 14.0 34.6 15.9 35.9 17.0 37.5 16.8 38.6 12.6 42.1 7.6 47.4 5.2 52.0 4.0 56.6 4.2 62.0 5.5 66.8 7.6 70.5 9.4 72.2 12.1 73.7 14.5 74.5 19.2 74.5 24.5 72.9 27.8 71.2 36.8 63.4 54.1 47.1 58.3 44.2 64.0 41.9 69.8 41.3 73.2 42.3 74.6 43.2 76.3 45.3 77.1 47.2 77.5 49.7 77.1 52.4 75.5 55.7 73.2 58.0 71.5 58.9 66.7 59.7 65.2 60.9 65.2 61.4 66.1 62.6 72.9 63.9 77.1 63.7 80.5 62.0 82.6 58.9 84.0 53.8 84.4 46.9 83.4 42.8 81.7 39.8 79.4 37.5 75.0 35.2 71.3 34.4 65.2 34.4 58.3 35.9 51.6 39.2 46.4 43.0 28.2 60.3 20.3 65.5 18.2 66.4 15.9 66.4 13.6 64.7 12.6 62.8 12.1 57.4 12.8 54.2 14.5 51.3 16.7 49.2 23.0 44.6 24.9 43.6 26.2 42.3 26.8 40.3 26.6 38.0 25.7 35.0 24.5 32.9 22.0 30.0 18.8 27.5 16.1 26.2 11.9 25.0 9.0 25.2Z"}};
+var GLYPH_KEYS = Object.keys(GLYPHS);
+function bayKey(tok){
+  var fin = /\+$/.test(tok); var k = tok.replace(/\+$/,"");
+  if(fin) k = k + "a";              // n+ -> na, ng+ -> nga
+  k = k.replace(/e$/,"i").replace(/o$/,"u"); // be -> bi, bo -> bu (same glyph)
+  return {k:k, fin:fin};
+}
+function bayGlyph(tok){
+  var t=bayKey(tok), g=GLYPHS[t.k]; if(!g) return "";
+  var cross = t.fin ? '<path d="M'+(g.w/2-1.9)+' 86 h3.8 v6 h6 v3.8 h-6 v6 h-3.8 v-6 h-6 v-3.8 h6 Z"/>' : "";
+  return '<svg class="bg" viewBox="0 0 '+g.w+' 100" style="width:'+(g.w/100).toFixed(3)+'em" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="'+g.d+'"/>'+cross+'</svg>';
+}
+function renderBay(root){
+  Array.prototype.forEach.call((root||document).querySelectorAll("[data-bay]"),function(el){
+    el.innerHTML = el.getAttribute("data-bay").trim().split(/\s+/).map(bayGlyph).join("");
+  });
+}
+renderBay();
+
+/* Sun: drawn as a single traced path in the #araw symbol above (no JS needed). */
+
+/* ============================================================
+   Ink-wash scene (canvas)
+   ============================================================ */
+function rng(seed){ return function(){ seed = (seed*16807) % 2147483647; return (seed-1)/2147483646; }; }
+function ridge(rand, w, n, rough){
+  // midpoint displacement, returns n+1 heights in [-1,1]
+  var pts = new Array(n+1); pts[0]=rand()*2-1; pts[n]=rand()*2-1;
+  var step=n, amp=1;
+  while(step>1){
+    var half=step/2;
+    for(var i=half;i<n;i+=step){ pts[i]=(pts[i-half]+pts[i+half])/2 + (rand()*2-1)*amp; }
+    amp*=rough; step=half;
+  }
+  return pts;
+}
+var SCN={ink:"36,32,27",paper:"240,230,204",hor:"240,230,204",k:1,night:false};
+function readScene(){
+  var cs=getComputedStyle(document.documentElement), ph=(typeof PHASE==="number")?PHASE:0;
+  SCN={ink:(cs.getPropertyValue("--scene-ink")||"36,32,27").trim(), paper:(cs.getPropertyValue("--paper-rgb")||"240,230,204").trim(),
+       hor:(cs.getPropertyValue("--sky-hor")||"240,230,204").trim(), k:1+1.3*ph, night:ph>.6};
+}
+/* Philippine lowland jungle along a ridge: a dense canopy of overlapping rounded crowns,
+   a few taller emergent trees, and scattered coconut palms leaning over it.
+   Same overall height as the old pine row (about 8-24px on a 700px-tall scene). */
+function drawJungle(ctx,W,H,o,yAt,n,A){
+  var rand=rng(o.seed+7), u=H/700, x0=o.trees.from*W, x1=o.trees.to*W, span=x1-x0;
+  var col="rgba("+SCN.ink+","+(A*.95)+")";
+  function ridgeY(x){ return yAt(Math.max(0,Math.min(n,Math.round(x/W*n)))); }
+  // only grow upward from the ridge: clip to the sky above the ridgeline
+  ctx.save(); ctx.beginPath(); ctx.moveTo(0,0);
+  for(var ci=0;ci<=n;ci++) ctx.lineTo(ci/n*W, yAt(ci)+.5);
+  ctx.lineTo(W,0); ctx.closePath(); ctx.clip();
+  // 1. canopy: crowns laid edge to edge so the forest reads as one dense mass
+  ctx.beginPath();
+  var x=x0;
+  while(x<x1){
+    var r=(3.2+rand()*4.2)*u, y=ridgeY(x)-r*.35;
+    ctx.moveTo(x+r*1.25,y); ctx.ellipse(x,y,r*1.25,r,0,0,Math.PI*2);
+    // a second, smaller crown tucked behind for depth
+    if(rand()<.6){ var r2=r*(.6+rand()*.3), xo=x+(rand()-.5)*r*1.6, yo=y-r*.55; ctx.moveTo(xo+r2*1.2,yo); ctx.ellipse(xo,yo,r2*1.2,r2,0,0,Math.PI*2); }
+    x+=r*(1.1+rand()*.6);
+  }
+  // 2. emergent trees: a trunk rising above the canopy with a broad, flat crown
+  var em=Math.max(2,Math.round(o.trees.count/14));
+  for(var e=0;e<em;e++){
+    var ex=x0+span*(.05+rand()*.9), ey=ridgeY(ex), eh=(13+rand()*8)*u, cw=(5+rand()*3)*u;
+    ctx.moveTo(ex-.7*u,ey); ctx.lineTo(ex-.5*u,ey-eh+cw*.3); ctx.lineTo(ex+.5*u,ey-eh+cw*.3); ctx.lineTo(ex+.7*u,ey); ctx.closePath();
+    ctx.moveTo(ex+cw*1.3,ey-eh); ctx.ellipse(ex,ey-eh,cw*1.3,cw*.6,0,0,Math.PI*2);
+    ctx.moveTo(ex+cw*.9-cw*.5,ey-eh-cw*.35); ctx.ellipse(ex-cw*.5,ey-eh-cw*.35,cw*.9,cw*.5,0,0,Math.PI*2);
+  }
+  ctx.fillStyle=col; ctx.fill();
+  // 3. coconut palms: slim curved trunks, drooping fronds
+  var palms=Math.max(3,Math.round(o.trees.count/7));
+  ctx.strokeStyle=col; ctx.lineCap="round"; ctx.lineJoin="round";
+  for(var p=0;p<palms;p++){
+    var px=x0+span*(.03+rand()*.94), py=ridgeY(px)-1*u, ph=(15+rand()*9)*u, lean=(rand()-.5)*ph*.55;
+    var tx=px+lean, ty=py-ph;
+    ctx.beginPath(); ctx.lineWidth=Math.max(.8,1.25*u);
+    ctx.moveTo(px,py); ctx.quadraticCurveTo(px+lean*.15,py-ph*.55,tx,ty); ctx.stroke();
+    ctx.lineWidth=Math.max(.7,1.05*u); ctx.beginPath();
+    var fronds=6+Math.floor(rand()*3);
+    for(var f=0;f<fronds;f++){
+      var ang=-Math.PI*.95+(Math.PI*.9)*(f/(fronds-1))+(rand()-.5)*.2, len=(6.5+rand()*3.5)*u;
+      var ex2=tx+Math.cos(ang)*len, ey2=ty+Math.sin(ang)*len*.55+len*.45;   // tips droop below the crown
+      var cx=tx+Math.cos(ang)*len*.55, cy=ty+Math.sin(ang)*len*.7-len*.18;
+      ctx.moveTo(tx,ty); ctx.quadraticCurveTo(cx,cy,ex2,ey2);
+    }
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(tx,ty+.6*u,1.2*u,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();   // coconuts
+  }
+  ctx.restore();
+}
+function drawLayer(ctx, W, H, o){
+  var A=Math.min(.95,o.alpha*SCN.k);
+  var rand=rng(o.seed), n=128, pts=ridge(rand,W,n,o.rough);
+  // o.valley = {c: centre (0..1 of width), w: half-width, cut: how much of the peak height to remove, drop: extra dip below the base line}
+  function yAt(i){
+    var t=i/n, env=o.env? o.env(t):1, y;
+    var v=o.valley, g=0;
+    if(v){ var d=(t-v.c)/v.w; g=Math.exp(-d*d); env*= (1 - v.cut*g); }
+    y=o.base*H - (pts[i]*0.5+0.5)*o.amp*H*env;
+    if(v) y += v.drop*H*g;
+    return y;
+  }
+  if(drawLayer.collect){ var rc=[]; for(var ri=0;ri<=n;ri++) rc.push(yAt(ri)/H); drawLayer.collect.push(rc); }
+  ctx.beginPath(); ctx.moveTo(0,H);
+  for(var i=0;i<=n;i++){ ctx.lineTo(i/n*W, yAt(i)); }
+  ctx.lineTo(W,H); ctx.closePath();
+  var top=(o.base-o.amp)*H, bot=o.fadeTo*H;
+  var gr=ctx.createLinearGradient(0,top,0,bot);
+  gr.addColorStop(0,"rgba("+SCN.ink+","+A+")");
+  gr.addColorStop(.55,"rgba("+SCN.ink+","+(A*.55)+")");
+  gr.addColorStop(1,"rgba("+SCN.ink+",0)");
+  ctx.fillStyle=gr; ctx.fill();
+  if(o.trees){ drawJungle(ctx,W,H,o,yAt,n,A); }
+}
+function softLayer(ctx,W,H,o,scale){
+  // draw at low resolution then upscale = brush-like softness, works in every browser
+  var c=document.createElement("canvas"); c.width=Math.max(1,Math.round(W*scale)); c.height=Math.max(1,Math.round(H*scale));
+  var cx=c.getContext("2d"); drawLayer(cx,c.width,c.height,o);
+  ctx.imageSmoothingEnabled=true; ctx.drawImage(c,0,0,W,H);
+}
+function paintScene(canvas){
+  var kind=canvas.getAttribute("data-scene");
+  var rect=canvas.getBoundingClientRect(); if(!rect.width) return;
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var W=Math.round(rect.width*dpr), H=Math.round(rect.height*dpr);
+  if(canvas.width===W && canvas.height===H && canvas._painted) return;
+  if(canvas.width!==W || canvas.height!==H){ canvas.width=W; canvas.height=H; }
+  canvas._painted=true;
+  var ctx=canvas.getContext("2d"); ctx.clearRect(0,0,W,H); readScene();
+  var narrow = rect.width<600;
+
+  /* Each mountain layer is drawn ONCE at full resolution into its own buffer (in black),
+     then re-tinted to the current colour every frame. Shapes stay razor sharp and the
+     day/night transition only does a few cheap copies per frame. */
+  var KMAX=2.3, vc=.92;
+  var mv=document.querySelector(".poster .vert-cols");
+  if(kind==="poster" && mv){ var mr=mv.getBoundingClientRect(); if(mr.width) vc=(mr.left+mr.width/2-rect.left)/rect.width; }
+  var ck=W+"x"+H+":"+vc.toFixed(3);
+  if(canvas._ck!==ck){ canvas._cache={}; canvas._ck=ck; canvas._ridgeParts=[]; canvas._ridge=null; }
+  function stamp(key, alpha, mult, draw){
+    var c=canvas._cache[key];
+    if(!c){
+      c=document.createElement("canvas"); c.width=W; c.height=H;
+      var keep=SCN; SCN={ink:"0,0,0",paper:keep.paper,hor:keep.hor,k:KMAX,night:keep.night};
+      if(key!=="refl"){ canvas._ridgeParts=canvas._ridgeParts||[]; drawLayer.collect=canvas._ridgeParts; }
+      draw(c.getContext("2d")); drawLayer.collect=null; SCN=keep; canvas._cache[key]=c;
+    }
+    var tmp=canvas._tmp||(canvas._tmp=document.createElement("canvas"));
+    if(tmp.width!==W||tmp.height!==H){ tmp.width=W; tmp.height=H; }
+    var t=tmp.getContext("2d");
+    t.globalCompositeOperation="source-over"; t.clearRect(0,0,W,H); t.drawImage(c,0,0);
+    t.globalCompositeOperation="source-in"; t.fillStyle="rgb("+SCN.ink+")"; t.fillRect(0,0,W,H);
+    t.globalCompositeOperation="source-over";
+    ctx.globalAlpha=mult*Math.min(.95,alpha*SCN.k)/Math.min(.95,alpha*KMAX);
+    ctx.drawImage(tmp,0,0); ctx.globalAlpha=1;
+  }
+
+  if(kind==="poster"){
+    var water= narrow? .62 : .70;   // phones: higher lake so the boat clears the name
+    var K=water/.70;
+    // valley under the vertical Baybayin motto, like the dip under the poster's lettering
+    function V(cut,drop,w){ return {c:vc,w:w*Math.max(1,700/rect.width),cut:cut,drop:drop}; }  // wider on small screens so it stays a soft dip
+    function sc(o){ var c={}; for(var p in o) c[p]=o[p]; c.base=o.base*K; c.amp=o.amp*K; c.fadeTo=o.fadeTo*K; return c; }
+    function dL(cx,o){ drawLayer(cx,W,H,sc(o)); }
+    function sL(cx,o,q){ softLayer(cx,W,H,sc(o),q); }
+    stamp("far",.16,1,function(cx){ sL(cx,{seed:11,base:.50,amp:.22,rough:.56,alpha:.16,fadeTo:.66,valley:V(.42,.015,.14)},.18); });
+    stamp("mid",.24,1,function(cx){ sL(cx,{seed:29,base:.56,amp:.17,rough:.55,alpha:.24,fadeTo:.69,valley:V(.38,.01,.12)},.3); });
+    stamp("trees",.32,1,function(cx){ sL(cx,{seed:5,base:.63,amp:.13,rough:.5,alpha:.32,fadeTo:.71,env:function(t){return .35+.65*Math.pow(t,1.4);},
+      trees:{count:narrow?28:70,from:.74,to:1}},.6); });
+    stamp("near",.78,1,function(cx){ dL(cx,{seed:3,base:.66,amp:.2,rough:.52,alpha:.78,fadeTo:.72,env:function(t){return Math.max(0,1-t*1.55);}}); });
+    // mist over the waterline
+    var m=ctx.createLinearGradient(0,(water-.09)*H,0,(water+.03)*H);
+    m.addColorStop(0,"rgba("+SCN.hor+",0)"); m.addColorStop(.7,"rgba("+SCN.hor+",.92)"); m.addColorStop(1,"rgba("+SCN.hor+",1)");
+    ctx.fillStyle=m; ctx.fillRect(0,(water-.09)*H,W,.12*H);
+    // the lake mirrors the horizon colour near the shore and blends into the page below
+    var lk=ctx.createLinearGradient(0,(water+.03)*H,0,H);
+    lk.addColorStop(0,"rgb("+SCN.hor+")"); lk.addColorStop(.55,"rgb("+SCN.paper+")"); lk.addColorStop(1,"rgb("+SCN.paper+")");
+    ctx.fillStyle=lk; ctx.fillRect(0,(water+.03)*H,W,H);
+    // reflection of the near hill
+    stamp("refl",.9,.10,function(cx){ cx.translate(0,2*water*H); cx.scale(1,-1);
+      sL(cx,{seed:3,base:.66,amp:.2,rough:.52,alpha:.9,fadeTo:.7,env:function(t){return Math.max(0,1-t*1.55);}},.25); });
+    // water lines
+    var r=rng(41);
+    for(var k=0;k<26;k++){
+      var y=(water+.04+r()*.24)*H, x=r()*W, len=(30+r()*160)*dpr;
+      ctx.strokeStyle= SCN.night? "rgba(255,244,214,"+(.03+r()*.05)+")" : "rgba("+SCN.ink+","+(.04+r()*.05)+")"; ctx.lineWidth=dpr;
+      ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+len,y); ctx.stroke();
+    }
+  } else {
+    stamp("b1",.2,1,function(cx){ softLayer(cx,W,H,{seed:17,base:.7,amp:.4,rough:.55,alpha:.2,fadeTo:.95},.2); });
+    stamp("b2",.32,1,function(cx){ softLayer(cx,W,H,{seed:23,base:.84,amp:.38,rough:.52,alpha:.32,fadeTo:1},.35); });
+    stamp("b3",.5,1,function(cx){ drawLayer(cx,W,H,{seed:8,base:.97,amp:.34,rough:.5,alpha:.5,fadeTo:1.1,env:function(t){return .2+.8*Math.pow(t,1.6);},
+      trees:{count:narrow?16:40,from:.8,to:1}}); });
+    var f=ctx.createLinearGradient(0,.86*H,0,H);
+    f.addColorStop(0,"rgba("+SCN.paper+",0)"); f.addColorStop(1,"rgba("+SCN.paper+",1)");
+    ctx.fillStyle=f; ctx.fillRect(0,.86*H,W,.14*H);
+  }
+}
+// After painting, record the top of the mountains (first visibly inked pixel per column)
+// so the sun and moon can be clipped as they sink behind them.
+function recordRidge(canvas){
+  var parts=canvas._ridgeParts, r=canvas.getBoundingClientRect(); if(!parts||!parts.length||!r.width) return;
+  var step=3, ys=[];
+  for(var x=0;x<=r.width;x+=step){
+    var t=x/r.width, best=Infinity;
+    parts.forEach(function(p){ var f=t*(p.length-1), i=Math.floor(f), u=f-i, y=p[i]+((p[Math.min(i+1,p.length-1)])-p[i])*u; if(y<best) best=y; });
+    ys.push(best*r.height);
+  }
+  canvas._ridge={step:step, ys:ys};
+}
+function paintVisible(){
+  $all(".page:not([hidden]) canvas[data-scene]").forEach(function(c){ var was=c._painted; paintScene(c); if(!was||!c._ridge) recordRidge(c); });
+  if(typeof sizeGlows==="function") sizeGlows();
+  if(typeof makeStars==="function") makeStars();
+}
+var rT; window.addEventListener("resize",function(){ clearTimeout(rT); rT=setTimeout(function(){
+  $all("canvas[data-scene]").forEach(function(c){c._painted=false;}); paintVisible(); },150); });
+
+/* ============================================================
+   Decrypt effect
+   ============================================================ */
+var UP="ABCDEFGHIJKLMNOPQRSTUVWXYZ", LO="abcdefghijklmnopqrstuvwxyz", NUM="0123456789";
+var SYM="#%&*+=<>/\\|{}[]$@!?";
+var BAY=GLYPH_KEYS; // all 45 syllables from the chart
+function pick(s){return s.charAt(Math.floor(Math.random()*s.length));}
+var BAYCHARS=Array.from("ᜀᜁᜂᜃᜄᜅᜆᜇᜈᜉᜊᜋᜌᜎᜏᜐᜑ"); // one character per glyph in the chart font
+function scrambleFor(ch){
+  if(/[A-Za-z0-9]/.test(ch)) return BAYCHARS[Math.floor(Math.random()*BAYCHARS.length)];
+  return ch; // spaces & punctuation stay put, so lines barely reflow
+}
+var runs=[]; // active animations, cancelled on tab change
+function cancelRuns(){ runs.forEach(function(r){r.cancel();}); runs=[]; }
+
+// Big headings: per-letter spans, fixed widths, Baybayin + symbols cycling
+function decryptName(el, total){
+  var text=el.getAttribute("data-name")||el.textContent;
+  el.setAttribute("aria-label",text);
+  var brk=el.hasAttribute("data-break"); el._decrypting=true;
+  function finalMarkup(){ var t=el.getAttribute("data-name")||text; if(brk) el.innerHTML=esc(t).replace(/ /g,"<br>"); else el.textContent=t; }
+  if(reduceMotion){ finalMarkup(); return {cancel:function(){}}; }
+  el.innerHTML="";
+  var spans=[], word=null;
+  for(var i=0;i<text.length;i++){
+    var s=document.createElement("span"); s.className="ch"; s.setAttribute("aria-hidden","true");
+    if(text[i]===" " && brk){ s.className="ch br"; s.textContent=""; }
+    else if(text[i]===" "){ s.className="ch sp"; s.textContent=" "; }   // a real space: shows the gap, allows wrapping
+    else s.textContent=text[i];
+    // keep each word together so multi-word titles wrap between words, never inside one
+    if(text[i]===" "){ el.appendChild(s); word=null; }
+    else { if(!word){ word=document.createElement("span"); word.className="wd"; el.appendChild(word); } word.appendChild(s); }
+    spans.push(s);
+  }
+  // lock widths to the final glyphs so the word never jitters
+  spans.forEach(function(s){ if(!/\b(br|sp)\b/.test(s.className)) s.style.width=s.getBoundingClientRect().width+"px"; });
+  var n=text.length, start=performance.now(), locks=[];
+  for(var j=0;j<n;j++){ locks.push(total*.28 + (total*.66)*(j/Math.max(1,n-1)) + Math.random()*total*.06); }
+  var last=0, raf, done=false;
+  function frame(now){
+    var t=now-start;
+    if(now-last>70){ // slow, readable flicker
+      last=now;
+      for(var k=0;k<n;k++){
+        if(text[k]===" ") continue;
+        if(t>=locks[k]){ if(!spans[k]._on){ spans[k].textContent=text[k]; spans[k].className="ch on"; spans[k]._on=true; } }
+        else { spans[k].innerHTML = bayGlyph(BAY[Math.floor(Math.random()*BAY.length)]); spans[k].className="ch off"; }
+      }
+    }
+    if(t<total+80) raf=requestAnimationFrame(frame); else finish();
+  }
+  function finish(){ if(done) return; done=true; finalMarkup(); el._decrypting=false; if(typeof glitchBurst==="function") setTimeout(function(){ glitchBurst(el); },120); }
+  raf=requestAnimationFrame(frame);
+  return {cancel:function(){ cancelAnimationFrame(raf); finish(); }};
+}
+
+// Body text: walk text nodes, sweep left-to-right
+function decryptBlock(el, total, delay){
+  var nodes=[]; var w=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+  var nd; while((nd=w.nextNode())){ if(nd.nodeValue.trim()) nodes.push(nd); }
+  nodes.forEach(function(x){ if(x._orig==null) x._orig=x.nodeValue; x.nodeValue=x._orig; });
+  if(reduceMotion || !nodes.length) return {cancel:function(){}};
+  var full=nodes.map(function(x){return x._orig;}), len=full.reduce(function(a,b){return a+b.length;},0);
+  var start=performance.now()+delay, last=0, raf, done=false;
+  el.setAttribute("aria-busy","true");
+  function render(progress){
+    var revealed=Math.floor(progress*len), idx=0;
+    nodes.forEach(function(x,ni){
+      var o=full[ni], s="";
+      for(var c=0;c<o.length;c++,idx++){
+        if(idx<revealed) s+=o[c];
+        else if(idx<revealed+18 || progress<=0) s+=scrambleFor(o[c]);
+        else s+=scrambleFor(o[c]);
+      }
+      x.nodeValue=s;
+    });
+  }
+  function frame(now){
+    var t=now-start;
+    if(now-last>55){ last=now; var p=Math.max(0,Math.min(1,t/total)); p=p<1? (1-Math.pow(1-p,1.6)):1; render(p); }
+    if(t<total) raf=requestAnimationFrame(frame); else finish();
+  }
+  function finish(){ if(done) return; done=true; nodes.forEach(function(x){x.nodeValue=x._orig;}); el.removeAttribute("aria-busy"); }
+  render(0);
+  raf=requestAnimationFrame(frame);
+  return {cancel:function(){ cancelAnimationFrame(raf); finish(); }};
+}
+
+function runPage(page){
+  cancelRuns();
+  var name=$("[data-name]",page);
+  var nameMs = page.id==="page-home"? CONFIG.nameDecryptMs : CONFIG.titleDecryptMs;
+  if(name) runs.push(decryptName(name,nameMs));
+  var blocks=$all("[data-decrypt]",page).filter(function(b){ return b.offsetParent!==null; });
+  blocks.forEach(function(b,i){ runs.push(decryptBlock(b, CONFIG.bodyDecryptMs, 350+Math.min(i,10)*110)); });
+  var st=$("[data-status]",page);
+  if(st){
+    // "IDENTITY // DECRYPTING" with dots stepping  · . .. ...  twice, then "THE HACKER POET" decrypts in
+    // read when shown, so text published from admin.html wins even if it arrives mid-animation
+    function FINAL_(){ var id=st.getAttribute("data-identity")||"The Hacker Poet"; st.setAttribute("aria-label","Identity: "+id);
+      return esc(st.getAttribute("data-status-label")||"identity")+' // <span class="ok" data-edit="home.identity" data-type="plain">'+esc(id)+'</span>'; }
+    var FINAL=FINAL_();
+    if(reduceMotion){ st.innerHTML=FINAL; }
+    else{
+      st.innerHTML=esc(st.getAttribute("data-status-label")||"identity")+' // decrypting<span class="dots" aria-hidden="true"></span>';
+      var dots=st.querySelector(".dots"), step=0, DOT_MS=380, STEPS=8;   // 2 full sequences of 4
+      var iv=setInterval(function(){
+        step++;
+        if(step<STEPS){ dots.textContent=".".repeat(step%4); return; }
+        clearInterval(iv);
+        st.innerHTML=FINAL_();
+        runs.push(decryptBlock(st.querySelector(".ok"),1500,0));
+      },DOT_MS);
+      runs.push({cancel:function(){ clearInterval(iv); st.innerHTML=FINAL_(); }});
+    }
+  }
+}
+
+/* ============================================================
+   Tabs (hash routing: #home #about #projects #blog #contact)
+   ============================================================ */
+var TABS=$all(".page[data-page]").map(function(p){ return p.getAttribute("data-page"); });
+var TAB_ALIAS={blog:"projects"};
+function resolveTab(t){ t=TAB_ALIAS[t]||t; return TABS.indexOf(t)<0 ? TABS[0] : t; }
+function show(tab, scroll){
+  tab=resolveTab(tab);
+  $all(".page").forEach(function(p){ p.hidden = p.getAttribute("data-page")!==tab; });
+  $all("nav a[data-tab]").forEach(function(a){
+    if(a.getAttribute("data-tab")===tab) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+  });
+  var page=$("#page-"+tab);
+  // restart the fade-in
+  page.style.animation="none"; void page.offsetWidth; page.style.animation="";
+  paintVisible();
+  runPage(page);
+  if(scroll) window.scrollTo(0,0);
+  try{ localStorage.setItem("bantay-tab",tab); }catch(e){}
+}
+function currentHash(){ return (location.hash||"").replace("#",""); }
+window.addEventListener("hashchange",function(){ show(currentHash(),true); });
+// clicking the tab you're already on replays the decrypt
+document.addEventListener("click",function(e){
+  var a=e.target.closest && e.target.closest('a[href^="#"]');
+  if(!a) return;
+  var tab=a.getAttribute("href").slice(1);
+  if(TABS.indexOf(tab)>=0 && tab===currentHash()){ e.preventDefault(); show(tab,true); }
+  if(TAB_ALIAS[tab]){ e.preventDefault(); location.hash=TAB_ALIAS[tab]; }
+});
+
+/* ============================================================
+   Projects filter
+   ============================================================ */
+$all(".chip").forEach(function(btn){
+  btn.addEventListener("click",function(){
+    var f=btn.getAttribute("data-filter"), scope=btn.closest(".body")||document;
+    $all(".chip",scope).forEach(function(b){ b.setAttribute("aria-pressed", String(b===btn)); });
+    $all(".proj,.evt",scope).forEach(function(p){
+      var on = f==="all" || (" "+p.getAttribute("data-tags")+" ").indexOf(" "+f+" ")>=0;
+      var was=p.hidden; p.hidden=!on;
+      if(on && was){ $all("[data-decrypt]",p).forEach(function(b){ runs.push(decryptBlock(b,1200,0)); }); }
+    });
+  });
+});
+
+/* ============================================================
+   Clickable list items: a project or event with data-link opens it.
+   Same-site #tabs stay in this tab; other sites open in a new one.
+   ============================================================ */
+function linkify(root){
+  if(EDIT_MODE) return;
+  $all("[data-link]",root).forEach(function(it){
+    it.setAttribute("role","link"); it.setAttribute("tabindex","0");
+    var h=$("h3",it); if(h) it.setAttribute("aria-label",(h.textContent||"").trim()+" (opens link)");
+  });
+}
+function openLink(it){
+  var u=it.getAttribute("data-link")||""; if(!u) return;
+  if(u.charAt(0)==="#"){ location.hash=u; return; }
+  var w=window.open(u,"_blank","noopener"); if(w) w.opener=null;
+}
+document.addEventListener("click",function(e){
+  if(EDIT_MODE) return;
+  var it=e.target.closest && e.target.closest("[data-link]"); if(!it) return;
+  if(e.target.closest("a,button,input,select,textarea")) return;     // a real link or control inside wins
+  if(window.getSelection && String(window.getSelection())) return;     // selecting text shouldn't navigate
+  openLink(it);
+});
+document.addEventListener("keydown",function(e){
+  if(EDIT_MODE || (e.key!=="Enter" && e.key!==" ")) return;
+  var it=e.target.closest && e.target.closest("[data-link]"); if(!it || it!==e.target) return;
+  e.preventDefault(); openLink(it);
+});
+linkify(document);
+
+/* ============================================================
+   Blog
+   ============================================================ */
+function fmtPostDate(d){ var p=String(d).split("-"); if(p.length!==3) return String(d); var m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][+p[1]-1]; return p[2]+" "+m+" "+p[0]; }
+function postMarkup(p){
+  return '<li class="post">'+
+    '<div class="post-btn" role="button" tabindex="0" aria-expanded="false">'+
+      '<span class="post-date" data-part="plain">'+esc(fmtPostDate(p.date))+'</span>'+
+      '<span><span class="post-title" data-decrypt data-part="plain">'+esc(p.title)+'</span><span class="post-sum" data-decrypt data-part="inline">'+esc(p.sum)+'</span></span>'+
+      '<span class="post-ico" aria-hidden="true">+</span>'+
+    '</div>'+
+    '<div class="post-body" role="region" hidden>'+
+      '<div class="rt" data-part="rich">'+p.body.map(function(t){return '<p>'+esc(t)+'</p>';}).join("")+'</div>'+
+      '<div class="tags" data-part="tags">'+p.tags.map(function(t){return '<span>'+esc(t)+'</span>';}).join("")+'</div>'+
+    '</div></li>';
+}
+// ids and accordion state are rebuilt after any change to the list (new posts, reordering, live content)
+function fixPosts(){
+  $all("#posts > li.post").forEach(function(li,i){
+    var btn=$(".post-btn",li), body=$(".post-body",li); if(!btn||!body) return;
+    btn.id="pb-"+i; btn.setAttribute("aria-controls","post-"+i); btn.setAttribute("role","button"); btn.setAttribute("tabindex","0");
+    body.id="post-"+i; body.setAttribute("aria-labelledby","pb-"+i);
+    if(btn.getAttribute("aria-expanded")!=="true"){ body.hidden=true; btn.setAttribute("aria-expanded","false"); }
+  });
+}
+(function(){
+  var ul=$("#posts"); if(!ul) return;
+  if(!ul.children.length) ul.innerHTML=POSTS.map(postMarkup).join("");
+  fixPosts();
+  function toggle(btn){
+    if(EDIT_MODE) return;
+    var body=document.getElementById(btn.getAttribute("aria-controls")); if(!body) return;
+    var open=btn.getAttribute("aria-expanded")==="true";
+    btn.setAttribute("aria-expanded",String(!open)); body.hidden=open;
+    if(!open){ $all("p",body).forEach(function(pp,i){ runs.push(decryptBlock(pp,1500,i*160)); }); }
+  }
+  ul.addEventListener("click",function(e){ var b=e.target.closest(".post-btn"); if(b) toggle(b); });
+  ul.addEventListener("keydown",function(e){ var b=e.target.closest(".post-btn"); if(b && (e.key==="Enter"||e.key===" ")){ e.preventDefault(); toggle(b); } });
+})();
+
+/* ============================================================
+   Contact
+   ============================================================ */
+function renderAddr(){
+  var dl=$("#addr"); if(!dl) return;
+  var rows=[]; if(CONFIG.email) rows.push(["Email",CONFIG.email,null,""]);
+  if(CONFIG.github || EDIT_MODE) rows.push(["GitHub",(CONFIG.github||"").replace(/^https?:\/\//,""),CONFIG.github||"","contact.github"]);
+  if(CONFIG.linkedin || EDIT_MODE) rows.push(["LinkedIn",(CONFIG.linkedin||"").replace(/^https?:\/\/(www\.)?/,""),CONFIG.linkedin||"","contact.linkedin"]);
+  dl.innerHTML=rows.map(function(r){
+    var ed = r[3]? ' data-edit="'+r[3]+'" data-type="plain"' : '';
+    var val = r[2]!==null? '<a href="'+esc(r[2]||"#")+'" target="_blank" rel="noopener noreferrer"'+ed+'>'+esc(r[1]||"(add link)")+'</a>' : '<span class="mono-sel">'+esc(r[1])+'</span>';
+    return '<div><dt>'+r[0]+'</dt><dd>'+val+'<button class="copy" type="button" data-copy="'+esc(r[2]||r[1])+'">Copy</button></dd></div>';
+  }).join("");
+}
+(function(){
+  renderAddr();
+
+  function copyText(text, btn, sourceEl){
+    function ok(){ var o=btn.textContent; btn.textContent="Copied"; setTimeout(function(){btn.textContent=o;},1600); }
+    function fallback(){
+      var range=document.createRange(); var tgt=sourceEl||btn.parentNode.firstChild;
+      try{ range.selectNodeContents(tgt); var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range); btn.textContent="Selected, press Ctrl/⌘+C"; }catch(e){}
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(ok,fallback); }
+    else fallback();
+  }
+  document.addEventListener("click",function(e){
+    var b=e.target.closest && e.target.closest("[data-copy]"); if(!b) return;
+    copyText(b.getAttribute("data-copy"), b, b.parentNode.firstChild);
+  });
+
+  var form=$("#contactForm"), sealed=$("#sealed"), pre=$("#sealedText");
+  if(!form) return;
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    var name=$("#cf-name").value.trim(), email=$("#cf-email").value.trim(), topic=$("#cf-topic").value, msg=$("#cf-msg").value.trim();
+    var bad=false;
+    $("#err-name").textContent = name? "" : (bad=true,"Add your name so I know who's writing.");
+    $("#err-email").textContent = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)? "" : (bad=true,"Enter an email I can reply to, like you@example.com.");
+    $("#err-msg").textContent = msg.length>=10? "" : (bad=true,"Write at least a sentence.");
+    if(bad) return;
+    var subject="["+topic+"] from "+name;
+    var letter=(CONFIG.email?"To: "+CONFIG.email+"\n":"")+"Subject: "+subject+"\n\n"+msg+"\n\n— "+name+" <"+email+">";
+    pre.textContent=letter;
+    var ml=$("#mailLink");
+    if(CONFIG.email){ ml.textContent="Open in mail app"; ml.setAttribute("href","mailto:"+encodeURIComponent(CONFIG.email)+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(msg+"\n\n— "+name+" <"+email+">")); ml.removeAttribute("target"); }
+    else { ml.textContent="Send it on LinkedIn"; ml.setAttribute("href",CONFIG.linkedin); ml.setAttribute("target","_blank"); ml.setAttribute("rel","noopener"); }
+    form.hidden=true; sealed.hidden=false;
+    runs.push(decryptBlock(pre,1600,0));
+  });
+  $("#copyLetter").addEventListener("click",function(){ copyText(pre.textContent,this,pre); });
+  $("#editLetter").addEventListener("click",function(){ sealed.hidden=true; form.hidden=false; $("#cf-msg").focus(); });
+})();
+
+/* ============================================================
+   Laptop screen: tokens typed line by line like a terminal session.
+   Drawn as tiny colored bars (they read as code at this size). Lives
+   inside the boat symbol, so the lake reflection types along with it.
+   ============================================================ */
+(function(){
+  var g=document.getElementById("codeLines"); if(!g) return;
+  var hA=document.getElementById("handA"), hB=document.getElementById("handB");
+  var NS="http://www.w3.org/2000/svg", LH=10.5, MAX=9;
+  var C={red:"#e2553c",cream:"#f0e6cc",dim:"#8c826f",gold:"#d9b36a"};
+  function r(a,b){return a+Math.random()*(b-a);}
+  function line(){
+    var t=[], x=6, kind=Math.random();
+    function add(w,c){ if(x+w>94) return false; t.push({x:x,w:w,c:c}); x+=w+2.4; return true; }
+    if(kind<.22){ add(4,C.red); add(r(10,16),C.cream); add(r(14,30),C.dim); }           // $ cmd --flags
+    else if(kind<.34){ add(r(30,80),C.dim); }                                             // output
+    else if(kind<.42){ add(6,C.gold); add(r(20,60),C.red); }                              // [ok] ████
+    else { x+= [0,6,12,18][Math.floor(r(0,4))];                                            // source code
+      var n=Math.floor(r(2,6)), cs=[C.red,C.cream,C.cream,C.gold,C.dim];
+      for(var i=0;i<n;i++){ if(!add(r(4,17),cs[Math.floor(r(0,cs.length))])) break; } }
+    return {t:t,shown:0};
+  }
+  var lines=[line()], cursorOn=true, hand=0;
+  function draw(){
+    while(g.firstChild) g.removeChild(g.firstChild);
+    lines.forEach(function(L,i){
+      var y=5+i*LH;
+      for(var j=0;j<L.shown;j++){ var k=L.t[j]; var e=document.createElementNS(NS,"rect");
+        e.setAttribute("x",k.x); e.setAttribute("y",y); e.setAttribute("width",k.w); e.setAttribute("height",5.6);
+        e.setAttribute("rx",1); e.setAttribute("fill",k.c); g.appendChild(e); }
+      if(i===lines.length-1 && cursorOn){
+        var last=L.t[L.shown-1], cx= last? last.x+last.w+2.4 : 6;
+        var c=document.createElementNS(NS,"rect"); c.setAttribute("x",cx); c.setAttribute("y",y-.6);
+        c.setAttribute("width",3.4); c.setAttribute("height",7); c.setAttribute("fill",C.cream); g.appendChild(c);
+      }
+    });
+  }
+  if(reduceMotion){ lines=[]; for(var i=0;i<MAX;i++){ var L=line(); L.shown=L.t.length; lines.push(L);} cursorOn=false; draw(); return; }
+  function tick(){
+    if(!document.hidden){
+      var L=lines[lines.length-1];
+      if(L.shown<L.t.length){ L.shown++; hand^=1;
+        if(hA&&hB){ hA.setAttribute("transform", hand?"translate(0,-0.9)":""); hB.setAttribute("transform", hand?"":"translate(0,-0.9)"); } }
+      else { lines.push(line()); if(lines.length>MAX) lines.shift(); }
+      draw();
+    }
+    var L2=lines[lines.length-1];
+    setTimeout(tick, L2.shown>=L2.t.length ? r(220,700) : r(70,190));   // pause at line ends, like a person thinking
+  }
+  setInterval(function(){ cursorOn=!cursorOn; draw(); },520);
+  tick();
+})();
+
+/* ============================================================
+   Line the oval up with the letters: measure where the capitals start
+   and where the baseline sits in the name font, then trim the oval to match.
+   ============================================================ */
+function alignCartouche(){
+  var h=document.querySelector("h1.name"), c=document.querySelector(".name-row .cartouche"); if(!h||!c) return;
+  try{
+    var cs=getComputedStyle(h), fs=parseFloat(cs.fontSize);
+    var ctx=document.createElement("canvas").getContext("2d");
+    ctx.font=cs.fontWeight+" "+fs+"px "+cs.fontFamily;
+    var m=ctx.measureText("GABERR");
+    var asc=m.fontBoundingBoxAscent, desc=m.fontBoundingBoxDescent, cap=m.actualBoundingBoxAscent;
+    if(!asc||!cap){ asc=fs*.9; desc=fs*.25; cap=fs*.72; }   // older browsers: sensible defaults
+    var lh=parseFloat(cs.lineHeight); if(isNaN(lh)) lh=fs;
+    var half=(lh-(asc+desc))/2;
+    c.style.marginTop=Math.max(0,half+asc-cap)+"px";
+    c.style.marginBottom=Math.max(0,half+desc)+"px";
+  }catch(e){}
+}
+window.addEventListener("resize",alignCartouche);
+
+/* ============================================================
+   Night mode: click the sun (or the moon to come back).
+   The sun sets along an arc to the right and sinks behind the mountains;
+   the moon follows the same arc in from the top-left into the sun's place.
+   Switching back to day runs the same motion with the roles swapped.
+   ============================================================ */
+function sceneOf(btn){ return btn.closest(".poster,.band"); }
+function sizeGlows(){
+  $all(".sun").forEach(function(b){
+    var sc=sceneOf(b); if(!sc) return;
+    var sr=sc.getBoundingClientRect(), br=b.getBoundingClientRect(); if(!br.width) return;
+    var cy=br.top-sr.top+br.height/2;                    // distance from the orb's centre to the top of the scene
+    var r=Math.min(br.width*1.6, cy-14);                 // glow stops short of the nav bar
+    b.style.setProperty("--glow-r", Math.max(0,r)+"px");
+  });
+}
+window.addEventListener("resize",function(){ setTimeout(sizeGlows,200); });
+
+var themeMeta=document.querySelector('meta[name="theme-color"]');
+function setThemeColor(c){ if(themeMeta && themeMeta.content!==c) themeMeta.setAttribute("content",c); }
+function applyNight(on){
+  PHASE=on?1:0;
+  setThemeColor(on?"#1c1f29":"#f0e6cc");
+  document.documentElement.classList.toggle("night",on);
+  $all(".sun").forEach(function(b){ b.setAttribute("aria-pressed",String(on)); b.setAttribute("aria-label", on?"Switch to day mode":"Switch to night mode"); });
+}
+function repaintScenes(fade, then){
+  var canvases=$all("canvas[data-scene]");
+  function go(){ canvases.forEach(function(c){ c._painted=false; c._ridge=null; }); paintVisible(); canvases.forEach(function(c){ c.style.opacity=""; }); if(then) then(); }
+  if(fade){ canvases.forEach(function(c){ c.style.opacity="0"; }); setTimeout(go,430); } else go();
+}
+function setNight(on, instant){ applyNight(on); repaintScenes(!instant && !reduceMotion); }
+
+function ridgeAt(rg,x){
+  if(!rg || !rg.ys.length) return Infinity;
+  var i=Math.round(x/rg.step); i=Math.max(0,Math.min(rg.ys.length-1,i));   // hold the edge value past either side
+  return rg.ys[i];
+}
+// lowest ridge point under a span: the orb is only "behind the mountains" once it is below all of it
+function ridgeMax(rg,x0,x1){ var m=-Infinity; for(var x=x0;x<=x1;x+=3){ var y=ridgeAt(rg,x); if(y>m) m=y; } return m; }
+// lowest point of the ridge under a span (so the whole orb is hidden, not just its centre)
+function ridgeLow(rg,x0,x1){ var m=-Infinity; for(var x=x0;x<=x1;x+=3){ var y=ridgeAt(rg,x); if(y>m) m=y; } return m; }
+// One large circle passes through the sun's spot. Moving forward along it (to the right) the orb
+// curves down behind the mountains; moving backward it climbs off to the top-left.
+function arcFor(btn){
+  var scene=sceneOf(btn), sr=scene.getBoundingClientRect(), br=btn.getBoundingClientRect();
+  var size=br.width, sx=br.left-sr.left+size/2, sy=br.top-sr.top+size/2, W=sr.width, H=sr.height;
+  var cvs=scene.querySelector("canvas[data-scene]"), rg=cvs&&cvs._ridge, ph=25*Math.PI/180, half=size*.5;
+  // Try the gentlest arc first and tighten it until the orb is fully below the ridge
+  // before any part of it reaches the right edge (this matters on narrow phone screens).
+  var R, cx, cy, aEnd=ph, ok=false, base=Math.max(W,700)*.9;
+  function pt(a){ return {x:cx+R*Math.sin(a), y:cy-R*Math.cos(a)}; }
+  for(var k=1;k>=.25 && !ok;k-=.05){
+    R=base*k; cx=sx-R*Math.sin(ph); cy=sy+R*Math.cos(ph);
+    for(var a=ph;a<ph+2.4;a+=.004){
+      var p=pt(a); aEnd=a;
+      if(p.x+half>W) break;                                                // would reach the edge first: tighten
+      if(p.y-half>ridgeMax(rg,p.x-half,p.x+half)+2){ ok=true; break; }    // fully hidden behind the ridge
+    }
+  }
+  if(!ok){ R=base; cx=sx-R*Math.sin(ph); cy=sy+R*Math.cos(ph); aEnd=ph+1; }
+  aEnd+=.02;
+  var aStart=ph;
+  for(var a2=ph;a2>ph-2.4;a2-=.004){ var q=pt(a2); aStart=a2; if(q.x+size*.75<0 || q.y+size*.75<0) break; }
+  return {pt:pt, ph:ph, aEnd:aEnd, aStart:aStart, sx:sx, sy:sy, size:size, rg:rg};
+}
+// Clip polygon in the orb's own coordinates: everything above the ridgeline stays visible.
+function clipFor(A,dx,dy,G){
+  var left=A.sx-A.size/2+dx, top=A.sy-A.size/2+dy, n=18, pts=[], i;
+  pts.push((-G)+"px "+(-G-20)+"px", (A.size+G)+"px "+(-G-20)+"px");
+  for(i=n;i>=0;i--){
+    var xl=-G+(A.size+2*G)*i/n, ry=ridgeAt(A.rg,left+xl), yl= isFinite(ry)? ry-top : A.size+G+20;
+    pts.push(xl.toFixed(1)+"px "+yl.toFixed(1)+"px");
+  }
+  return "polygon("+pts.join(",")+")";
+}
+function fly(orb,A,from,to,dur,fadeTail,done){
+  var G=parseFloat(getComputedStyle(orb.parentNode).getPropertyValue("--glow-r"))||A.size;
+  var t0=performance.now();
+  function ease(t){ return .5-.5*Math.cos(Math.PI*t); }
+  function step(now){
+    var t=Math.min(1,(now-t0)/dur), a=from+(to-from)*ease(t), p=A.pt(a), dx=p.x-A.sx, dy=p.y-A.sy;
+    orb.style.transform="translate("+dx.toFixed(1)+"px,"+dy.toFixed(1)+"px)";
+    var c=clipFor(A,dx,dy,G); orb.style.clipPath=c; orb.style.webkitClipPath=c;
+    if(fadeTail) orb.style.opacity= t>.85? String(Math.max(0,1-(t-.85)/.15)) : "1";
+    if(t<1) requestAnimationFrame(step); else done();
+  }
+  requestAnimationFrame(step);
+}
+/* ============================================================
+   Day / night cycle. One number, PHASE, runs from 0 (day) to 1 (night).
+   Every color on the page is read off this keyframe table, so the sky
+   passes through golden hour, sunset, twilight and night in one
+   continuous motion (and the same keys in reverse make a dawn).
+   ============================================================ */
+var PHASE = 0;
+var SKY_KEYS = [
+  /* p     sky/page      deep        fields      sky top     horizon     mountains   boat        ripples     sunset glow  stars */
+  {p:0,   paper:"#f0e6cc", deep:"#e5d7b6", field:"#fffaec", top:"#f0e6cc", hor:"#f0e6cc", mtn:"#24201b", boat:"#24201b", streak:"#f0e6cc", glow:0,   stars:0},
+  {p:.26, paper:"#efdcbc", deep:"#e4cca8", field:"#fff3df", top:"#ecdcc0", hor:"#f4d2a4", mtn:"#2d2420", boat:"#221b17", streak:"#f6dab2", glow:.45, stars:0},
+  {p:.46, paper:"#dcb9a3", deep:"#cfa894", field:"#f3d8c7", top:"#ad9fb3", hor:"#eda27a", mtn:"#2b1f26", boat:"#1a1416", streak:"#f0bf98", glow:1,   stars:0},
+  {p:.64, paper:"#68677c", deep:"#727189", field:"#7f7e95", top:"#41455a", hor:"#8e7080", mtn:"#130f18", boat:"#0e0c10", streak:"#76708a", glow:.32, stars:.3},
+  {p:.82, paper:"#363a49", deep:"#414657", field:"#565c6e", top:"#252937", hor:"#424556", mtn:"#08080c", boat:"#0a0a0d", streak:"#4a5062", glow:.06, stars:.8},
+  {p:1,   paper:"#262a35", deep:"#313644", field:"#464c5c", top:"#1c1f29", hor:"#2f3442", mtn:"#050609", boat:"#08090c", streak:"#3a4050", glow:0,   stars:1}
+];
+/* Text flips from dark ink to cream in a short window where the sky is mid-tone. */
+var TEXT_DAY  = {ink:"#24201b", soft:"#544b3f", faint:"#8c826f", sun:"#d63f29", rule:[36,32,27,.18]};
+var TEXT_NITE = {ink:"#efe6cf", soft:"#cbc2ac", faint:"#8f8b80", sun:"#e0583f", rule:[239,230,207,.16]};
+
+function hexRgb(h){ h=h.replace("#",""); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+function mixRgb(a,b,t){ return [0,1,2].map(function(i){ return Math.round(a[i]+(b[i]-a[i])*t); }); }
+function rgbHex(c){ return "#"+c.map(function(v){ return ("0"+v.toString(16)).slice(-2); }).join(""); }
+function smooth(t){ t=Math.max(0,Math.min(1,t)); return t*t*(3-2*t); }
+
+function skyAt(p){
+  var i=0; while(i<SKY_KEYS.length-2 && p>SKY_KEYS[i+1].p) i++;
+  var a=SKY_KEYS[i], b=SKY_KEYS[i+1], t=smooth((p-a.p)/(b.p-a.p)), o={};
+  ["paper","deep","field","top","hor","mtn","boat","streak"].forEach(function(k){ o[k]=mixRgb(hexRgb(a[k]),hexRgb(b[k]),t); });
+  o.glow=a.glow+(b.glow-a.glow)*t; o.stars=a.stars+(b.stars-a.stars)*t;
+  return o;
+}
+function setPhase(p){
+  PHASE=p;
+  var s=skyAt(p), r=document.documentElement.style, q=smooth((p-.55)/.13);
+  function txt(k){ return rgbHex(mixRgb(hexRgb(TEXT_DAY[k]),hexRgb(TEXT_NITE[k]),q)); }
+  r.setProperty("--paper",rgbHex(s.paper));       r.setProperty("--paper-rgb",s.paper.join(","));
+  r.setProperty("--paper-deep",rgbHex(s.deep));   r.setProperty("--deep-rgb",s.deep.join(","));
+  r.setProperty("--field-rgb",s.field.join(","));
+  r.setProperty("--sky-top",s.top.join(","));
+  setThemeColor(rgbHex(s.top));     r.setProperty("--sky-hor",s.hor.join(","));
+  r.setProperty("--scene-ink",s.mtn.join(","));   r.setProperty("--boat",rgbHex(s.boat));
+  r.setProperty("--streak",rgbHex(s.streak));
+  r.setProperty("--sunset-a",(s.glow*.55).toFixed(3)); r.setProperty("--stars",s.stars.toFixed(3));
+  r.setProperty("--ink",txt("ink")); r.setProperty("--ink-soft",txt("soft")); r.setProperty("--ink-faint",txt("faint")); r.setProperty("--sun",txt("sun"));
+  var ra=TEXT_DAY.rule, rb=TEXT_NITE.rule, rc=mixRgb(ra,rb,q);
+  r.setProperty("--rule","rgba("+rc.join(",")+","+(ra[3]+(rb[3]-ra[3])*q).toFixed(3)+")");
+}
+function clearPhaseVars(){
+  ["--paper","--paper-rgb","--paper-deep","--deep-rgb","--field-rgb","--sky-top","--sky-hor","--scene-ink","--boat","--streak",
+   "--sunset-a","--stars","--ink","--ink-soft","--ink-faint","--sun","--rule"].forEach(function(k){ document.documentElement.style.removeProperty(k); });
+}
+
+/* Stars: one tiny dot with many box-shadows, scattered over the upper sky of each scene. */
+function makeStars(){
+  $all(".sky .stars").forEach(function(el){
+    var sc=el.closest(".poster,.band"), w=sc.clientWidth, h=sc.clientHeight; if(!w || el._w===w+"x"+h) return; el._w=w+"x"+h;
+    var R=rng(97+Math.round(w)), n=Math.round(w*h/9000), a=[], b=[];
+    for(var i=0;i<n;i++){
+      var x=Math.round(R()*w), y=Math.round(Math.pow(R(),1.6)*h*.5), big=R()<.12;
+      (i%2?a:b).push(x+"px "+y+"px 0 "+(big?"1px":"0")+" rgba(255,248,230,"+(big?.95:(.45+R()*.4)).toFixed(2)+")");
+    }
+    el.style.boxShadow=a.join(","); var tw=el.nextElementSibling; if(tw) tw.style.boxShadow=b.join(",");
+  });
+}
+window.addEventListener("resize",function(){ setTimeout(makeStars,250); });
+
+/* Paint only the scene on screen while the sky is moving. */
+function paintNow(){
+  $all(".page:not([hidden]) canvas[data-scene]").forEach(function(c){ c._painted=false; paintScene(c); });
+}
+
+var skyBusy=false;
+function skyTransition(btn,toNight){
+  if(skyBusy) return;
+  if(reduceMotion || !sceneOf(btn)){ setNight(toNight,true); return; }
+  skyBusy=true;
+  var A=arcFor(btn), scene=sceneOf(btn);
+  var out=btn.querySelector(toNight?".orb-sun":".orb-moon"), inn=btn.querySelector(toNight?".orb-moon":".orb-sun");
+  var G=parseFloat(getComputedStyle(btn).getPropertyValue("--glow-r"))||A.size;
+  // sunset glow sits where the orb meets the mountains
+  var end=A.pt(A.aEnd); scene.style.setProperty("--set-x",(end.x/scene.clientWidth*100).toFixed(1)+"%");
+  scene.style.setProperty("--set-y",(Math.min(end.y,scene.clientHeight*.62)/scene.clientHeight*100).toFixed(1)+"%");
+  document.documentElement.classList.remove("night");          // drive everything from PHASE while moving
+  setPhase(toNight?0:1); paintNow();
+  var T=7600, t0=performance.now(), from=toNight?0:1, to=toNight?1:0;
+  function ease(t){ return .5-.5*Math.cos(Math.PI*t); }
+  function place(orb,a,fadeTail,t){
+    var p=A.pt(a), dx=p.x-A.sx, dy=p.y-A.sy;
+    orb.style.transform="translate("+dx.toFixed(1)+"px,"+dy.toFixed(1)+"px)";
+    var c=clipFor(A,dx,dy,G); orb.style.clipPath=c; orb.style.webkitClipPath=c;
+    orb.style.opacity= fadeTail && t>.93? String(Math.max(0,1-(t-.93)/.07)) : "1";
+  }
+  inn.style.opacity="0";
+  var skip=0;
+  function frame(now){
+    var t=Math.min(1,(now-t0)/T);
+    // the setting orb uses the first 45% of the time, the rising one the last 50%
+    var tOut=Math.min(1,t/.45), tIn=Math.max(0,(t-.5)/.5);
+    if(tOut<1) place(out,A.ph+(A.aEnd-A.ph)*ease(tOut),true,tOut); else out.style.opacity="0";
+    if(t>=.5) place(inn,A.aStart+(A.ph-A.aStart)*ease(tIn),false,tIn);
+    // the sky moves the whole time: slow golden hour, faster through sunset, settling into night
+    var s=smooth((t-.04)/.9);
+    setPhase(from+(to-from)*s);
+    if(skip>0){ skip--; } else { var pc=performance.now(); paintNow(); var cost=performance.now()-pc; if(cost>20) skip=Math.min(4,Math.floor(cost/16)); }
+    if(t<1){ requestAnimationFrame(frame); return; }
+    // done: hand back to the static day/night styles
+    clearPhaseVars(); applyNight(toNight); PHASE=toNight?1:0;
+    $all("canvas[data-scene]").forEach(function(c){ c._painted=false; c._ridge=null; }); paintVisible();
+    [out,inn].forEach(function(o){ o.style.transform=""; o.style.opacity=""; o.style.clipPath=""; o.style.webkitClipPath=""; });
+    skyBusy=false;
+  }
+  requestAnimationFrame(frame);
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest && e.target.closest(".sun"); if(!b || skyBusy) return;
+  var toNight=!document.documentElement.classList.contains("night");
+  // remember the visitor's choice, but only for the current half-day
+  try{ localStorage.setItem("bantay-night", toNight?"1":"0"); localStorage.setItem("bantay-night-period", bantayMode().period); }catch(e){}
+  skyTransition(b,toNight);
+});
+// start in the mode the clock (or a choice made earlier in this half-day) says
+(function(){ var m=bantayMode(); if(m.night){ PHASE=1; setNight(true,true); } else { applyNight(false); } })();
+/* At 6am / 6pm, if the page is open, play the sunrise or sunset by itself (unless the visitor already chose
+   for the new half-day). Also re-checked when the tab comes back, since phones pause timers in the background. */
+(function(){
+  var t;
+  function msToNext(){ var d=new Date(), n=new Date(d.getTime()), h=d.getHours(); n.setMinutes(0,0,0);
+    n.setHours(h<6?6:(h<18?18:30)); return Math.max(1000, n-d+500); }        // 30 = 6am tomorrow
+  function check(){
+    clearTimeout(t); t=setTimeout(check, Math.min(msToNext(), 36e5));        // at least hourly, in case the clock changes
+    if(skyBusy) return;
+    var want=bantayMode().night, isNight=document.documentElement.classList.contains("night");
+    if(want===isNight) return;
+    var btn=$all(".sun").filter(function(b){ return b.offsetParent!==null; })[0];
+    if(btn && !document.hidden) skyTransition(btn,want); else setNight(want,true);
+  }
+  t=setTimeout(check, msToNext());
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) check(); });
+  window.__bantayCheckMode=check;   // test hook
+})();
+makeStars();
+
+/* ---------- motto: English on hover, sized to fit inside the Baybayin's own box ---------- */
+(function(){
+  var box=document.querySelector(".poster .vert-cols"); if(!box) return;
+  var en=box.querySelector(".motto-en"); if(!en) return;
+  function fitMotto(){
+    var H=box.clientHeight, W=box.clientWidth; if(!H||!W) return;
+    var lo=6, hi=Math.max(8,W*1.5), size=lo;
+    for(var i=0;i<14;i++){            // largest size whose columns fit the motto's height and width
+      var mid=(lo+hi)/2; en.style.fontSize=mid+"px";
+      var h=0, w=0; Array.prototype.forEach.call(en.children,function(c){ var r=c.getBoundingClientRect(); h+=r.height; w=Math.max(w,r.width); });
+      h+=(en.children.length-1)*mid*.6;
+      if(h<=H && w<=W){ size=mid; lo=mid; } else hi=mid;
+    }
+    en.style.fontSize=size+"px";
+  }
+  /* The motto starts below the top bar's fade (CSS: top:max(5%,56px)). When that pushes it down, shrink it
+     just enough that its bottom stays where it always was, clear of the mountains. */
+  var poster=box.closest(".poster");
+  function placeMotto(){
+    box.style.fontSize=""; if(!poster) return;
+    var P=poster.clientHeight, pct=matchMedia("(max-width:600px)").matches ? .04 : .05;
+    var natTop=P*pct, natH=box.offsetHeight, newTop=box.offsetTop, avail=natTop+natH-newTop;
+    if(newTop>natTop+.5 && avail>0 && avail<natH){
+      box.style.fontSize=(parseFloat(getComputedStyle(box).fontSize)*avail/natH)+"px";
+    }
+  }
+  function layout(){ placeMotto(); fitMotto(); }
+  layout();
+  window.addEventListener("resize",function(){ clearTimeout(fitMotto._t); fitMotto._t=setTimeout(layout,160); });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  // show = glitch burst first, then the English; hide = plain fade back to Baybayin
+  // Glitch both ways: Baybayin -> English on hover, English -> Baybayin on leave.
+  // Each burst ends with an instant hand-off (no fade), so neither layer drifts back over the other.
+  var gt, noMotion=reduceMotion, cl=box.classList;
+  function shown(){ return cl.contains("en") || cl.contains("mg"); }   // English showing, or on its way
+  function settle(add, remove){ cl.add("snap"); add && cl.add(add); cl.remove.apply(cl, remove);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ cl.remove("snap"); }); }); }
+  function show(){
+    if(shown()) return;
+    clearTimeout(gt);
+    if(noMotion){ settle("en",["mgb"]); return; }
+    settle(null,["mgb"]); cl.add("mg");
+    gt=setTimeout(function(){ settle("en",["mg"]); },500);
+  }
+  function hide(instant){
+    if(!shown()) return;
+    clearTimeout(gt);
+    if(noMotion || instant===true){ settle(null,["mg","en","mgb"]); return; }
+    settle(null,["mg","en"]); cl.add("mgb");
+    gt=setTimeout(function(){ settle(null,["mgb"]); },500);
+  }
+  var touch=false;
+  box.addEventListener("touchstart",function(){ touch=true; },{passive:true});
+  box.addEventListener("mouseenter",function(){ if(!touch) show(); });
+  box.addEventListener("mouseleave",function(){ if(!touch) hide(); });
+  box.addEventListener("focus",function(){ if(!touch) show(); });
+  box.addEventListener("blur",function(){ hide(); });
+  // touch screens have no hover: a tap toggles the English, a tap anywhere else puts the Baybayin back
+  box.addEventListener("click",function(e){ e.stopPropagation(); if(!touch) return; shown() ? hide() : show(); });
+  document.addEventListener("click",function(){ if(touch) hide(); });
+  box.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); shown() ? hide() : show(); } });
+  window.addEventListener("hashchange",function(){ hide(true); setTimeout(layout,60); });
+})();
+
+
+/* ---------- title glitch: a burst right after a title resolves, then at random every few seconds ---------- */
+var glitchReduce=false; try{ glitchReduce=matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+if(EDIT_MODE) glitchReduce=true;
+function glitchBurst(el){
+  if(glitchReduce || !el || el.offsetParent===null || el.getAttribute("aria-busy")==="true") return;
+  el.classList.remove("is-glitching"); void el.offsetWidth; el.classList.add("is-glitching");
+  clearTimeout(el._gt); el._gt=setTimeout(function(){ el.classList.remove("is-glitching"); },520);
+}
+(function loop(){
+  setTimeout(function(){
+    var vis=Array.prototype.filter.call(document.querySelectorAll(".glitch"),function(e){ return e.offsetParent!==null && !e._decrypting; });
+    if(vis.length && !document.hidden) glitchBurst(vis[Math.floor(Math.random()*vis.length)]);
+    loop();
+  }, 3800+Math.random()*4200);
+})();
+
+/* ============================================================
+   Live content (Firebase / Firestore)
+   Text marked data-edit="page.key" (single fields) or data-list="page.key"
+   (repeating items) can be replaced by content saved from admin.html.
+   Firestore layout:  site_pages/{home|about|projects|blog|contact|global}  ->  { fields: { "page.key": "<html or text>" } }
+   Everything coming from the database is passed through sanitize() before it touches the page.
+   ============================================================ */
+// Public web config: safe to ship in the page. Security comes from the Firestore rules (see instructions.html).
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCp2kbZAtQLS4yyW5Cr13CKfOUbIghwPPo",
+  authDomain: "appdata-fb288.firebaseapp.com",
+  databaseURL: "https://appdata-fb288-default-rtdb.firebaseio.com",
+  projectId: "",   // The Syslog does not read Firestore
+  storageBucket: "appdata-fb288.firebasestorage.app",
+  messagingSenderId: "184193421563",
+  appId: "1:184193421563:web:ee9effb47e5481d512605e"
+};
+var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+var CONTENT_DOCS = ["home","about","projects","events","contact","global"];
+function docOfKey(k){ var p=String(k).split(".")[0]; return p==="footer" ? "global" : p; }
+
+/* ---------- sanitizer: whitelist of tags and attributes ----------
+   mode "plain"  -> text only
+   mode "inline" -> bold/italic/underline/strike/size/links/line breaks
+   mode "rich"   -> inline + paragraphs, bullet and numbered lists, indents
+   mode "list"   -> rich + the structural markup the repeating lists use        */
+var SAN_LEVEL = {B:1,STRONG:1,I:1,EM:1,U:1,S:1,STRIKE:1,DEL:1,SUB:1,SUP:1,CODE:1,A:1,SPAN:1,BR:1,FONT:1,
+                 P:2,DIV:2,UL:2,OL:2,LI:2,BLOCKQUOTE:2,H3:2,H4:2,
+                 DL:3,DT:3,DD:3};
+var SAN_DROP = /^(SCRIPT|STYLE|IFRAME|FRAME|OBJECT|EMBED|SVG|MATH|TEMPLATE|NOSCRIPT|LINK|META|BASE|FORM|INPUT|TEXTAREA|SELECT|BUTTON|IMG|PICTURE|VIDEO|AUDIO|SOURCE|CANVAS|TITLE|HEAD)$/;
+var SAN_DATA = {"data-tags":1,"data-bay":1,"data-decrypt":1,"data-part":1,"data-type":1,"data-stack":1};
+var SAN_ARIA = {"aria-expanded":1,"aria-controls":1,"aria-hidden":1,"aria-labelledby":1,"aria-label":1};
+function sanitize(html, mode){
+  var src = new DOMParser().parseFromString("<!doctype html><body>"+String(html==null?"":html)+"</body>","text/html").body;
+  if(mode==="plain") return (src.textContent||"").replace(/\s+/g," ").trim();
+  var out = document.createElement("div");
+  (function walk(from, to){
+    Array.prototype.forEach.call(from.childNodes, function(n){
+      if(n.nodeType===3){ to.appendChild(document.createTextNode(n.nodeValue)); return; }
+      if(n.nodeType!==1) return;
+      var tag = n.tagName.toUpperCase();
+      if(SAN_DROP.test(tag)) return;
+      var lvl = SAN_LEVEL[tag];
+      var ok = lvl===1 || (lvl===2 && mode!=="inline") || (lvl===3 && mode==="list");
+      if(!ok){ walk(n,to); if(lvl===2 && mode==="inline" && to.lastChild && to.lastChild.nodeType===3) to.appendChild(document.createTextNode(" ")); return; }
+      var name = tag==="FONT" ? "span" : (tag==="STRIKE"||tag==="DEL") ? "s" : tag.toLowerCase();
+      var el = document.createElement(name), cls = [];
+      Array.prototype.forEach.call(n.attributes, function(a){
+        var k = a.name.toLowerCase(), v = String(a.value);
+        if(k==="class"){ v.split(/\s+/).forEach(function(c){ if(/^[a-z][a-z0-9-]{0,40}$/.test(c)) cls.push(c); }); }
+        else if(k==="size" && tag==="FONT"){ var z=parseInt(v,10); if(z>=1&&z<=7) cls.push("fs-"+z); }
+        else if(k==="href" && tag==="A"){ v=v.trim(); if(/^(https?:\/\/|mailto:)[^\s<>"'`]+$/i.test(v) || /^#[a-z0-9-]*$/i.test(v)) el.setAttribute("href",v); }
+        else if(k==="data-link"){ v=v.trim(); if(/^(https?:\/\/|mailto:)[^\s<>"'`]+$/i.test(v) || /^#[a-z0-9-]*$/i.test(v)) el.setAttribute("data-link",v.slice(0,500)); }
+        else if(SAN_DATA[k] || SAN_ARIA[k]){ el.setAttribute(k, v.replace(/[<>"'`]/g,"").slice(0,200)); }
+        else if(k==="id" && /^[a-z][a-z0-9-]{0,40}$/.test(v)) el.setAttribute("id",v);
+        else if(k==="role" && /^(region|button|link)$/.test(v)) el.setAttribute("role",v);
+        else if(k==="tabindex" && v==="0") el.setAttribute("tabindex","0");
+        else if(k==="hidden") el.setAttribute("hidden","");
+        else if(k==="lang" && /^[a-z]{2,3}$/.test(v)) el.setAttribute("lang",v);
+      });
+      if(cls.length) el.setAttribute("class", cls.join(" "));
+      if(name==="a" && /^https?:/i.test(el.getAttribute("href")||"")){ el.setAttribute("target","_blank"); el.setAttribute("rel","noopener noreferrer"); }
+      if(!el.hasAttribute("data-bay")) walk(n, el);   // Baybayin glyph holders are redrawn, never stored
+      to.appendChild(el);
+    });
+  })(src, out);
+  return out.innerHTML;
+}
+
+function elOfKey(key){
+  return document.querySelector('[data-list="'+key+'"]') || document.querySelector('[data-edit="'+key+'"]');
+}
+// put one saved value into the page
+function applyField(key, val){
+  if(typeof val!=="string") return;
+  var list = document.querySelector('[data-list="'+key+'"]');
+  if(list){ list.innerHTML = sanitize(val,"list"); renderBay(list); linkify(list); if(list.id==="posts") fixPosts(); return; }
+  if(key==="home.identity"){
+    var st=$("[data-status]"); if(!st) return;
+    st.setAttribute("data-identity", sanitize(val,"plain") || "The Hacker Poet");
+    st.setAttribute("aria-label","Identity: "+st.getAttribute("data-identity"));
+    var ok=st.querySelector(".ok"); if(ok) ok.textContent=st.getAttribute("data-identity");
+    return;
+  }
+  if(key==="contact.github" || key==="contact.linkedin"){
+    var u = sanitize(val,"plain").replace(/\s+/g,"");
+    if(u && !/^https?:\/\//i.test(u)) u = "https://"+u;
+    if(u && !/^https:\/\/[^\s<>"'`]+$/i.test(u)) return;
+    CONFIG[key.split(".")[1]] = u; renderAddr(); return;
+  }
+  var el = document.querySelector('[data-edit="'+key+'"]'); if(!el) return;
+  var type = el.getAttribute("data-type") || "rich";
+  if(el.hasAttribute("data-name")){
+    var t = sanitize(val,"plain"); if(!t) return;
+    el.setAttribute("data-name", t);
+    var brk = el.hasAttribute("data-break");
+    if(el.classList.contains("glitch")) el.setAttribute("data-text", brk ? t.replace(/ /g,"\n") : t);
+    if(brk) el.innerHTML = esc(t).replace(/ /g,"<br>"); else el.textContent = t;
+    if(el.matches("h1.name")) setTimeout(alignCartouche,0);
+    return;
+  }
+  if(type==="plain") el.textContent = sanitize(val,"plain");
+  else el.innerHTML = sanitize(val,type);
+}
+function applyAll(all){
+  if(!all) return;
+  Object.keys(all).forEach(function(d){
+    var f = all[d] || {};
+    Object.keys(f).forEach(function(k){ try{ applyField(k, f[k]); }catch(e){} });
+  });
+}
+// Plain text as typed. innerText is avoided on purpose: it applies CSS text-transform,
+// so a field shown in capitals (the name, labels, footer) would be saved in capitals.
+function plainText(el){
+  var c = el.cloneNode(true);
+  $all("br",c).forEach(function(b){ b.parentNode.replaceChild(document.createTextNode("\n"), b); });
+  $all("div,p,li",c).forEach(function(b){ b.insertBefore(document.createTextNode("\n"), b.firstChild); });
+  return c.textContent;
+}
+// read the current value of a key back out of the page (used by the editor when saving)
+function serialize(key){
+  var list = document.querySelector('[data-list="'+key+'"]');
+  if(list){
+    var c = list.cloneNode(true);
+    $all("[data-bay]",c).forEach(function(b){ b.innerHTML=""; });
+    if(c.id==="posts") $all(".post-btn",c).forEach(function(b){ b.setAttribute("aria-expanded","false"); });
+    // items hidden by a filter chip are view state, not content
+    Array.prototype.forEach.call(c.children,function(it){ it.removeAttribute("hidden"); });
+    return sanitize(c.innerHTML,"list");
+  }
+  if(key==="home.identity"){ var st=$("[data-status]"); return st ? (st.getAttribute("data-identity")||"") : null; }
+  if(key==="contact.github" || key==="contact.linkedin") return CONFIG[key.split(".")[1]] || "";
+  var el = document.querySelector('[data-edit="'+key+'"]'); if(!el) return null;
+  if(el.hasAttribute("data-name")) return el.getAttribute("data-name");
+  var type = el.getAttribute("data-type") || "rich";
+  return type==="plain" ? sanitize(plainText(el),"plain") : sanitize(el.innerHTML,type);
+}
+// after an in-place edit: clean the element and run any side effects (name attributes, links, glyphs)
+function commit(key){
+  var list = document.querySelector('[data-list="'+key+'"]');
+  if(list){ applyField(key, serialize(key)); return; }
+  var el = document.querySelector('[data-edit="'+key+'"]'); if(!el) return;
+  var type = el.getAttribute("data-type") || "rich";
+  var raw = (type==="plain") ? plainText(el) : el.innerHTML;
+  if(key==="home.identity" || key==="contact.github" || key==="contact.linkedin" || el.hasAttribute("data-name")) applyField(key, String(raw).replace(/\s+/g," ").trim());
+  else applyField(key, raw);
+}
+function allKeys(){
+  var ks = $all("[data-edit]").map(function(e){ return e.getAttribute("data-edit"); }).concat($all("[data-list]").map(function(e){ return e.getAttribute("data-list"); }));
+  ["home.identity","contact.github","contact.linkedin"].forEach(function(k){ if(ks.indexOf(k)<0) ks.push(k); });
+  return ks.filter(function(k,i){ return ks.indexOf(k)===i; });
+}
+
+// public site: show the last saved copy instantly, then refresh from Firestore
+function loadContent(){
+  var cached = null;
+  cached = null;
+  if(cached){ try{ applyAll(cached); }catch(e){} }
+  if(!FIREBASE_CONFIG.projectId) return Promise.resolve();
+  return Promise.all([ import(FIREBASE_SDK+"firebase-app.js"), import(FIREBASE_SDK+"firebase-firestore-lite.js") ]).then(function(m){
+    var appMod=m[0], fs=m[1];
+    var app = appMod.getApps().filter(function(a){ return a.name==="bantay-public"; })[0] || appMod.initializeApp(FIREBASE_CONFIG,"bantay-public");
+    var db = fs.getFirestore(app);
+    return Promise.all(CONTENT_DOCS.map(function(d){
+      return fs.getDoc(fs.doc(db,"site_pages",d)).then(function(s){ return s.exists() ? (s.data().fields||{}) : null; }, function(){ return null; });
+    }));
+  }).then(function(res){
+    var all = {}; CONTENT_DOCS.forEach(function(d,i){ if(res[i]) all[d]=res[i]; });
+    var js = JSON.stringify(all);
+    try{ localStorage.setItem("bantay-content", js); }catch(e){}
+    if(!cached || JSON.stringify(cached)!==js) applyAll(all);
+  }).catch(function(){ /* offline or blocked: the built-in text stays */ });
+}
+
+// the editor (admin.html) drives the page through this small API
+
+/* ============================================================
+   Boot
+   ============================================================ */
+$("#year").textContent = String(new Date().getFullYear());
+function boot(){
+  var tab=resolveTab(currentHash());
+  if(TAB_ALIAS[currentHash()]) try{ history.replaceState(null,"","#"+tab); }catch(e){}
+  show(tab,false);
+  alignCartouche();
+}
+// wait for live content (up to 1.5s) and web fonts, so the name is measured and decrypted in its final form
+(function(){
+  var booted=false;
+  function go(){ if(!booted){ booted=true; boot(); } }
+  var content = EDIT_MODE? Promise.resolve() : Promise.race([loadContent(), new Promise(function(r){ setTimeout(r,1500); })]);
+  content.then(function(){ return document.fonts && document.fonts.ready ? document.fonts.ready : null; }).then(go,go);
+  setTimeout(go,3000);
+})();
+
+/* ============================================================
+   Post page: section highlight, code blocks, decrypt-on-scroll, reading bar
+   ============================================================ */
+(function(){
+  var sec=(document.querySelector('meta[name="syslog:section"]')||{}).content||"";
+  $all("nav a[data-sec]").forEach(function(a){ if(a.getAttribute("data-sec")===sec) a.setAttribute("aria-current","page"); });
+
+  // --- syntax colouring: small, dependency-free, good enough for KQL / PowerShell / Python / JS / Bash / SQL / JSON
+  var KW={
+    kql:"let where project project-away project-rename extend summarize by join kind on union take limit top order sort asc desc count distinct ago now contains contains_cs has has_any has_all hasprefix hassuffix startswith endswith in and or not isnotempty isempty isnull isnotnull bin make_set make_list dcount countif sumif parse parse_json mv-expand render datetime timespan tostring toint tolong todouble iff iif case between materialize evaluate invoke lookup as with true false null search find externaldata extract matches regex split strcat",
+    powershell:"function param begin process end if else elseif foreach for while do switch return try catch finally throw break continue in -eq -ne -gt -lt -ge -le -like -notlike -match -notmatch -and -or -not -contains -in $true $false $null",
+    python:"def class return if elif else for while in not and or is import from as with try except finally raise pass break continue lambda yield None True False async await global nonlocal print",
+    js:"const let var function return if else for while do switch case break continue new class extends import export from default try catch finally throw typeof instanceof in of async await null undefined true false this",
+    bash:"if then else elif fi for in do done while case esac function return export local echo sudo cd ls grep awk sed cat chmod chown apt pip git curl wget",
+    sql:"select from where and or not in is null as join left right inner outer on group by order having limit insert into values update set delete create table index view distinct count sum avg min max union all case when then else end",
+    json:"true false null"
+  };
+  Object.keys(KW).forEach(function(k){ var o={}; KW[k].split(" ").forEach(function(w){ o[w.toLowerCase()]=1; }); KW[k]=o; });
+  KW.ps=KW.powershell; KW.py=KW.python; KW.javascript=KW.js; KW.sh=KW.bash; KW.shell=KW.bash;
+  function highlight(code, lang){
+    lang=(lang||"").toLowerCase(); var kw=KW[lang]; if(!kw) return;
+    var src=code.textContent, out="", i=0, n=src.length;
+    var lineC = lang==="python"||lang==="py"||lang==="bash"||lang==="sh"||lang==="shell"||lang==="powershell"||lang==="ps" ? "#" : (lang==="sql"? "--" : "//");
+    function e(t){ return esc(t); }
+    while(i<n){
+      var ch=src[i], rest=src.slice(i), m;
+      if(rest.indexOf(lineC)===0 && lang!=="json"){ var j=src.indexOf("\n",i); if(j<0) j=n; out+='<span class="tk-c">'+e(src.slice(i,j))+'</span>'; i=j; continue; }
+      if(rest.indexOf("/*")===0 && /^(js|javascript|kql|sql)$/.test(lang)){ var j2=src.indexOf("*/",i+2); j2= j2<0? n : j2+2; out+='<span class="tk-c">'+e(src.slice(i,j2))+'</span>'; i=j2; continue; }
+      if(ch==='"' || ch==="'" || ch==="`"){ var k=i+1; while(k<n && src[k]!==ch){ if(src[k]==="\\") k++; k++; } k=Math.min(n,k+1); out+='<span class="tk-s">'+e(src.slice(i,k))+'</span>'; i=k; continue; }
+      if((m=/^\$[A-Za-z_][\w:]*/.exec(rest)) && (lang==="powershell"||lang==="ps"||lang==="bash"||lang==="sh")){ out+='<span class="tk-v">'+e(m[0])+'</span>'; i+=m[0].length; continue; }
+      if((m=/^-?\b\d[\d_.]*(?:[a-z]{1,2}\b)?/i.exec(rest))){ out+='<span class="tk-n">'+e(m[0])+'</span>'; i+=m[0].length; continue; }
+      if((m=/^-?[A-Za-z_][\w-]*/.exec(rest))){
+        var w=m[0], lw=w.toLowerCase();
+        if(kw[lw]) out+='<span class="tk-k">'+e(w)+'</span>';
+        else if(src[i+w.length]==="(") out+='<span class="tk-f">'+e(w)+'</span>';
+        else out+=e(w);
+        i+=w.length; continue;
+      }
+      out+=e(ch); i++;
+    }
+    code.innerHTML=out;
+  }
+  function copyText(text, btn){
+    function ok(){ var o=btn.textContent; btn.textContent="Copied"; setTimeout(function(){ btn.textContent=o; },1500); }
+    function legacy(){ var ta=document.createElement("textarea"); ta.value=text; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.top="-1000px";
+      document.body.appendChild(ta); ta.select(); var good=false; try{ good=document.execCommand("copy"); }catch(e){} document.body.removeChild(ta); if(good) ok(); else btn.textContent="Press Ctrl/⌘+C"; }
+    if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(ok,legacy); else legacy();
+  }
+  $all("figure.code").forEach(function(f){
+    var code=$("code",f); if(!code) return;
+    var raw=code.textContent; highlight(code, f.getAttribute("data-lang"));
+    var b=$(".copy-btn",f); if(b) b.addEventListener("click",function(){ copyText(raw,b); });
+  });
+
+  // --- paragraphs decrypt as they scroll into view (the title and lead decrypt on load)
+  var blocks=$all(".article-body [data-decrypt-io]");
+  if(!reduceMotion && window.IntersectionObserver){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting) return; io.unobserve(en.target);
+        var len=(en.target.textContent||"").length;
+        decryptBlock(en.target, Math.max(700, Math.min(1900, 500+len*4)), 0);
+      });
+    },{rootMargin:"0px 0px -12% 0px", threshold:.12});
+    blocks.forEach(function(b){ io.observe(b); });
+  }
+
+  // --- reading progress, drawn inside the top bar
+  var bar=document.createElement("div"); bar.className="read-bar"; bar.setAttribute("aria-hidden","true");
+  var top=document.getElementById("topbar"); if(top) top.appendChild(bar);
+  var art=$(".article");
+  function prog(){ if(!art) return; var r=art.getBoundingClientRect(), h=r.height-innerHeight*.6;
+    var p= h>0 ? Math.min(1,Math.max(0,(-r.top+innerHeight*.25)/h)) : 1; bar.style.width=(p*100).toFixed(1)+"%"; }
+  addEventListener("scroll",prog,{passive:true}); addEventListener("resize",prog); prog();
+})();
+
+})();
+</script>
+
+</body>
+</html>
