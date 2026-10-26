@@ -463,6 +463,53 @@ footer .bay{color:var(--sun);text-transform:none;font-size:17px}
 .evt-where{margin:0 0 8px;font-family:var(--font-mono);font-size:12.5px;letter-spacing:.04em;color:var(--ink-soft)}
 .evt p{margin:0;max-width:var(--measure)}
 .evt .meta{padding-top:2px}
+.evt-links{margin:10px 0 0!important;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.evt-link{font-family:var(--font-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--sun);padding-bottom:1px}
+.evt-link::after{content:" \2197";color:var(--sun)}
+.evt-link:hover{color:var(--sun)}
+button.evt-link{background:none;border:0;border-bottom:1px solid var(--rule);padding:0 0 1px;cursor:pointer;font:inherit;font-family:var(--font-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+button.evt-link::after,.evt-link.cal::after{content:""}
+.evt-link.cal{border-bottom-color:var(--rule);color:var(--ink-soft)}
+.elist-auto:empty{display:none}
+.elist-auto{border-top:1px solid var(--rule)}
+.elist-auto + .elist{border-top:0}
+/* &POET open mic, in the site's ink */
+.poet{margin:0 0 30px}
+.poet-next{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(16px,4vw,48px);align-items:center;padding:24px 0 26px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.poet-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--sun)}
+.poet-when{margin:6px 0 4px;font-family:var(--font-sub);font-weight:400;font-size:clamp(21px,2.6vw,28px);line-height:1.3;color:var(--ink)}
+.poet-sub{color:var(--ink-soft);font-size:15px}
+.poet-place{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;text-align:left}
+.poet-place:hover,.poet-place:focus-visible{color:var(--sun)}
+.poet-acts{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:14px}
+.poet-count{text-align:center;min-width:6.5em}
+.poet-count b{display:block;font-family:var(--font-name);font-weight:600;font-size:clamp(38px,5vw,54px);line-height:1;color:var(--sun)}
+.poet-count span{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+.poet-div{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);padding:22px 0 8px}
+.poet-list .evt{grid-template-columns:5.2em minmax(0,1fr)}
+.poet-list .evt.past{opacity:.72}
+.poet-list .evt.cancelled{opacity:.5}
+.poet-list .evt.cancelled h3{text-decoration:line-through;text-decoration-color:var(--sun)}
+.pill{display:inline-block;margin-left:10px;vertical-align:2px;font-family:var(--font-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:1px 7px;border:1px solid var(--rule);border-radius:999px;color:var(--ink-faint)}
+.pill.confirmed{border-color:var(--sun);color:var(--sun)}
+.pill.projected{border-style:dashed}
+.pill.cancelled{border-color:var(--sun);color:var(--sun);text-decoration:line-through}
+.pill.checking{border-style:dotted}
+.poet-meta{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.04em;color:var(--ink-soft);margin:0 0 4px}
+.poet-modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(var(--paper-rgb),.72)}
+.poet-modal[hidden]{display:none}
+/* "hidden" always wins: without this, .proj/.evt's display:grid kept filtered-out items on screen */
+[hidden]{display:none!important}
+.poet-box{background:var(--paper);border:1px solid var(--ink);border-radius:4px;max-width:360px;width:100%;padding:22px;display:grid;gap:10px;box-shadow:0 18px 50px rgba(0,0,0,.2)}
+.poet-box h4{margin:0;font-family:var(--font-sub);font-weight:400;font-size:20px;color:var(--ink)}
+.poet-box p{margin:0 0 6px;font-size:14px;color:var(--ink-soft)}
+.poet-box a,.poet-box button{display:block;text-align:center;font-family:var(--font-mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;padding:11px;border:1px solid var(--ink);border-radius:2px;color:var(--ink);background:transparent;cursor:pointer}
+.poet-box a:first-of-type{background:var(--ink);color:var(--paper)}
+.poet-box a:hover{border-color:var(--sun);color:var(--sun)}
+.poet-box a:first-of-type:hover{background:var(--sun);color:#fff}
+.poet-box button{border-color:transparent;color:var(--ink-faint)}
+.poet-note{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.04em;color:var(--ink-faint);margin:14px 0 0}
+@media (max-width:600px){ .poet-next{grid-template-columns:minmax(0,1fr)} .poet-count{text-align:left;display:flex;gap:10px;align-items:baseline} .poet-list .evt{grid-template-columns:4.4em minmax(0,1fr)} }
 
 /* ---------- clickable list items (projects, events): data-link set from admin.html ---------- */
 [data-link]{cursor:pointer}
@@ -694,7 +741,7 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
           </div>
           <p class="role" data-decrypt data-edit="home.tagline" data-type="inline">Cybersecurity &nbsp;·&nbsp; Systems &nbsp;·&nbsp; Automation</p>
           <p class="status" data-status data-identity="The Hacker Poet" aria-live="polite"></p>
-          <p class="identities" data-identities data-edit="home.identities" data-type="plain">The Automator, Dashboard Dude, Hardware Hacker, Powershell Professional, Feral Foodie</p>
+          <p class="identities" data-identities data-edit="home.identities" data-type="plain">The Automator, Dashboard Dude, Hardware Hacker, Powershell Professional, Feral Foodie, Music Maker, Stanza Synthesizer</p>
         </div>
       </div>
     </div>
@@ -870,25 +917,29 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
     <div class="band-title"><div class="wrap"><h2 class="glitch" data-name="Events" data-text="Events" data-edit="events.title" data-type="plain">Events</h2></div></div>
   </div>
   <div class="wrap body">
-    <p class="lead" data-decrypt data-edit="events.lead" data-type="inline">Where I'll be speaking, competing, reading, or just listening. Each entry below is a placeholder format to start from: duplicate one in admin.html, then replace the bracketed text.</p>
+    <p class="lead" data-decrypt data-edit="events.lead" data-type="inline">Where I'll be speaking, competing, reading, playing, or just listening. The bracketed entries are placeholder formats: replace them with real events from admin.html (Events → New event).</p>
     <div class="filters" role="group" aria-label="Filter events">
       <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
-      <button class="chip" type="button" data-filter="upcoming" aria-pressed="false">Upcoming</button>
-      <button class="chip" type="button" data-filter="recurring" aria-pressed="false">Recurring</button>
-      <button class="chip" type="button" data-filter="past" aria-pressed="false">Past</button>
+      <button class="chip" type="button" data-filter="tech" aria-pressed="false">Tech</button>
+      <button class="chip" type="button" data-filter="poetry" aria-pressed="false">Poetry</button>
+      <button class="chip" type="button" data-filter="music" aria-pressed="false">Music</button>
     </div>
+    <!-- &POET open mic: filled in by script (next open mic on All, the full schedule on Poetry). Not saved to Firestore. -->
+    <div class="poet" id="poetWidget" hidden aria-label="&amp;POET open mic schedule"></div>
+    <ul class="elist elist-auto" id="poetNext" aria-label="Next poetry open mic"></ul>
     <ul class="elist" data-list="events.items">
-      <li class="evt" data-tags="upcoming">
+      <li class="evt" data-tags="tech">
         <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Nov</span><span class="evt-day" data-part="plain">14</span><span class="evt-yr" data-part="plain">2026</span></div>
         <div>
           <span class="evt-format" data-part="plain">Format · Talk</span>
           <h3 data-decrypt data-part="plain">[Talk title: e.g. Hunting with KQL before you have a SIEM]</h3>
           <p class="evt-where" data-part="inline">[Venue or meetup] · [City] · [6:30 pm]</p>
-          <p data-decrypt data-part="inline">[One or two sentences: who it's for and what they'll leave with. Link it to the slides or the event page with the Link field.]</p>
+          <p data-decrypt data-part="inline">[One or two sentences: who it's for and what they'll leave with.]</p>
+          <p class="evt-links"><a class="evt-link" href="#events">Event Link</a></p>
         </div>
         <div class="meta"><span class="st live" data-part="plain">Upcoming</span><div class="tags" data-part="tags"><span>Talk</span><span>Detection</span></div></div>
       </li>
-      <li class="evt" data-tags="upcoming">
+      <li class="evt" data-tags="tech">
         <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Dec</span><span class="evt-day" data-part="plain">06</span><span class="evt-yr" data-part="plain">2026</span></div>
         <div>
           <span class="evt-format" data-part="plain">Format · Workshop</span>
@@ -898,27 +949,37 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
         </div>
         <div class="meta"><span class="st live" data-part="plain">Registration open</span><div class="tags" data-part="tags"><span>Hands-on</span><span>Raspberry Pi</span></div></div>
       </li>
-      <li class="evt" data-tags="recurring">
-        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Every</span><span class="evt-day" data-part="plain">2nd</span><span class="evt-yr" data-part="plain">Thursday</span></div>
+      <li class="evt" data-tags="poetry">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Jan</span><span class="evt-day" data-part="plain">15</span><span class="evt-yr" data-part="plain">2027</span></div>
+        <div>
+          <span class="evt-format" data-part="plain">Format · Reading</span>
+          <h3 data-decrypt data-part="plain">[Featured reading, slam or poetry night]</h3>
+          <p class="evt-where" data-part="inline">[Venue] · [City] · [7 pm]</p>
+          <p data-decrypt data-part="inline">[Who's reading and what kind of night it is.]</p>
+        </div>
+        <div class="meta"><span class="st live" data-part="plain">Upcoming</span><div class="tags" data-part="tags"><span>Poetry</span><span>Reading</span></div></div>
+      </li>
+      <li class="evt" data-tags="music">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Feb</span><span class="evt-day" data-part="plain">05</span><span class="evt-yr" data-part="plain">2027</span></div>
+        <div>
+          <span class="evt-format" data-part="plain">Format · Performance</span>
+          <h3 data-decrypt data-part="plain">[Gig, set or release show]</h3>
+          <p class="evt-where" data-part="inline">[Venue] · [City] · [Doors 8 pm]</p>
+          <p data-decrypt data-part="inline">[What you're playing, who else is on the bill, and whether there's a cover.]</p>
+        </div>
+        <div class="meta"><span class="st live" data-part="plain">Upcoming</span><div class="tags" data-part="tags"><span>Music</span><span>Live</span></div></div>
+      </li>
+      <li class="evt" data-tags="music">
+        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Every</span><span class="evt-day" data-part="plain">1st</span><span class="evt-yr" data-part="plain">Friday</span></div>
         <div>
           <span class="evt-format" data-part="plain">Format · Recurring</span>
-          <h3 data-decrypt data-part="plain">[Recurring event: e.g. a poetry open mic or a local security meetup]</h3>
-          <p class="evt-where" data-part="inline">[Venue] · [City] · [7 pm]</p>
-          <p data-decrypt data-part="inline">[What happens there and whether you read, speak, or listen. Good for open mics, meetups and study groups.]</p>
+          <h3 data-decrypt data-part="plain">[Recurring jam session or music night]</h3>
+          <p class="evt-where" data-part="inline">[Venue] · [City] · [8 pm]</p>
+          <p data-decrypt data-part="inline">[Good for jams, residencies and regular nights. The date tile reads Every · 1st · Friday.]</p>
         </div>
-        <div class="meta"><span class="st live" data-part="plain">Monthly</span><div class="tags" data-part="tags"><span>Poetry</span><span>Community</span></div></div>
+        <div class="meta"><span class="st live" data-part="plain">Monthly</span><div class="tags" data-part="tags"><span>Music</span><span>Jam</span></div></div>
       </li>
-      <li class="evt" data-tags="upcoming">
-        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Jan</span><span class="evt-day" data-part="plain">22</span><span class="evt-yr" data-part="plain">2027</span></div>
-        <div>
-          <span class="evt-format" data-part="plain">Format · Online</span>
-          <h3 data-decrypt data-part="plain">[Livestream, webinar or podcast guest spot]</h3>
-          <p class="evt-where" data-part="inline">[Platform] · [5 pm PT]</p>
-          <p data-decrypt data-part="inline">[The topic in one line. Point the Link field at the stream or the recording afterwards.]</p>
-        </div>
-        <div class="meta"><span class="st live" data-part="plain">Online</span><div class="tags" data-part="tags"><span>Stream</span></div></div>
-      </li>
-      <li class="evt" data-tags="past">
+      <li class="evt" data-tags="tech">
         <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Sep</span><span class="evt-day" data-part="plain">20</span><span class="evt-yr" data-part="plain">2026</span></div>
         <div>
           <span class="evt-format" data-part="plain">Format · Competition</span>
@@ -927,16 +988,6 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
           <p data-decrypt data-part="inline">[Result, e.g. placed 4th of 60 teams, plus the challenge you're proudest of. Link it to a write-up on The Syslog.]</p>
         </div>
         <div class="meta"><span class="st" data-part="plain">Past</span><div class="tags" data-part="tags"><span>CTF</span><span>Blue team</span></div></div>
-      </li>
-      <li class="evt" data-tags="past">
-        <div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">Aug</span><span class="evt-day" data-part="plain">08</span><span class="evt-yr" data-part="plain">2026</span></div>
-        <div>
-          <span class="evt-format" data-part="plain">Format · Attended</span>
-          <h3 data-decrypt data-part="plain">[Conference you attended]</h3>
-          <p class="evt-where" data-part="inline">[City] · [Two or three days]</p>
-          <p data-decrypt data-part="inline">[The one talk worth repeating and what you'd change at work because of it. Link it to your notes.]</p>
-        </div>
-        <div class="meta"><span class="st" data-part="plain">Past</span><div class="tags" data-part="tags"><span>Conference</span><span>Notes</span></div></div>
       </li>
     </ul>
   </div>
@@ -1354,21 +1405,29 @@ function decryptBlock(el, total, delay){
   return {cancel:function(){ cancelAnimationFrame(raf); finish(); }};
 }
 
-/* After the first identity appears, every CYCLE_MS the status line decrypts (through Baybayin) into the next
-   title, then returns to the first and starts over. The list is the comma-separated text of [data-identities]
-   (editable in admin.html as "Then cycles through"). */
+/* The status line starts on a random title (a different one each time Home is shown), then every CYCLE_MS
+   decrypts (through Baybayin) into the next title in order, wrapping around. The list is the first identity
+   plus the comma-separated text of [data-identities] (editable in admin.html as "Then cycles through"). */
 var CYCLE_MS=5000;
 function identityList(st){
   var src=document.querySelector("[data-identities]"), first=st.getAttribute("data-identity")||"The Hacker Poet";
   var more=src? (src.textContent||"").split(",").map(function(t){ return t.replace(/\s+/g," ").trim(); }).filter(Boolean).slice(0,12) : [];
   return [first].concat(more.filter(function(t){ return t!==first; }));
 }
+var lastStart=-1;
+function pickStart(st){
+  if(EDIT_MODE) return 0;                          // the editor always shows the main identity, so it can be edited
+  var n=identityList(st).length; if(n<2) return 0;
+  var k=Math.floor(Math.random()*n); if(k===lastStart) k=(k+1+Math.floor(Math.random()*(n-1)))%n;
+  try{ var prev=+sessionStorage.getItem("bantay-id-start"); if(lastStart<0 && k===prev) k=(k+1)%n; sessionStorage.setItem("bantay-id-start",String(k)); }catch(e){}
+  lastStart=k; return k;
+}
 function cycleTitles(st){
   if(EDIT_MODE) return;
   var list=identityList(st); if(list.length<2) return;
   // screen readers hear the whole list once instead of a new announcement every few seconds
   st.removeAttribute("aria-live"); st.setAttribute("aria-label","Identity: "+list.join(", "));
-  var i=0, cur=null;
+  var i=st._start||0, cur=null;
   var iv=setInterval(function(){
     if(document.hidden) return;                    // don't spin in a background tab
     var ok=st.querySelector(".ok"); if(!ok) return;
@@ -1390,7 +1449,8 @@ function runPage(page){
   if(st){
     // "IDENTITY // DECRYPTING" with dots stepping  · . .. ...  twice, then "THE HACKER POET" decrypts in
     // read when shown, so text published from admin.html wins even if it arrives mid-animation
-    function FINAL_(){ var id=st.getAttribute("data-identity")||"The Hacker Poet"; st.setAttribute("aria-label","Identity: "+id);
+    st._start=pickStart(st);
+    function FINAL_(){ var L=identityList(st), id=L[(st._start||0)%L.length]||"The Hacker Poet"; st.setAttribute("aria-label","Identity: "+id);
       return esc(st.getAttribute("data-status-label")||"identity")+' // <span class="ok" data-edit="home.identity" data-type="plain">'+esc(id)+'</span>'; }
     var FINAL=FINAL_();
     if(reduceMotion){ st.innerHTML=FINAL; }
@@ -1427,6 +1487,7 @@ function show(tab, scroll){
   page.style.animation="none"; void page.offsetWidth; page.style.animation="";
   paintVisible();
   runPage(page);
+  if(tab==="events" && window.__poetShown) window.__poetShown();
   if(scroll) window.scrollTo(0,0);
   try{ localStorage.setItem("bantay-tab",tab); }catch(e){}
 }
@@ -1449,10 +1510,12 @@ $all(".chip").forEach(function(btn){
     var f=btn.getAttribute("data-filter"), scope=btn.closest(".body")||document;
     $all(".chip",scope).forEach(function(b){ b.setAttribute("aria-pressed", String(b===btn)); });
     $all(".proj,.evt",scope).forEach(function(p){
+      if(p.closest(".poet,.elist-auto")) return;           // the &POET open mic views decide their own visibility
       var on = f==="all" || (" "+p.getAttribute("data-tags")+" ").indexOf(" "+f+" ")>=0;
       var was=p.hidden; p.hidden=!on;
       if(on && was){ $all("[data-decrypt]",p).forEach(function(b){ runs.push(decryptBlock(b,1200,0)); }); }
     });
+    if(scope.querySelector && scope.querySelector("#poetWidget") && window.__poetFilter) window.__poetFilter(f);
   });
 });
 
@@ -1485,6 +1548,360 @@ document.addEventListener("keydown",function(e){
   e.preventDefault(); openLink(it);
 });
 linkify(document);
+
+/* ============================================================
+   &POET open mic (Barnes & Noble, Hazard Center): 2nd Tuesday, 6 pm PT.
+   Dates are worked out from the schedule; with a proxy set, each month's B&N event page is checked
+   (200 = posted, 404 = not posted yet / cancelled). Shown on Events:
+     All    -> the next open mic as a normal event card
+     Poetry -> the full schedule: next open mic with countdown, map and calendar buttons, then the list
+   To skip or move a month, add an override below, e.g. overrides:{ "2027-01":{day:19}, "2027-03":{cancelled:true} }
+   ============================================================ */
+var POET = {
+  proxy: "https://proxy-poetcalendar.gsbarrera1.workers.dev",   // your Worker; "" turns the live page checks off
+  showPast: true,                                              // include last month in the Poetry list
+  maps: { google: "https://maps.app.goo.gl/qZqPDMGmdUBppY3Y6?g_st=ic", apple: "https://maps.apple/p/waC6BBbn93xvj-" },
+  config: {
+    // overrides: { "2027-01": { day: 19 }, "2027-03": { cancelled: true } }
+  }
+};
+// --- schedule engine (from poet.html, unchanged) ---
+function createPoetCore(userConfig) {
+  var cfg = Object.assign({
+    title: '&POET: Open Mic',
+    storeId: '1978',
+    storeName: 'Barnes & Noble \u2013 Hazard Center',
+    address: '7610 Hazard Center Drive #315, San Diego, CA 92108',
+    isbn: '9780062171446',
+    timeZone: 'America/Los_Angeles',
+    weekday: 2,              // 0=Sun ... 2=Tue
+    nth: 2,                  // 2nd occurrence in the month (-1 = last)
+    time: '18:00',
+    durationMinutes: 120,
+    anchor: { year: 2026, month: 10, seq: 28 }, // Oct 2026 = event/9780062171446-28 (Sep=27, Nov=29, Dec=30...)
+    months: 12,              // months ahead to show
+    pastMonths: 1,           // months back to show (1 = last month)
+    overrides: {}
+  }, userConfig || {});
+
+  var MONTHS = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+  function nthWeekday(y, m, weekday, nth) {
+    if (nth > 0) {
+      var first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+      return 1 + ((weekday - first + 7) % 7) + (nth - 1) * 7;
+    }
+    var last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    var lastDow = new Date(Date.UTC(y, m - 1, last)).getUTCDay();
+    return last - ((lastDow - weekday + 7) % 7);
+  }
+
+  function partsIn(date, tz) {
+    var p = {};
+    new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit',
+      day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      .formatToParts(date).forEach(function (x) { p[x.type] = x.value; });
+    return { year: +p.year, month: +p.month, day: +p.day, hour: (+p.hour) % 24, minute: +p.minute, second: +p.second };
+  }
+
+  function offsetMin(ms, tz) {
+    var p = partsIn(new Date(ms), tz);
+    return (Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - ms) / 60000;
+  }
+
+  function zoned(y, m, d, hh, mm, tz) {
+    var guess = Date.UTC(y, m - 1, d, hh, mm);
+    var o1 = offsetMin(guess, tz), ms = guess - o1 * 60000, o2 = offsetMin(ms, tz);
+    if (o2 !== o1) ms = guess - o2 * 60000;
+    return new Date(ms);
+  }
+
+  function eventUrl(seq) { return 'https://stores.barnesandnoble.com/event/' + cfg.isbn + '-' + seq; }
+  function calendarUrl(y, m) { return 'https://stores.barnesandnoble.com/store/' + cfg.storeId + '?calYear=' + y + '&calMonth=' + m; }
+
+  function buildMonth(y, m) {
+    var key = y + '-' + pad(m);
+    var o = cfg.overrides[key] || {};
+    var day = o.day || nthWeekday(y, m, cfg.weekday, cfg.nth);
+    var t = (o.time || cfg.time).split(':');
+    var start = zoned(y, m, day, +t[0], +t[1], cfg.timeZone);
+    var end = new Date(start.getTime() + cfg.durationMinutes * 60000);
+    var diff = (y - cfg.anchor.year) * 12 + (m - cfg.anchor.month);
+    var seq = o.seq != null ? o.seq : (cfg.anchor.seq + diff >= 1 ? cfg.anchor.seq + diff : null); // Sep=27, Oct=28, Nov=29...
+    var status = o.cancelled ? 'cancelled' : (o.status || 'projected'); // final status is decided by the live 200/404 check
+    var fmt = function (opts) { return new Intl.DateTimeFormat('en-US', Object.assign({ timeZone: cfg.timeZone }, opts)).format(start); };
+    return {
+      key: key, year: y, month: m, day: day, start: start, end: end, seq: seq,
+      url: seq != null ? eventUrl(seq) : calendarUrl(y, m), calendarUrl: calendarUrl(y, m),
+      status: status, cancelled: !!o.cancelled, note: o.note || '',
+      dateLabel: fmt({ weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }),
+      shortMonth: fmt({ month: 'short' }), shortWeekday: fmt({ weekday: 'short' }),
+      timeLabel: fmt({ hour: 'numeric', minute: '2-digit' }) + ' PT'
+    };
+  }
+
+  // Every event from `pastMonths` back through `months` ahead; each has .passed (true once it has ended)
+  function getRange(now) {
+    now = now || new Date();
+    var t = partsIn(now, cfg.timeZone);
+    var horizon = new Date(now.getTime() + 366 * 86400000);
+    var out = [];
+    for (var i = -cfg.pastMonths; i <= cfg.months; i++) {
+      var y = t.year, m = t.month + i;
+      while (m > 12) { m -= 12; y++; }
+      while (m < 1) { m += 12; y--; }
+      var ev = buildMonth(y, m);
+      ev.passed = ev.end <= now;
+      if (ev.start <= horizon) out.push(ev);
+    }
+    return out;
+  }
+
+  function getUpcoming(now) {
+    return getRange(now).filter(function (e) { return !e.passed; });
+  }
+
+  // Final status from a 200/404 probe result (see probe()):
+  //   upcoming + 200 -> confirmed  ("Event Page")
+  //   upcoming + err -> projected  ("Likely Event Page")
+  //   passed   + 200 -> passed     ("Event Page")
+  //   passed   + err -> cancelled  ("No Event Page", disabled)
+  // A network/proxy failure (httpStatus 0) is not treated as a page error.
+  function resolveStatus(ev, result) {
+    if (ev.cancelled) return { status: 'cancelled', button: 'No Event Page', disabled: true, checked: true };
+    var checked = !!(result && result.httpStatus);
+    var ok = checked && result.httpStatus === 200 && !result.soft404;
+    if (ev.passed) {
+      if (!checked || ok) return { status: 'passed', button: 'Event Page', disabled: false, checked: checked };
+      return { status: 'cancelled', button: 'No Event Page', disabled: true, checked: true };
+    }
+    if (ok) return { status: 'confirmed', button: 'Event Page', disabled: false, checked: true };
+    return { status: 'projected', button: 'Likely Event Page', disabled: false, checked: checked };
+  }
+
+  function getNext(now) {
+    var list = getUpcoming(now);
+    for (var i = 0; i < list.length; i++) if (!list[i].cancelled) return list[i];
+    return null;
+  }
+
+  function daysUntil(ev, now) {
+    var a = partsIn(now || new Date(), cfg.timeZone), b = partsIn(ev.start, cfg.timeZone);
+    return Math.round((Date.UTC(b.year, b.month - 1, b.day) - Date.UTC(a.year, a.month - 1, a.day)) / 86400000);
+  }
+
+  function utcStamp(d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
+  function icsEsc(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+
+  function toICS(events) {
+    var L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//poet-tracker//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'];
+    events.filter(function (e) { return !e.cancelled; }).forEach(function (e) {
+      L.push('BEGIN:VEVENT', 'UID:poet-' + cfg.storeId + '-' + e.key + '@poet-tracker', 'DTSTAMP:' + utcStamp(new Date()),
+        'DTSTART:' + utcStamp(e.start), 'DTEND:' + utcStamp(e.end), 'SUMMARY:' + icsEsc(cfg.title),
+        'LOCATION:' + icsEsc(cfg.storeName + ', ' + cfg.address), 'URL:' + e.url,
+        'DESCRIPTION:' + icsEsc('Poetry open mic. Details: ' + e.url), 'END:VEVENT');
+    });
+    L.push('END:VCALENDAR');
+    return L.join('\r\n');
+  }
+
+  function googleCalendarUrl(e) {
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(cfg.title) +
+      '&dates=' + utcStamp(e.start) + '/' + utcStamp(e.end) + '&details=' + encodeURIComponent('Details: ' + e.url) +
+      '&location=' + encodeURIComponent(cfg.storeName + ', ' + cfg.address);
+  }
+
+  function extractDate(html) {
+    var m = html.match(/"startDate"\s*:\s*"(\d{4})-(\d{2})-(\d{2})/i) ||
+            html.match(/"(?:eventDate|eventStartDate|start_date|startDateTime|eventStart)"\s*:\s*"(\d{4})-(\d{2})-(\d{2})/i);
+    if (m) return { year: +m[1], month: +m[2], day: +m[3] };
+    var text = html.replace(/<[^>]+>/g, ' ');
+    m = text.match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/i);
+    if (m) return { year: +m[3], month: MONTHS.indexOf(m[1].toLowerCase()) + 1, day: +m[2] };
+    return null;
+  }
+
+  // Accepts "https://x.workers.dev", "https://x.workers.dev/", ".../?url=" or ".../?url={url}"
+  function normalizeProxy(proxy) {
+    proxy = String(proxy || '').trim();
+    if (!proxy || proxy.indexOf('{url}') > -1 || /[?&]url=$/.test(proxy)) return proxy;
+    if (!/^https?:\/\//i.test(proxy)) proxy = 'https://' + proxy;
+    if (proxy.indexOf('?') > -1) return proxy + '&url=';
+    return proxy.replace(/\/+$/, '') + '/?url=';
+  }
+
+  function proxied(proxy, url) {
+    proxy = normalizeProxy(proxy);
+    return proxy.indexOf('{url}') > -1 ? proxy.replace('{url}', encodeURIComponent(url)) : proxy + encodeURIComponent(url);
+  }
+
+  // HTTP probe of one event number: https://stores.barnesandnoble.com/event/<isbn>-<seq>
+  //   200 -> exists   (page is posted)
+  //   404 -> missing  (also treats a 200 "Event not found" page as missing = "soft 404")
+  //   other / network error -> unreachable
+  // Result: { seq, url, httpStatus, status, soft404, html }
+  function probe(seq, proxy) {
+    var url = eventUrl(seq);
+    if (!proxy) return Promise.resolve({ seq: seq, url: url, httpStatus: 0, status: 'unknown' });
+    return fetch(proxied(proxy, url), { cache: 'no-store', redirect: 'follow' }).then(function (res) {
+      var code = res.status;
+      if (code === 404 || code === 410) return { seq: seq, url: url, httpStatus: code, status: 'missing' };
+      if (code !== 200) return { seq: seq, url: url, httpStatus: code, status: 'unreachable' };
+      return res.text().then(function (html) {
+        // B&N serves missing events as HTTP 200 with <title>Event not found | Barnes & Noble</title>.
+        // Only the <title> is checked, so text inside scripts on a real event page can't trigger a false miss.
+        var tm = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+        var title = tm ? tm[1].replace(/&amp;/g, '&').trim() : '';
+        if (/event not found/i.test(title)) return { seq: seq, url: url, httpStatus: code, status: 'missing', soft404: true, title: title };
+        return { seq: seq, url: url, httpStatus: code, status: 'exists', html: html, title: title };
+      });
+    }).catch(function (e) {
+      return { seq: seq, url: url, httpStatus: 0, status: 'unreachable', error: String(e && e.message || e) };
+    });
+  }
+
+  // Probe a range of event numbers (sequential, polite). onEach(result) fires as each finishes.
+  function scan(fromSeq, toSeq, proxy, onEach) {
+    var out = [], chain = Promise.resolve();
+    for (var n = fromSeq; n <= toSeq; n++) (function (seq) {
+      chain = chain.then(function () {
+        return probe(seq, proxy).then(function (r) { delete r.html; out.push(r); if (onEach) onEach(r); });
+      });
+    })(n);
+    return chain.then(function () { return out; });
+  }
+
+  // Live check of one scheduled event: HTTP 200/404 first, then try to read the date.
+  // status: verified | mismatch | exists (200, date not machine-readable) | missing (404) | unreachable
+  function verify(ev, proxy) {
+    if (!proxy || ev.seq == null) return Promise.resolve({ status: 'unknown', httpStatus: 0 });
+    return probe(ev.seq, proxy).then(function (p) {
+      var base = { httpStatus: p.httpStatus, soft404: !!p.soft404, error: p.error };
+      if (p.status !== 'exists') return Object.assign(base, { status: p.status });
+      var f = extractDate(p.html);
+      if (!f) return Object.assign(base, { status: 'exists' });
+      var same = f.year === ev.year && f.month === ev.month && f.day === ev.day;
+      return Object.assign(base, { status: same ? 'verified' : 'mismatch', found: f });
+    });
+  }
+
+  return {
+    config: cfg, getRange: getRange, getUpcoming: getUpcoming, getNext: getNext, resolveStatus: resolveStatus, daysUntil: daysUntil, buildMonth: buildMonth,
+    toICS: toICS, googleCalendarUrl: googleCalendarUrl, verify: verify, probe: probe, scan: scan, extractDate: extractDate,
+    eventUrl: eventUrl, calendarUrl: calendarUrl, normalizeProxy: normalizeProxy
+  };
+}
+
+(function(){
+  var box=document.getElementById("poetWidget"), nextUl=document.getElementById("poetNext");
+  if(!box || !nextUl || typeof createPoetCore!=="function") return;
+  if(EDIT_MODE){                                   // the editor shows a note instead: these entries aren't editable text
+    nextUl.innerHTML='<li class="poet-note" style="list-style:none;padding:14px 0">The next &amp;POET open mic is added here automatically on the live site (All and Poetry tabs). Its schedule lives in index.html: search for <code>var POET</code>.</li>';
+    return;
+  }
+  var core=createPoetCore(POET.config), proxy=core.normalizeProxy(POET.proxy||""), results={}, checking={}, filter="all", probedAll=false, probedNext=false;
+  var LABELS={confirmed:"Confirmed",projected:"Projected",passed:"Passed",cancelled:"Cancelled",checking:"Checking…"};
+  function statusFor(e){ var s=core.resolveStatus(e,results[e.key]); if(checking[e.key] && !s.checked) s.status="checking"; return s; }
+  function pageLink(e,s,label){
+    if(s.disabled) return '<span class="evt-link" aria-disabled="true" style="opacity:.45;border-bottom-color:var(--rule)">'+esc(s.button)+'</span>';
+    return '<a class="evt-link" href="'+esc(e.url)+'" target="_blank" rel="noopener noreferrer">'+esc(label||s.button)+'</a>';
+  }
+  function calLinks(e){
+    return '<a class="evt-link cal" href="'+esc(core.googleCalendarUrl(e))+'" target="_blank" rel="noopener noreferrer" aria-label="Add to Google Calendar">Google Calendar</a>'+
+           '<button type="button" class="evt-link" data-poet-ics="'+esc(e.key)+'" aria-label="Add to Apple or Outlook calendar (.ics file)">Apple / Outlook</button>';
+  }
+  function tile(e,third){ return '<div class="evt-date" aria-hidden="true"><span class="evt-mon">'+esc(e.shortMonth)+'</span><span class="evt-day">'+e.day+'</span><span class="evt-yr">'+esc(third)+'</span></div>'; }
+  function daysText(dd,e){ return dd===0? "Tonight at "+e.timeLabel : dd===1? "Tomorrow" : dd+" days away"; }
+
+  // All: the next open mic, shaped like every other event card
+  function renderNext(){
+    var now=new Date(), e=core.getNext(now);
+    if(!e){ nextUl.innerHTML=""; return; }
+    var s=statusFor(e), dd=core.daysUntil(e,now), st={confirmed:"Confirmed",projected:"Upcoming",checking:"Upcoming",passed:"Past",cancelled:"Cancelled"}[s.status];
+    nextUl.innerHTML='<li class="evt evt-auto" data-tags="poetry">'+tile(e,e.year)+
+      '<div><span class="evt-format">Format · Open mic · every 2nd Tuesday</span>'+
+      '<h3 data-decrypt>'+esc(core.config.title)+'</h3>'+
+      '<p class="evt-where">'+esc(core.config.storeName)+' · San Diego · '+esc(e.shortWeekday+" "+e.timeLabel)+'</p>'+
+      '<p data-decrypt>Poetry open mic: sign up, read a piece, or just listen. '+esc(daysText(dd,e))+'.</p>'+
+      '<p class="evt-links">'+pageLink(e,s,"Event Link")+calLinks(e)+'</p></div>'+
+      '<div class="meta"><span class="st'+(s.status==="cancelled"?"":" live")+'">'+esc(st)+'</span><div class="tags"><span>Poetry</span><span>Open mic</span></div></div></li>';
+    nextUl.hidden = filter!=="all";
+  }
+  // Poetry: the full schedule
+  function renderWidget(){
+    var now=new Date(), next=core.getNext(now), all=core.getRange(now);
+    var past=POET.showPast? all.filter(function(e){ return e.passed; }) : [], up=all.filter(function(e){ return !e.passed; });
+    var h='';
+    if(next){
+      var dd=core.daysUntil(next,now);
+      h+='<div class="poet-next"><div><div class="poet-label">Next open mic</div>'+
+        '<h3 class="poet-when" data-decrypt>'+esc(next.dateLabel)+'</h3>'+
+        '<div class="poet-sub">'+esc(next.timeLabel)+' · <button type="button" class="poet-place" data-poet-maps aria-haspopup="dialog">'+esc(core.config.storeName)+'</button></div>'+
+        '<div class="poet-acts">'+pageLink(next,statusFor(next))+'<a class="evt-link cal" href="'+esc(next.calendarUrl)+'" target="_blank" rel="noopener noreferrer">Store calendar</a>'+calLinks(next)+'</div></div>'+
+        '<div class="poet-count"><b>'+(dd===0?"Today":dd)+'</b><span>'+(dd===0?"tonight":dd===1?"day away":"days away")+'</span></div></div>';
+    }
+    function rows(title,list){
+      if(!list.length) return "";
+      return '<div class="poet-div">'+title+'</div><ul class="elist poet-list">'+list.map(function(e){
+        var s=statusFor(e), r=results[e.key];
+        var mark= r&&r.httpStatus ? (r.soft404?' · not found': r.httpStatus===200?' · page is live ✓':' · HTTP '+r.httpStatus) : '';
+        return '<li class="evt'+(e.passed?" past":"")+(s.status==="cancelled"?" cancelled":"")+'">'+tile(e,e.shortWeekday)+
+          '<div><h3>'+esc(e.dateLabel)+'<span class="pill '+s.status+'">'+LABELS[s.status]+'</span></h3>'+
+          '<p class="poet-meta">'+esc(e.timeLabel)+(e.seq!=null?' · event #'+e.seq:'')+esc(mark)+(e.note?' · '+esc(e.note):'')+'</p>'+
+          '<p class="evt-links">'+pageLink(e,s)+(e.passed||s.status==="cancelled"?"":calLinks(e))+'</p></div></li>';
+      }).join("")+'</ul>';
+    }
+    h+=rows("Past",past)+rows("Upcoming",up);
+    h+='<p class="poet-note">Dates follow the schedule (2nd Tuesday, 6 pm PT). “Confirmed” means Barnes &amp; Noble has posted the event page; “Projected” means it isn’t posted yet.</p>';
+    h+='<div class="poet-modal" data-poet-modal hidden role="dialog" aria-modal="true" aria-label="Directions"><div class="poet-box">'+
+       '<h4>'+esc(core.config.storeName)+'</h4><p>'+esc(core.config.address)+'</p>'+
+       '<a href="'+esc(POET.maps.google)+'" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>'+
+       '<a href="'+esc(POET.maps.apple)+'" target="_blank" rel="noopener noreferrer">Open in Apple Maps</a>'+
+       '<button type="button" data-poet-close>Close</button></div></div>';
+    var open=box.querySelector("[data-poet-modal]"), wasOpen=open && !open.hidden;
+    box.innerHTML=h; if(wasOpen) box.querySelector("[data-poet-modal]").hidden=false;
+  }
+  function probeList(list){
+    if(!proxy) return Promise.resolve();
+    list.forEach(function(e){ checking[e.key]=true; });
+    var chain=Promise.resolve();
+    list.forEach(function(e){ chain=chain.then(function(){ return core.probe(e.seq,proxy).then(function(p){
+      if(p.httpStatus || !results[e.key]) results[e.key]={seq:e.seq,httpStatus:p.httpStatus,soft404:!!p.soft404,error:p.error};
+      delete checking[e.key]; renderNext(); if(filter==="poetry") renderWidget();
+    }); }); });
+    return chain;
+  }
+  // only ask Barnes & Noble when someone actually looks: the next month on Events, every month on Poetry
+  function ensureProbes(){
+    var page=document.getElementById("page-events"); if(!page || page.hidden) return;
+    if(!probedNext){ probedNext=true; var n=core.getNext(); if(n && n.seq!=null) probeList([n]); }
+    if(filter==="poetry" && !probedAll){ probedAll=true;
+      probeList(core.getRange().filter(function(e){ return e.seq!=null && !e.cancelled && !results[e.key] && (POET.showPast || !e.passed); })); }
+  }
+  window.__poetFilter=function(f){
+    filter=f;
+    nextUl.hidden = f!=="all";
+    box.hidden = f!=="poetry";
+    if(f==="poetry"){ renderWidget(); if(!reduceMotion) $all("[data-decrypt]",box).forEach(function(b){ runs.push(decryptBlock(b,1200,0)); }); }
+    ensureProbes();
+  };
+  box.addEventListener("click",function(ev){
+    var t=ev.target, m=box.querySelector("[data-poet-modal]");
+    if(t.closest("[data-poet-maps]")){ m.hidden=false; m.querySelector("a").focus(); return; }
+    if(t.closest("[data-poet-close]") || t===m || t.closest("[data-poet-modal] a")){ m.hidden=true; var pl=box.querySelector("[data-poet-maps]"); if(pl) pl.focus(); }
+  });
+  document.addEventListener("keydown",function(ev){ var m=box.querySelector("[data-poet-modal]"); if(ev.key==="Escape" && m && !m.hidden){ m.hidden=true; } });
+  document.getElementById("page-events").addEventListener("click",function(ev){
+    var b=ev.target.closest && ev.target.closest("[data-poet-ics]"); if(!b) return;
+    var e=core.getRange().filter(function(x){ return x.key===b.getAttribute("data-poet-ics"); })[0]; if(!e) return;
+    var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([core.toICS([e])],{type:"text/calendar;charset=utf-8"}));
+    a.download="poet-open-mic-"+e.key+".ics"; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1000);
+  });
+  window.__poetShown=ensureProbes;
+  setInterval(function(){ if(document.hidden) return; renderNext(); if(filter==="poetry" && !box.querySelector("[data-poet-modal]:not([hidden])")) renderWidget(); },60*1000);   // countdown past midnight
+  renderNext(); setTimeout(ensureProbes,0);
+})();
 
 /* ============================================================
    Blog

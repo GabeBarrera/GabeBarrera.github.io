@@ -333,6 +333,7 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
     </div>
     <div class="state" id="state" aria-live="polite">All changes published</div>
     <div class="acts">
+      <button class="btn" id="evtNewBtn" type="button" hidden title="Add an event to the Events page">+ New event</button>
       <button class="btn" id="creatorBtn" type="button" title="Write a post for The Syslog">Post creator</button>
       <button class="btn" id="historyBtn" type="button">History</button>
       <button class="btn" id="discardBtn" type="button">Discard</button>
@@ -499,6 +500,44 @@ try{ if(bantayMode().night) document.documentElement.classList.add("night"); }ca
   </div>
 </div>
 
+
+<!-- ======================= EVENT FORM ======================= -->
+<div class="cr-modal" id="evtForm" hidden role="dialog" aria-modal="true" aria-labelledby="evtFormH">
+  <form class="cr-dialog" id="evtFormEl" novalidate style="max-width:600px">
+    <h2 id="evtFormH">New event</h2>
+    <p class="fine">Fills in the same card as the examples on the Events page. Saving puts it on the page in the editor; press <b>Publish</b> to make it live.</p>
+    <div class="cr-row" style="align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div class="cr-field" style="flex:1 1 140px;margin:0"><label for="efCat">Category (tab)</label>
+        <select id="efCat"><option value="tech">Tech</option><option value="poetry">Poetry</option><option value="music">Music</option></select></div>
+      <div class="cr-field" style="flex:2 1 200px;margin:0"><label for="efFormat">Format</label>
+        <input id="efFormat" type="text" list="efFormats" placeholder="Talk, Workshop, Reading, Performance…">
+        <datalist id="efFormats"><option value="Talk"><option value="Workshop"><option value="Reading"><option value="Open mic"><option value="Performance"><option value="Recurring"><option value="Online"><option value="Competition"><option value="Attended"></datalist></div>
+    </div>
+    <div class="cr-field" style="margin:0"><span class="lbl">When</span>
+      <div class="cr-row" style="flex-wrap:wrap;gap:14px;font-size:14px">
+        <label class="cr-row"><input type="radio" name="efMode" value="date" checked style="width:auto"> One date</label>
+        <label class="cr-row"><input type="radio" name="efMode" value="rec" style="width:auto"> Recurring</label>
+      </div>
+      <div id="efDateRow"><input id="efDate" type="date" aria-label="Date"></div>
+      <div id="efRecRow" class="cr-row" hidden style="gap:8px"><input id="efR1" type="text" value="Every" aria-label="Date tile, top line" style="flex:1"><input id="efR2" type="text" value="2nd" aria-label="Date tile, big middle line" style="flex:1"><input id="efR3" type="text" value="Tuesday" aria-label="Date tile, bottom line" style="flex:1"></div>
+      <span class="help">Recurring fills the date tile with your three words, e.g. Every · 2nd · Tuesday.</span>
+    </div>
+    <div class="cr-field" style="margin:0"><label for="efTitle">Title</label><input id="efTitle" type="text" required></div>
+    <div class="cr-field" style="margin:0"><label for="efWhere">Where and when</label><input id="efWhere" type="text" placeholder="Venue · City · 7 pm"></div>
+    <div class="cr-field" style="margin:0"><label for="efDesc">Description</label><textarea id="efDesc" rows="3" placeholder="One or two sentences about the event."></textarea></div>
+    <div class="cr-row" style="align-items:flex-end;flex-wrap:wrap;gap:12px">
+      <div class="cr-field" style="flex:1 1 160px;margin:0"><label for="efStatus">Status</label><input id="efStatus" type="text" value="Upcoming" list="efStatuses">
+        <datalist id="efStatuses"><option value="Upcoming"><option value="Registration open"><option value="Sold out"><option value="Monthly"><option value="Online"><option value="Past"><option value="Cancelled"></datalist></div>
+      <label class="cr-row" style="font-size:14px;padding-bottom:10px"><input id="efLive" type="checkbox" checked style="width:auto"> Red dot</label>
+    </div>
+    <div class="cr-field" style="margin:0"><label for="efTags">Tags</label><input id="efTags" type="text" placeholder="Talk, Detection"><span class="help">Comma-separated, shown on the right of the card.</span></div>
+    <div class="cr-field" style="margin:0"><label for="efLink">Event Link</label><input id="efLink" type="url" placeholder="https://… (tickets, RSVP, event page)">
+      <span class="help">Shown on the card as <b>Event Link</b>. Leave blank for none.</span>
+      <label class="cr-row" style="font-size:13px"><input id="efCard" type="checkbox" style="width:auto"> Clicking anywhere on the card opens it too</label></div>
+    <p class="msg" id="efMsg" role="alert"></p>
+    <div class="acts"><button class="btn" type="button" id="efCancel">Cancel</button><button class="btn solid" type="submit" id="efSave">Add to page</button></div>
+  </form>
+</div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <!-- If Firebase can't load (offline, blocked), say so instead of leaving dead buttons -->
@@ -676,6 +715,7 @@ function updateState(){
   st.classList.toggle("dirty", !!n);
   $("#publishBtn").disabled = !n; $("#discardBtn").disabled = !n;
   if(S.win) $("#whoText").textContent = pageName()+" · "+(S.user.email||S.user.uid);
+  $("#evtNewBtn").hidden = !(S.win && /^#events$/.test(S.win.location.hash||""));
 }
 window.addEventListener("beforeunload", e => { if(S.dirty.size){ e.preventDefault(); e.returnValue=""; } });
 
@@ -719,6 +759,89 @@ $("#signOut").addEventListener("click", () => {
 /* ---------------- history ---------------- */
 $("#historyBtn").addEventListener("click", openHistory);
 $("#creatorBtn").addEventListener("click", () => { if(S.editing) finishEdit(true); if(window.SyslogCreator) window.SyslogCreator.open(); });
+/* ---------------- event form (Events page: "+ New event", and "Edit details" on an event) ---------------- */
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+let efTarget=null;
+function efMode(){ return document.querySelector('input[name="efMode"]:checked').value; }
+function efSyncMode(){ $("#efDateRow").hidden = efMode()!=="date"; $("#efRecRow").hidden = efMode()!=="rec"; }
+$$('input[name="efMode"]').forEach(r => r.addEventListener("change", efSyncMode));
+function normLink(u){
+  u=(u||"").trim(); if(!u) return "";
+  const scheme=/^([a-z][a-z0-9+.-]*):/i.exec(u);
+  if(scheme && !/^(https?|mailto)$/i.test(scheme[1])) return null;
+  if(!/^(https?:\/\/|mailto:|#)/i.test(u)) u=(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u)?"mailto:":"https://")+u;
+  return (/^(https?:\/\/|mailto:)[^\s<>"'`]+$/i.test(u) || /^#[a-z0-9-]*$/i.test(u)) ? u : null;
+}
+function evtRead(li){
+  const t=s=>{ const e=li.querySelector(s); return e? e.textContent.replace(/\s+/g," ").trim() : ""; };
+  const mon=t(".evt-mon"), day=t(".evt-day"), yr=t(".evt-yr"), mi=MON.findIndex(m => m.toLowerCase()===mon.slice(0,3).toLowerCase());
+  const isDate = mi>=0 && /^\d{1,2}$/.test(day) && /^\d{4}$/.test(yr);
+  const ps=Array.from(li.querySelectorAll("p")).filter(p => !p.classList.contains("evt-where") && !p.classList.contains("evt-links"));
+  const st=li.querySelector(".st"), a=li.querySelector("a.evt-link");
+  return { cat:(li.getAttribute("data-tags")||"tech").split(/\s+/).filter(x => /^(tech|poetry|music)$/.test(x))[0]||"tech",
+    format:t(".evt-format").replace(/^format\s*·\s*/i,""), mode:isDate?"date":"rec",
+    date:isDate? yr+"-"+String(mi+1).padStart(2,"0")+"-"+String(day).padStart(2,"0") : "", r:[mon,day,yr],
+    title:t("h3"), where:t(".evt-where"), desc:ps[0]? ps[0].textContent.replace(/\s+/g," ").trim() : "",
+    status:st? st.textContent.trim() : "Upcoming", live:!!(st && st.classList.contains("live")),
+    tags:Array.from(li.querySelectorAll(".tags span")).map(x => x.textContent.trim()).filter(Boolean).join(", "),
+    link:a? a.getAttribute("href")||"" : "", card:!!li.getAttribute("data-link") && (!a || li.getAttribute("data-link")===a.getAttribute("href")) };
+}
+function evtHtml(v){
+  let tile;
+  if(v.mode==="date"){ const [y,m,d]=v.date.split("-"); tile=[MON[+m-1], d, y]; } else tile=v.r;
+  const tags=v.tags.split(",").map(x => x.trim()).filter(Boolean).slice(0,6);
+  return '<li class="evt" data-tags="'+esc(v.cat)+'"'+(v.card && v.link ? ' data-link="'+esc(v.link)+'"' : '')+'>'+
+    '<div class="evt-date" aria-hidden="true"><span class="evt-mon" data-part="plain">'+esc(tile[0])+'</span><span class="evt-day" data-part="plain">'+esc(tile[1])+'</span><span class="evt-yr" data-part="plain">'+esc(tile[2])+'</span></div>'+
+    '<div><span class="evt-format" data-part="plain">Format · '+esc(v.format||"Event")+'</span>'+
+    '<h3 data-decrypt data-part="plain">'+esc(v.title)+'</h3>'+
+    (v.where? '<p class="evt-where" data-part="inline">'+esc(v.where)+'</p>' : '')+
+    (v.desc? '<p data-decrypt data-part="inline">'+esc(v.desc)+'</p>' : '')+
+    (v.link? '<p class="evt-links"><a class="evt-link" href="'+esc(v.link)+'">Event Link</a></p>' : '')+
+    '</div><div class="meta"><span class="st'+(v.live?" live":"")+'" data-part="plain">'+esc(v.status||"Upcoming")+'</span>'+
+    '<div class="tags" data-part="tags">'+tags.map(x => '<span>'+esc(x)+'</span>').join("")+'</div></div></li>';
+}
+function openEventForm(li){
+  if(S.editing) finishEdit(true);
+  efTarget=li||null;
+  const v = li ? evtRead(li) : {cat:"tech",format:"",mode:"date",date:"",r:["Every","2nd","Tuesday"],title:"",where:"",desc:"",status:"Upcoming",live:true,tags:"",link:"",card:false};
+  $("#evtFormH").textContent = li? "Edit event" : "New event"; $("#efSave").textContent = li? "Save changes" : "Add to page";
+  $("#efCat").value=v.cat; $("#efFormat").value=v.format; document.querySelector('input[name="efMode"][value="'+v.mode+'"]').checked=true; efSyncMode();
+  $("#efDate").value=v.date; $("#efR1").value=v.r[0]; $("#efR2").value=v.r[1]; $("#efR3").value=v.r[2];
+  $("#efTitle").value=v.title; $("#efWhere").value=v.where; $("#efDesc").value=v.desc; $("#efStatus").value=v.status; $("#efLive").checked=v.live;
+  $("#efTags").value=v.tags; $("#efLink").value=v.link; $("#efCard").checked=v.card; $("#efMsg").textContent="";
+  $("#evtForm").hidden=false; $("#efTitle").focus();
+}
+function closeEventForm(){ $("#evtForm").hidden=true; efTarget=null; }
+$("#efCancel").addEventListener("click", closeEventForm);
+$("#evtForm").addEventListener("click", e => { if(e.target===$("#evtForm")) closeEventForm(); });
+$("#evtForm").addEventListener("keydown", e => { if(e.key==="Escape") closeEventForm(); });
+$("#evtFormEl").addEventListener("submit", e => {
+  e.preventDefault();
+  const msg=$("#efMsg"), mode=efMode();
+  const v={cat:$("#efCat").value, format:$("#efFormat").value.trim(), mode, date:$("#efDate").value, r:[$("#efR1").value.trim(),$("#efR2").value.trim(),$("#efR3").value.trim()],
+    title:$("#efTitle").value.trim(), where:$("#efWhere").value.trim(), desc:$("#efDesc").value.trim(), status:$("#efStatus").value.trim(),
+    live:$("#efLive").checked, tags:$("#efTags").value, link:"", card:$("#efCard").checked};
+  if(!v.title){ msg.textContent="Give the event a title."; $("#efTitle").focus(); return; }
+  if(mode==="date" && !/^\d{4}-\d{2}-\d{2}$/.test(v.date)){ msg.textContent="Pick a date, or choose Recurring."; $("#efDate").focus(); return; }
+  if(mode==="rec" && !v.r.some(Boolean)){ msg.textContent="Fill in the recurring date tile, e.g. Every · 2nd · Tuesday."; $("#efR1").focus(); return; }
+  const link=normLink($("#efLink").value);
+  if(link===null){ msg.textContent="The Event Link must start with https://, mailto: or #."; $("#efLink").focus(); return; }
+  v.link=link;
+  const list=S.doc && S.doc.querySelector('[data-list="events.items"]'); if(!list){ msg.textContent="Open the Events page in the editor first."; return; }
+  const tpl=S.doc.createElement("template"); tpl.innerHTML=evtHtml(v); const li=tpl.content.firstElementChild;
+  if(efTarget && efTarget.isConnected) efTarget.replaceWith(li); else list.insertBefore(li, list.firstChild);
+  const idx=Array.prototype.indexOf.call(list.children, li);
+  clearSel(); S.B.commit("events.items"); markDirty("events.items"); S.B.refresh && 0;
+  closeEventForm();
+  const fresh=list.isConnected? list : S.doc.querySelector('[data-list="events.items"]');
+  const el=fresh && fresh.children[idx]; if(el){ el.scrollIntoView({block:"center"}); S.item=null; showItem(el); }
+  toast(efTarget? "Event updated. Publish to make it live." : "Event added. Publish to make it live.");
+});
+$("#evtNewBtn").addEventListener("click", () => {
+  if(!S.win || !/^#events$/.test(S.win.location.hash)){ toast("Open the Events page first.", true); return; }
+  openEventForm(null);
+});
+
 $("#historyClose").addEventListener("click", () => $("#history").hidden=true);
 async function openHistory(){
   const page = ((S.win.location.hash||"#home").slice(1)||"home");
@@ -860,11 +983,12 @@ function showItem(it){
         '<button type="button" data-it="dup">Duplicate</button><button type="button" data-it="del"'+(count<2?' disabled title="Keep at least one item"':'')+'>Delete</button>';
   if(isProj || isEvt){
     const st=it.querySelector(".st"), glyph=it.querySelector(".glyph");
-    const tagHelp = isProj ? "Space-separated: work writing network hardware ai games" : "One of: upcoming recurring past";
+    const tagHelp = isProj ? "Space-separated: work writing network hardware ai games" : "One of: tech poetry music";
     h+='<label>Filters <input type="text" data-it="tags" value="'+esc(it.getAttribute("data-tags")||"")+'" title="'+tagHelp+'"></label>'+
        '<label><input type="checkbox" data-it="live"'+(st&&st.classList.contains("live")?' checked':'')+'> Red dot</label>';
     if(isProj) h+='<label>Glyph <input type="text" data-it="glyph" value="'+esc(glyph?glyph.getAttribute("data-bay"):"")+'" style="width:4.5em" title="Baybayin syllable, e.g. ba, ka, ma"></label>';
-    h+='<label>Link <input type="text" data-it="link" value="'+esc(it.getAttribute("data-link")||"")+'" style="width:13em" placeholder="https://… (blank = none)" title="Clicking this entry on the live site opens this address. https://, mailto: or a #tab."></label>';
+    if(isEvt) h='<span class="lbl">Item</span><button type="button" data-it="form" title="Edit this event in a form">Edit details</button>'+h.replace('<span class="lbl">Item</span>','');
+    h+='<label>'+(isEvt?"Card link":"Link")+' <input type="text" data-it="link" value="'+esc(it.getAttribute("data-link")||"")+'" style="width:13em" placeholder="https://… (blank = none)" title="Clicking this entry on the live site opens this address. https://, mailto: or a #tab."></label>';
   }
   box.innerHTML=h; place(box, it, "left");
 }
@@ -920,6 +1044,7 @@ function wireFrame(){
     if(b.dataset.it==="up" && it.previousElementSibling){ list.insertBefore(it, it.previousElementSibling); idx--; }
     else if(b.dataset.it==="down" && it.nextElementSibling){ list.insertBefore(it.nextElementSibling, it); idx++; }
     else if(b.dataset.it==="dup"){ const c=it.cloneNode(true); c.removeAttribute("data-adm-item"); $$("[data-adm-sel]",c).forEach(n=>n.removeAttribute("data-adm-sel")); list.insertBefore(c, it.nextSibling); idx++; }
+    else if(b.dataset.it==="form"){ openEventForm(it); return; }
     else if(b.dataset.it==="del"){
       if(!b.classList.contains("warn")){ b.classList.add("warn"); b.textContent="Confirm delete"; return; }
       clearSel(); it.remove(); S.item=null; ui.item.style.display="none";
